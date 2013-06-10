@@ -1,0 +1,74 @@
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\bin\Debug\DataqSDKCS.exe
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\bin\Debug\DataqSDKCS.pdb
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\bin\Debug\Interop.DATAQSDKLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\bin\Debug\Interop.FFT1024Lib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\bin\Debug\Interop.ULTIMAMETERLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\bin\Debug\Interop.ULTIMAWATERFALLLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\bin\Debug\Interop.XCHARTLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\bin\Debug\AxInterop.DATAQSDKLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\bin\Debug\AxInterop.FFT1024Lib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\bin\Debug\AxInterop.ULTIMAMETERLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\bin\Debug\AxInterop.ULTIMAWATERFALLLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\bin\Debug\AxInterop.XCHARTLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\Interop.DATAQSDKLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\Interop.FFT1024Lib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\Interop.ULTIMAMETERLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\Interop.ULTIMAWATERFALLLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\Interop.XCHARTLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\AxInterop.DATAQSDKLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\AxInterop.FFT1024Lib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\AxInterop.ULTIMAMETERLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\AxInterop.ULTIMAWATERFALLLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\AxInterop.XCHARTLib.dll
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.csproj.ResolveComReference.cache
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.Form1.resources
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.Properties.Resources.resources
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.exe
+C:\Users\kensp\documents\visual studio 2010\Projects\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.pdb
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\Interop.DATAQSDKLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\Interop.FFT1024Lib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\Interop.ULTIMAMETERLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\Interop.ULTIMAWATERFALLLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\Interop.XCHARTLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\AxInterop.DATAQSDKLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\AxInterop.FFT1024Lib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\AxInterop.ULTIMAMETERLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\AxInterop.ULTIMAWATERFALLLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\AxInterop.XCHARTLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.csproj.ResolveComReference.cache
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.exe
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.pdb
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\bin\Debug\DataqSDKCS.exe
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\bin\Debug\DataqSDKCS.pdb
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\bin\Debug\Interop.DATAQSDKLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\bin\Debug\Interop.FFT1024Lib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\bin\Debug\Interop.ULTIMAMETERLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\bin\Debug\Interop.ULTIMAWATERFALLLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\bin\Debug\Interop.XCHARTLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\bin\Debug\AxInterop.DATAQSDKLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\bin\Debug\AxInterop.FFT1024Lib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\bin\Debug\AxInterop.ULTIMAMETERLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\bin\Debug\AxInterop.ULTIMAWATERFALLLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\bin\Debug\AxInterop.XCHARTLib.dll
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\ResolveAssemblyReference.cache
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.Form1.resources
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.Properties.Resources.resources
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\GenerateResource.read.1.tlog
+H:\CHEN\VisualStudio2010\DataqSDKCS\DataqSDKCS\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.csproj.ResolveComReference.cache
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.exe
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.pdb
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.Form1.resources
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\obj\x86\Debug\DataqSDKCS.Properties.Resources.resources
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\obj\x86\Debug\Interop.DATAQSDKLib.dll
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\obj\x86\Debug\AxInterop.DATAQSDKLib.dll
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\bin\Debug\DataqSDKCS.exe
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\bin\Debug\DataqSDKCS.pdb
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\bin\Debug\Interop.DATAQSDKLib.dll
+C:\Users\drage.thomas\Desktop\DataqSDKCS\DataqSDKCS\bin\Debug\AxInterop.DATAQSDKLib.dll

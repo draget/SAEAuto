@@ -1,0 +1,151 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+
+/*
+ * Author: Thomas H. Drage
+ * Created: 8/6/2013
+ */
+
+namespace AutoSAEBase
+{
+    public partial class MainWindow : Form
+    {
+
+        private NetworkClient Network;
+
+        private bool PulseState = false;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            int[] ChannelList = new int[32];
+            
+
+            axDataqSdk1.DeviceDriver= "DI10" + COMbox.Text + "NT.DLL";
+
+            axDataqSdk1.DeviceID= "COM" + COMbox.Text + " 148 38400";
+
+            axDataqSdk1.SampleRate= 240;
+
+
+            ChannelList[0] = -1;
+
+            axDataqSdk1.ADChannelList(ChannelList);
+
+            try { axDataqSdk1.DigitalOutput = Convert.ToInt16("0x8003", 16); }
+            catch { MessageBox.Show("Possible Dataq setup error..."); }
+
+            axDataqSdk1.EventPoint=1;
+
+            InputTimer.Interval=10;
+
+            InputTimer.Enabled = true;
+
+            try { axDataqSdk1.Start(); }
+            catch { MessageBox.Show("Possible Dataq start error!"); }
+        }
+
+        private void DataqStop_Click(object sender, EventArgs e)
+        {
+            InputTimer.Enabled = false;
+            OutputTimer.Enabled = false;
+            axDataqSdk1.Stop();
+        }
+
+        private void axDataqSdk1_NewData(object sender, AxDATAQSDKLib._DDataqSdkEvents_NewDataEvent e)
+        {
+
+        }
+
+        private void InputTimer_Tick_1(object sender, EventArgs e)
+        {
+
+            if (axDataqSdk1.AvailableData > 0)
+            {
+                
+                object V;
+                short[,] intArray;
+                V = axDataqSdk1.GetData();
+             
+
+                intArray = (short[,])V;
+                bool ButtonPosition = Convert.ToBoolean((intArray[0, 0] / 256) % 2);
+                bool PulseRXState = (! Convert.ToBoolean((intArray[0, 0] / 256) & 2));
+
+                if (ButtonPosition == false) { ButtonPosPanel.BackColor = Color.Red; }
+                if (ButtonPosition == true) { ButtonPosPanel.BackColor = Color.Green; }
+                if (PulseRXState == false) { PulseRXPanel.BackColor = Color.Red; }
+                if (PulseRXState == true) { PulseRXPanel.BackColor = Color.Green; }
+
+                if ((Network != null) && Network.Connected)
+                {
+
+                    if (PulseRXState) { Network.Send("HB +"); }
+                    else { Network.Send("HB -"); }
+                    if (!ButtonPosition) { Network.Send("ESTOP"); }
+
+                }
+            }
+
+            
+
+        }
+
+      
+
+        private void axDataqSdk1_ControlError(object sender, AxDATAQSDKLib._DDataqSdkEvents_ControlErrorEvent e)
+        {
+            InputTimer.Enabled = false;
+            axDataqSdk1.Stop();
+            MessageBox.Show("Error: Please check DeviceDriver and DeviceID");
+        }
+
+        private void OutputTimer_Tick(object sender, EventArgs e)
+        {
+            if (PulseState == false) { PulsePanel.BackColor = Color.Green; }
+            if (PulseState == true) { PulsePanel.BackColor = Color.Red; }
+            if (PulseState == false) { axDataqSdk1.DigitalOutput = 255; PulseState = true; }
+            else { axDataqSdk1.DigitalOutput = 0; PulseState = false; }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+            OutputTimer.Interval = 200;
+            OutputTimer.Enabled = true;
+
+        }
+
+        private void Form1_Closing(object sender, EventArgs e)
+        {
+            if ((Network != null) && Network.Connected) { Network.Close(); }
+            axDataqSdk1.Stop();
+        }
+
+        private void ConnectButton_Click(object sender, EventArgs e)
+        {
+            Network = new NetworkClient(CarIPBox.Text,NetworkStatusPanel,RXPanel,TXPanel);
+            bool success = Network.Connect();
+        }
+
+    
+  
+
+
+      
+
+ 
+
+
+    }
+}
