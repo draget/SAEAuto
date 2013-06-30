@@ -10,6 +10,7 @@ Modifed from example_3s, T. Drage 2013.
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
+#include <math.h>
 
 
 int quit = 0;
@@ -74,6 +75,12 @@ int main(int argc, char* argv[])
     }
 
     long msgCount = 0;
+
+long int lasttime = getTimeOfDay();
+
+double xpos = 0;
+double xvel = 0;
+
     while (!quit)
     {
         if (serial.waitForDataMessage(&reply) != XRV_OK)
@@ -83,18 +90,50 @@ int main(int argc, char* argv[])
         }
 
         msgCount++;
-        fprintf(fp,"%3ld,%hu,%llu,%u,%f,%f,%f,%f,%f,%f\n",
-            msgCount,
-            reply.getSampleCounter(),              // sample counter
-            reply.m_rtc,                           // Time Of Arrival / Real-Time Clock
-            getTimeOfDay(),                         // timestamp
-            (double) reply.getOriEuler().m_roll,     // roll
-            (double) reply.getOriEuler().m_pitch,    // pitch
-            (double) reply.getOriEuler().m_yaw ,      // yaw
-	    (double) reply.getCalData().m_acc.m_data[0]    ,
-	    (double) reply.getCalData().m_acc.m_data[1]   ,
-	    (double) reply.getCalData().m_acc.m_data[2]
+
+	long double cos_roll = cosl((long double)reply.getOriEuler().m_roll*2*M_PI/360);
+	long double cos_pitch = cosl((long double)reply.getOriEuler().m_pitch*2*M_PI/360);
+	long double sin_roll = sinl((long double)reply.getOriEuler().m_roll*2*M_PI/360);
+	long double sin_pitch = sinl((long double)reply.getOriEuler().m_pitch*2*M_PI/360);
+
+	long double xacc = (long double) reply.getCalData().m_acc.m_data[0];
+	long double yacc = (long double) reply.getCalData().m_acc.m_data[1];
+	long double zacc = (long double) reply.getCalData().m_acc.m_data[2];
+
+	long double xacc_comp = (long double) cos_pitch*xacc + sin_pitch*zacc;
+	long double yacc_comp = (long double) sin_pitch*sin_roll*xacc + cos_roll*yacc - sin_roll*cos_pitch*zacc;
+	long double zacc_comp = (long double) -cos_roll*sin_pitch*xacc + sin_roll*yacc + cos_roll*cos_pitch*zacc;
+
+
+       // fprintf(fp,"%3ld,%hu,%llu,%u,%f,%f,%f,%f,%f,%f\n",
+	printf("%3ld \t %hu \t %lu \t %u \t Roll %f \t Pitch %f \t Yaw %f \t x %Lf \t y%Lf \t z %Lf \t x' %Lf \t y' %Lf \t z' %Lf %f \t %f\n",
+            	msgCount,
+            	reply.getSampleCounter(),              // sample counter
+            	reply.m_rtc,                           // Time Of Arrival / Real-Time Clock
+            	getTimeOfDay(),                         // timestamp
+            	(double) reply.getOriEuler().m_roll,     // roll th
+            	(double) reply.getOriEuler().m_pitch,    // pitch ph
+            	(double) reply.getOriEuler().m_yaw ,      // yaw ps
+	    	xacc ,
+	    	yacc   ,
+	    	zacc	,
+	    
+		xacc_comp ,
+	    	yacc_comp   ,
+	    	zacc_comp,
+
+		xvel, xpos	
+
             );
+
+
+
+xvel += xacc*3.90625/1000;
+xpos += xvel*3.90625/1000;
+
+lasttime = getTimeOfDay();
+
+
 
     }
 

@@ -2,6 +2,8 @@
  * File:   NetworkTest.cpp
  * Author: Thomas Drage (20510505)
  * 
+* TEST FILE SUPERSEDED BY CarNetwork.h
+*
  * Created on 9 June 2013
  */
 
@@ -31,12 +33,6 @@ int main(int argc, char* argv[]) {
 
 
 	struct sockaddr_in stSockAddr;
-    	int SocketFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
- 
-    	if(-1 == SocketFD) {
-      		perror("can not create socket");
-      		exit(EXIT_FAILURE);
-   	}
  
     	memset(&stSockAddr, 0, sizeof(stSockAddr));
  
