@@ -1,7 +1,8 @@
 #ifndef _CONTROL_H
 #define	_CONTROL_H
 
-#include "CarNetwork.h"
+class CarNetwork;
+class Logger;
 
 class Control {
 public:
@@ -15,12 +16,17 @@ public:
 	static void Quit(int param);
 
 	bool HeartbeatState;
+	bool Trip;
 	bool ManualOn;
+
+	int CurrentSteeringPosn;
+	int CurrentThrottleBrake;
 
     
 private:
     
 	CarNetwork* CarNetworkConnection;
+	Logger* Log;
 
 };
 

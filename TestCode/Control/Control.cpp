@@ -1,27 +1,31 @@
 
 
-#include <stdio.h>
-#include <stdlib.h>
+
 #include <iostream>
-#include <fstream>
 #include <curses.h>
 #include <signal.h>
+#include <string>
 
 #include "Control.h"
 #include "CarNetwork.h"
+#include "Logger.h"
 
-
-
-using namespace std;
 
 
 
 Control::Control() {
 
 HeartbeatState = false;
+Trip = false;
 ManualOn = false;
 
-CarNetworkConnection = new CarNetwork(&HeartbeatState);
+CurrentSteeringPosn = 0;
+CurrentThrottleBrake = 0;
+
+Log = new Logger("log.txt");
+
+CarNetworkConnection = new CarNetwork(this, Log);
+
 
 }
 
@@ -47,20 +51,39 @@ exit(1);
 }
 
 void Control::Run() {
-printw("1!\n");
-CarNetworkConnection->StartProcessMessages();
 
-while(1) {
+	CarNetworkConnection->StartProcessMessages();
 
-mvprintw(0,0,"State: %i \n", this->HeartbeatState);
+	while(1) {
 
-scr_dump("./scrdump.txt");
+		mvprintw(0,0,"Trip State: %i \n", this->Trip);
+		mvprintw(1,0,"HB State: %i \n", this->HeartbeatState);
+		mvprintw(2,0,"Car Net State: %s \n", this->CarNetworkConnection->StatusString.c_str());
 
-refresh();
+		mvprintw(4,0,"Current Steering Posn: %i \n", this->CurrentSteeringPosn);
+		mvprintw(5,0,"Current Throttle/Brake Level: %i \n", this->CurrentThrottleBrake);
 
-boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+		int y,x;
+		getmaxyx(stdscr,y,x);
 
-}
+		if(y > 10) {
+
+			std::string RecentLogLines[y - 10];
+			this->Log->GetLogLines(RecentLogLines, y - 10);
+
+			for(int i = y; i > 10; i--) {
+
+				mvprintw(i-1,0,"Log: %s", (RecentLogLines[y - i] + '\n').c_str());
+
+			}
+
+		}
+
+		refresh();
+
+		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+
+	}
 
 }
 

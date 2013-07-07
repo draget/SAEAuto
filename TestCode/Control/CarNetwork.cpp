@@ -21,9 +21,8 @@
 #include <string>
 
 #include "CarNetwork.h"
-
-using namespace std;
-
+#include "Logger.h"
+#include "Control.h"
 
 
 
@@ -32,13 +31,13 @@ using namespace std;
  * Inputs : None.
  * Outputs: None.
  */
-CarNetwork::CarNetwork(bool* HeartbeatStatePointer) {
+CarNetwork::CarNetwork(Control* CarController, Logger* Logger) {
 
 	SocketFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
  
-	HeartbeatState = HeartbeatStatePointer;
+	CarControl = CarController;
 
-	*HeartbeatState = false;
+	Log = Logger;
 
 	Run = false;
 
@@ -46,6 +45,9 @@ CarNetwork::CarNetwork(bool* HeartbeatStatePointer) {
       		perror("can not create socket");
       		exit(EXIT_FAILURE);
    	}
+	
+	StatusString = "Socket created";
+
 }
 
 /**
@@ -87,6 +89,8 @@ bool CarNetwork::Open() {
       		exit(EXIT_FAILURE);
     	}
 
+	StatusString = "Bound to socket";
+
 return true;
 
 
@@ -110,10 +114,14 @@ void CarNetwork::ProcessMessages() {
 	fd_set read_set;
 	fd_set write_set;
 
+	
 
 while(Run) {  // Wait for connections
 
 		// printf("Waiting to accept a connection \n");
+		Log->WriteLogLine("Car Network - Waiting to accept a connection");		
+
+		StatusString = "Waiting to accept a connection";
 
     		ConnectFD = accept(SocketFD, NULL, NULL);
  
@@ -123,8 +131,10 @@ while(Run) {  // Wait for connections
         		exit(EXIT_FAILURE);
       		}
 
-		printf("Conn. accepted - waiting for first message \n");
+		// printf("Conn. accepted - waiting for first message \n");
 
+		StatusString = "Conn. accepted - waiting for first message";
+		Log->WriteLogLine("Car Network - waiting for messages");
  
     		while(1) { // Wait for messages
 		
@@ -146,11 +156,15 @@ while(Run) {  // Wait for connections
 			int readable = select(ConnectFD + 1, &read_set, NULL, NULL, &timeoutlong);
 
 			if(readable == 0) { 
-				//printf("No message?!\n"); 
+				//printf("No message?!\n");
+				StatusString = "No message rxd";
+				Log->WriteLogLine("Car Network - No message rxd"); 
 				break; 
 			}
 			
 			//printf("Looks like there is something to read! %i \n", readable);
+
+			StatusString = "Reading bytes";
 
 			while(1) { // Recieve bytes
 				recvbuf = '\0';
@@ -161,13 +175,17 @@ while(Run) {  // Wait for connections
 				FD_SET(ConnectFD,&read_set);  
 				readable = select(ConnectFD + 1, &read_set, NULL, NULL, &timeout);
 				if(readable == 0) { 
-					//printf("Drop halfway through message?!\n"); 
+					//printf("Drop halfway through message?!\n");
+					StatusString = "Drop halfway through message?"; 
+					Log->WriteLogLine("Car Network - Drop halfway through message?");		
 					breakandclose = true; 
 					break; 
 				}
 				recv(ConnectFD,&recvbuf,sizeof(recvbuf),0);
 				if(recvbuf == 0) { 
-					//printf("Drop halfway through message (null read)?!\n"); 
+					//printf("Drop halfway through message (null read)?!\n");
+					StatusString = "Drop halfway through message? (null read)"; 
+					Log->WriteLogLine("Car Network - Drop halfway through message? (null read)");
 					breakandclose = true; 
 					break; 
 				}
@@ -184,18 +202,25 @@ while(Run) {  // Wait for connections
 
 			std::string Message = msgbuf;
 
+			StatusString = "Data read: " + Message;
+
 			if(Message.compare(0,3,"HBT") == 0) {
 
 				if(Message.compare(4,1,"+") == 0) { 
 					//printf("Set state true \n"); 
-					*HeartbeatState = true; 
+					CarControl->HeartbeatState = true; 
 				}
 				else if(Message.compare(4,1,"-") == 0) { 
 					//printf("Set state false \n"); 
-					*HeartbeatState = false; 
+					CarControl->HeartbeatState = false; 
 				}
 
 			}
+			else if(Message.compare(0,5,"ESTOP") == 0) {
+				CarControl->Trip = true;
+				if(CarControl->Trip == false) { Log->WriteLogLine("Car Network - Rxd ESTOP!!"); }
+			}
+				
 
 			if(msgbuf[0] > 0) {
 				char ackmsg[6+msg_length];
@@ -210,6 +235,8 @@ while(Run) {  // Wait for connections
 				FD_SET(ConnectFD,&write_set);  
 				if(select(ConnectFD + 1, NULL, &write_set, NULL, &timeout) == 0) { 
 					//printf("Did it go away before write?\n");  
+					StatusString = "Problem writing";
+					Log->WriteLogLine("Car Network - Problem writing");
 					break; 
 				}
 

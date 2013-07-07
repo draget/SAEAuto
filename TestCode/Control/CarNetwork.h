@@ -8,10 +8,13 @@
 
 #include <boost/thread.hpp> 
 
+class Control;
+class Logger;
+
 class CarNetwork {
 public:
 
-	CarNetwork(bool* HeartbeatStatePointer);
+	CarNetwork(Control* CarController, Logger* Logger);
     	CarNetwork(const CarNetwork& orig);
     	virtual ~CarNetwork();
 
@@ -21,7 +24,6 @@ public:
 	void StartProcessMessages();
 	void JoinProcessMessages();
 
-	bool NetworkActive;
 	std::string StatusString;
 
 
@@ -35,7 +37,9 @@ private:
 
 	void ProcessMessages();
 
-	bool* HeartbeatState;
+	Control* CarControl;
+
+	Logger* Log;
 
 };
 
