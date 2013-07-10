@@ -31,7 +31,7 @@ void trip() {
 
 void interrupt() {
 
-    if(hb_interruptcount > 10) {
+    if(hb_interruptcount > 12) {
                       if(arm_state > 0) {
                                    hb_trip = 1;    // HB LED constant on
                                    tripreq = 1;
@@ -42,18 +42,22 @@ void interrupt() {
     
     if(arm_state == 1) {
                if(arm_interruptcount > 200) { arm_state = 2; }
+               else { arm_interruptcount++; }
     }
     else if(arm_state == 3) {
                if(arm_interruptcount > 200) { arm_state = 4; }
+               else { arm_interruptcount++; }
     }
     else if(arm_state == 5) {
                if(arm_interruptcount > 500) { arm_state = 6; }
+               else { arm_interruptcount++; }
     }
     else if(arm_state == 7) {
                if(arm_interruptcount > 100) { arm_state = 8; }
+               else { arm_interruptcount++; }
     }
     else if(arm_state == 9 || arm_state == 0) { arm_interruptcount = 0; }
-    else { arm_interruptcount++; }
+
 
     TMR0 = 100;
     INTCON.TMR0IF = 0;
@@ -106,7 +110,7 @@ void main() {
               if (UART1_Data_Ready()) {
                  uart_rd = UART1_Read();
                  
-                 if(uart_rd == 'E') { trip(); }
+                 if(uart_rd == 'E' && tripstate == 0) { trip(); }
                  
                  oldhbstate = hbstate;
                  
@@ -167,7 +171,7 @@ void main() {
               else if(arm_state == 5 || arm_state == 7) {
                    if(PORTB.B4 == 0) { arm_state = -1; PORTB.B0 = 1; UART1_Write_Text("AF 3\n"); }      // Throttle
               }
-              else if(arm_state == 6) {
+              else if(arm_state == 6 && PORTB.B3 == 1) {
                    UART1_Write_Text("A 6\n");
                    PORTA.B1 = 0;
                    arm_interruptcount = 0;
