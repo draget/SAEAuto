@@ -5,9 +5,12 @@
 #define BAUDRATE 9600
 #define DEVICE "/dev/ttyUSB0"
 
+#include <vector>
+#include <string>
 #include <boost/thread.hpp> 
 
 #include "AsyncSerial.h"
+
 
 class Control;
 class Logger;
@@ -21,18 +24,29 @@ public:
 
 	bool Open();
 	void Start();
+	void Stop();
 	
 	std::string StatusString;
 
 private:
 
+	std::vector<char> RxBuffer;
+
+	bool SerialState;
+
 	CallbackAsyncSerial* Serial;
 
 	boost::thread m_Thread;
 
+	bool Run;
+
 	void SendMessages();
 
-	void CheckAcks(const char *data, unsigned int len);
+	void Receive(const char *data, unsigned int len);
+
+	void ProcessMessage();
+
+	void SendHB();
 
 	Control* CarControl;
 

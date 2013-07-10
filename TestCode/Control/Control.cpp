@@ -3,20 +3,23 @@
 
 #include <iostream>
 #include <curses.h>
-#include <signal.h>
+#include <csignal>
 #include <string>
 
 #include "Control.h"
 #include "CarNetwork.h"
 #include "Logger.h"
+#include "SafetySerialOut.h"
 
-
+Control *SAECar;
 
 
 Control::Control() {
 
+
+
 HeartbeatState = false;
-Trip = false;
+Trip = 0;
 ManualOn = false;
 
 CurrentSteeringPosn = 0;
@@ -25,6 +28,8 @@ CurrentThrottleBrake = 0;
 Log = new Logger("log.txt");
 
 CarNetworkConnection = new CarNetwork(this, Log);
+
+SafetySerial = new SafetySerialOut(this,Log);
 
 
 }
@@ -39,22 +44,28 @@ Control::~Control() {
 void Control::Setup() {
 
 CarNetworkConnection->Open();
+SafetySerial->Open();
 
 }
 
-void Control::Quit(int param) {
+void Control::Quit() {
 
-echo();
-endwin();
-exit(1);
+CarNetworkConnection->Disconnect();
+
+SafetySerial->Stop();
+
+RunState = false;
 
 }
 
 void Control::Run() {
 
-	CarNetworkConnection->StartProcessMessages();
+	RunState = true;
 
-	while(1) {
+	CarNetworkConnection->StartProcessMessages();
+	SafetySerial->Start();
+
+	while(RunState) {
 
 		mvprintw(0,0,"Trip State: %i \n", this->Trip);
 		mvprintw(1,0,"HB State: %i \n", this->HeartbeatState);
@@ -87,6 +98,15 @@ void Control::Run() {
 
 }
 
+
+void HandleExit(int param) {
+
+SAECar->Quit();
+
+}
+
+
+
 int main() {
 
 initscr();
@@ -94,16 +114,22 @@ noecho();
 nodelay(stdscr, 1);
 keypad(stdscr, 1);
 
-Control *SAECar = new Control();
+SAECar = new Control();
 
-signal(SIGINT, Control::Quit);
+std::signal(SIGINT, HandleExit);
 
 SAECar->Setup();
 
 SAECar->Run();
 
+echo();
+endwin();
+
+
 return 0;
 
 }
+
+
 
 

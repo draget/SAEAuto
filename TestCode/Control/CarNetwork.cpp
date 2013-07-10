@@ -101,6 +101,7 @@ void CarNetwork::StartProcessMessages() {
 Run = true;
 
 m_Thread = boost::thread(&CarNetwork::ProcessMessages, this);
+m_Thread.detach();
 
 }
 
@@ -128,7 +129,6 @@ while(Run) {  // Wait for connections
       		if(0 > ConnectFD) {
         		perror("error accept failed");
         		close(SocketFD);
-        		exit(EXIT_FAILURE);
       		}
 
 		// printf("Conn. accepted - waiting for first message \n");
@@ -217,7 +217,7 @@ while(Run) {  // Wait for connections
 
 			}
 			else if(Message.compare(0,5,"ESTOP") == 0) {
-				CarControl->Trip = true;
+				CarControl->Trip = 1;
 				if(CarControl->Trip == false) { Log->WriteLogLine("Car Network - Rxd ESTOP!!"); }
 			}
 				
@@ -258,11 +258,6 @@ while(Run) {  // Wait for connections
 
 }
 
-void CarNetwork::JoinProcessMessages() {
-
-	m_Thread.join();
-
-}
 
 bool CarNetwork::IsConnected() {
 

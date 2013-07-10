@@ -22,7 +22,6 @@ public:
 	void Disconnect();
 	bool Open();
 	void StartProcessMessages();
-	void JoinProcessMessages();
 
 	std::string StatusString;
 

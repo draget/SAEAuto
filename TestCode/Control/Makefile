@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -Wall
+CFLAGS=-c -Wall #-g -O0
 LDFLAGS=-lboost_thread-mt -lncurses -lpthread -lboost_system
 SOURCES=Control.cpp  CarNetwork.cpp Logger.cpp AsyncSerial.cpp SafetySerialOut.cpp
 OBJECTS=$(SOURCES:.cpp=.o)

@@ -3,6 +3,7 @@
 
 class CarNetwork;
 class Logger;
+class SafetySerialOut;
 
 class Control {
 public:
@@ -13,10 +14,10 @@ public:
 
 	void Setup();
 	void Run();
-	static void Quit(int param);
+	void Quit();
 
 	bool HeartbeatState;
-	bool Trip;
+	int Trip;
 	bool ManualOn;
 
 	int CurrentSteeringPosn;
@@ -24,9 +25,12 @@ public:
 
     
 private:
+
+	bool RunState;
     
 	CarNetwork* CarNetworkConnection;
 	Logger* Log;
+	SafetySerialOut* SafetySerial;
 
 };
 
