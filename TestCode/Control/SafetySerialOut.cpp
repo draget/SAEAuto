@@ -141,6 +141,12 @@ void SafetySerialOut::Receive(const char *data, unsigned int len) {
 
 }
 
+void SafetySerialOut::Send(char Command) {
+
+	Serial->write(&Command,1);
+
+}
+
 void SafetySerialOut::ProcessMessage() {
 
 	std::string MsgString(RxBuffer.begin(), RxBuffer.end());
@@ -148,6 +154,11 @@ void SafetySerialOut::ProcessMessage() {
 	if(MsgString.compare(0,3,"ACK") == 0) {
 
 
+	}
+
+	else if(MsgString.compare(0,5,"ESTOP") == 0) {
+		CarControl->Trip = 1;
+		Log->WriteLogLine("SafetySerial - TRIP!");
 	}
 
 	else {
