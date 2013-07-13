@@ -217,9 +217,17 @@ while(Run) {  // Wait for connections
 
 			}
 			else if(Message.compare(0,5,"ESTOP") == 0) {
-				CarControl->Trip = 1;
-				if(CarControl->Trip == false) { Log->WriteLogLine("Car Network - Rxd ESTOP!!"); }
+				CarControl->Trip(1);
+				if(CarControl->TripState == 0) { Log->WriteLogLine("Car Network - Rxd ESTOP!!"); }
 			}
+			else if(Message.compare(0,3,"MAN") == 0) {
+				CarControl->ManualOn = true;
+				Log->WriteLogLine("Car Network - Received force manual.");
+			}
+			else if(Message.compare(0,3,"BIL") == 0) {
+				CarControl->ToggleBrakeIL();
+			}
+			
 				
 
 			if(msgbuf[0] > 0) {

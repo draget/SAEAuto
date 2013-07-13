@@ -4,6 +4,7 @@
 class CarNetwork;
 class Logger;
 class SafetySerialOut;
+class LowLevelSerialOut;
 
 class Control {
 public:
@@ -15,10 +16,13 @@ public:
 	void Setup();
 	void Run();
 	void Quit();
+	void Trip(int TripState);
+	void ToggleBrakeIL();
 
 	bool HeartbeatState;
-	int Trip;
+	int TripState;
 	bool ManualOn;
+	bool BrakeILOn;
 
 	int CurrentSteeringPosn;
 	int CurrentThrottleBrake;
@@ -31,6 +35,7 @@ private:
 	CarNetwork* CarNetworkConnection;
 	Logger* Log;
 	SafetySerialOut* SafetySerial;
+	LowLevelSerialOut* LowLevelSerial;
 
 };
 

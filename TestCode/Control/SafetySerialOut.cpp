@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <boost/thread.hpp> 
+#include <boost/lexical_cast.hpp>
 #include <exception>
 #include <vector>
 
@@ -32,6 +33,9 @@ SafetySerialOut::SafetySerialOut(Control* CarController, Logger* Logger) {
  	Log = Logger;	
 
 	SerialState = false;
+	Run = false;
+	WrongAckCount = 0;
+	ExpectedAck = "";
 
 	RxBuffer.reserve(10);
 
@@ -86,6 +90,9 @@ void SafetySerialOut::Start() {
 		m_Thread = boost::thread(&SafetySerialOut::SendHB, this);
 		m_Thread.detach();
 
+		m_Thread_AckCount = boost::thread(&SafetySerialOut::MonitorAckCount, this);
+		m_Thread.detach();
+
 	}
 
 }
@@ -97,7 +104,7 @@ void SafetySerialOut::Stop() {
 
 	sleep(1);
 
-	Serial->close();
+	if(SerialState) { Serial->close(); }
 	
 }
 
@@ -106,17 +113,23 @@ void SafetySerialOut::SendHB() {
 
 	while(Run) {
 
-		if(CarControl->HeartbeatState) { char Plus = '+'; Serial->write(&Plus,1); }
-		else { char Minus = '-'; Serial->write(&Minus,1); }
+		if(ExpectedAck.empty()) {	
 
-		if(CarControl->Trip > 0) { char E = 'E'; Serial->write(&E,1); }
+			if(CarControl->HeartbeatState) { char Plus = '+'; Serial->write(&Plus,1); ExpectedAck = "ACK +"; }
+			else { char Minus = '-'; Serial->write(&Minus,1); ExpectedAck = "ACK -"; }
+
+			if(CarControl->TripState > 0) { char E = 'E'; Serial->write(&E,1); ExpectedAck = "ACK E"; }
+
+		}
+
+		//else { WrongAckCount++; Log->WriteLogLine("SafetySerial - Ack for last message not received!"); }
 
 	
 		if(Serial->errorStatus() || Serial->isOpen() == false) {
                 		Log->WriteLogLine("SafetySerial - Error: serial port unexpectedly closed");
 				Run = false;
 				SerialState = false;
-				CarControl->Trip = 2;
+				CarControl->Trip(2);
        		}
 
 		boost::this_thread::sleep(boost::posix_time::milliseconds(10));
@@ -141,9 +154,12 @@ void SafetySerialOut::Receive(const char *data, unsigned int len) {
 
 }
 
-void SafetySerialOut::Send(char Command) {
+bool SafetySerialOut::Send(char Command) {
 
-	Serial->write(&Command,1);
+	if(SerialState && ExpectedAck.empty()) { Serial->write(&Command,1); ExpectedAck = "ACK " + boost::lexical_cast<std::string>(Command); return true; }
+	else if(ExpectedAck.empty() == false) { WrongAckCount++; Log->WriteLogLine("SafetySerial - Ack for last message not received!"); }
+	
+	return false;
 
 }
 
@@ -151,13 +167,17 @@ void SafetySerialOut::ProcessMessage() {
 
 	std::string MsgString(RxBuffer.begin(), RxBuffer.end());
 
+	Log->WriteLogLine(MsgString + " " + ExpectedAck);
+
 	if(MsgString.compare(0,3,"ACK") == 0) {
 
+		if(MsgString.compare(ExpectedAck) == 0) { ExpectedAck.clear(); }
+		else { Log->WriteLogLine("SafetySerial - Received wrong ACK!"); WrongAckCount++; }
 
 	}
 
 	else if(MsgString.compare(0,5,"ESTOP") == 0) {
-		CarControl->Trip = 1;
+		CarControl->Trip(3);
 		Log->WriteLogLine("SafetySerial - TRIP!");
 	}
 
@@ -168,6 +188,14 @@ void SafetySerialOut::ProcessMessage() {
 	}
 
 	RxBuffer.clear();
+
+}
+
+void SafetySerialOut::MonitorAckCount() {
+
+	if(WrongAckCount > 10 && CarControl->TripState == 0) { CarControl->Trip(4); }
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
 }
 

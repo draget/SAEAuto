@@ -25,28 +25,32 @@ public:
 	bool Open();
 	void Start();
 	void Stop();
+	bool Send(char Command);
 	
-	std::string StatusString;
+	bool SerialState;
 
 private:
 
 	std::vector<char> RxBuffer;
 
-	bool SerialState;
-
 	CallbackAsyncSerial* Serial;
 
 	boost::thread m_Thread;
+	boost::thread m_Thread_AckCount;
+
+	std::string ExpectedAck;
+
+	int WrongAckCount;
 
 	bool Run;
-
-	void SendMessages();
 
 	void Receive(const char *data, unsigned int len);
 
 	void ProcessMessage();
 
 	void SendHB();
+
+	void MonitorAckCount();
 
 	Control* CarControl;
 
