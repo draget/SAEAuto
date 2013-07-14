@@ -137,7 +137,7 @@ void main() {
               
               if(arm_state == 0) {
                            
-                           if(PORTB.B3 == 0) {
+                           if(Button(&PORTB,3,20,0)) {
                                        UART1_Write_Text("AR\n");
                                        if(brakeil == 1) { PORTA.B1 = 1; }     // Activate brake interlock
                                        PORTB.B0 = 0;                          // Throttle LED
@@ -151,16 +151,20 @@ void main() {
                                        UART1_Write_Text("A 1\n");
                            }
               }
-              else if(arm_state == 1 || arm_state == 3) {
+              else if(arm_state == 1) {
                    if(PORTB.B3 == 1) { arm_state = -1; UART1_Write_Text("AF 1\n"); }   // Arm button
-                   if(PORTB.B4 == 0) { arm_state = -1; PORTB.B0 = 1; UART1_Write_Text("AF 2\n"); }  // Throttle
               }
               else if(arm_state == 2) {
                    UART1_Write_Text("A 2\n");
                    PORTB.B6 = 1;
+                   Delay_ms(40);      // Wait for relay & contactor to pull in.
                    arm_state = 3;
                    arm_interruptcount = 0;
                    UART1_Write_Text("A 3\n");
+              }
+              else if(arm_state == 3) {
+                   if(PORTB.B3 == 1) { arm_state = -1; UART1_Write_Text("AF 1\n"); }   // Arm button
+                   if(PORTB.B4 == 0) { arm_state = -1; PORTB.B0 = 1; UART1_Write_Text("AF 2\n"); }  // Throttle
               }
               else if(arm_state == 4) {
                    UART1_Write_Text("A 4\n");
