@@ -156,8 +156,15 @@ void SafetySerialOut::Receive(const char *data, unsigned int len) {
 
 bool SafetySerialOut::Send(char Command) {
 
-	if(SerialState && ExpectedAck.empty()) { Serial->write(&Command,1); ExpectedAck = "ACK " + boost::lexical_cast<std::string>(Command); return true; }
-	else if(ExpectedAck.empty() == false) { WrongAckCount++; Log->WriteLogLine("SafetySerial - Ack for last message not received!"); }
+	if(! SerialState) { Log->WriteLogLine("SafetySerial - Port not active."); return false; }
+
+	for(int i; i<100; i++) {
+		if(ExpectedAck.empty()) { Serial->write(&Command,1); ExpectedAck = "ACK " + boost::lexical_cast<std::string>(Command); return true; }
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+	}
+
+	WrongAckCount++; 
+	Log->WriteLogLine("SafetySerial - Ack for last message not received, couldn't send in 100ms.");
 	
 	return false;
 
