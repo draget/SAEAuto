@@ -2,8 +2,8 @@
 #ifndef _LowLevelSerialOut_H
 #define	_LowLevelSerialOut_H
 
-#define BAUDRATE 9600
-#define DEVICE "/dev/ttyUSB0"
+#define LL_BAUDRATE 9600
+#define LL_DEVICE "/dev/ttyUSB1"
 
 #include <vector>
 #include <string>

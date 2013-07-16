@@ -24,8 +24,8 @@ public:
 	bool ManualOn;
 	bool BrakeILOn;
 
-	int CurrentSteeringPosn;
-	int CurrentThrottleBrake;
+	int CurrentSteeringSetPosn;
+	int CurrentThrottleBrakeSetPosn;
 
     
 private:

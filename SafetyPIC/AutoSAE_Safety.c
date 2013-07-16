@@ -16,6 +16,7 @@ void trip() {
 
      PORTB.B6 = 0;    // Open trip circuit
      PORTA.B4 = 1;    // E-stop LED on
+     PORTA.B0 = 1;    // Alarm on
      if(brakeil == 1) { PORTA.B1 = 1; }     // Activate brake interlock
 
      if(hb_trip == 1) { PORTA.B3 = 1; }
@@ -78,7 +79,7 @@ void main() {
      CMCON = 0x07;
      
      // Configure data direction registers  .
-     TRISA = 0b11100101;
+     TRISA = 0b11100100;
      TRISB = 0b10111100;
 
      // Init ports.
@@ -142,6 +143,7 @@ void main() {
                                        if(brakeil == 1) { PORTA.B1 = 1; }     // Activate brake interlock
                                        PORTB.B0 = 0;                          // Throttle LED
                                        PORTA.B4 = 0;                          // E-stop LED
+                                       PORTA.B0 = 0;                          // Alarm off
                                        PORTB.B6 = 0;                          // Trip relay
                                        tripstate = 0;
                                        hb_trip = 0;
@@ -157,7 +159,7 @@ void main() {
               else if(arm_state == 2) {
                    UART1_Write_Text("A 2\n");
                    PORTB.B6 = 1;
-                   Delay_ms(40);      // Wait for relay & contactor to pull in.
+                   Delay_ms(120);      // Wait for relay to pull in and power to stabilise.
                    arm_state = 3;
                    arm_interruptcount = 0;
                    UART1_Write_Text("A 3\n");

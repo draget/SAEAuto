@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <boost/thread.hpp> 
+#include <boost/lexical_cast.hpp>
 #include <exception>
 #include <vector>
 
@@ -47,7 +48,7 @@ LowLevelSerialOut::LowLevelSerialOut(const LowLevelSerialOut& orig) {
 }
 
 /**
- * Purpose: Destroys the instance of the SafetySerialOut object.
+ * Purpose: Destroys the instance of the LowLevelSerialOut object.
  * Inputs : None.
  * Outputs: None.
  */
@@ -57,7 +58,7 @@ LowLevelSerialOut::~LowLevelSerialOut() {
 bool LowLevelSerialOut::Open() {
     
 	try { 
-		Serial = new CallbackAsyncSerial(DEVICE,BAUDRATE); 
+		Serial = new CallbackAsyncSerial(LL_DEVICE,LL_BAUDRATE); 
 		Serial->setCallback(boost::bind(&LowLevelSerialOut::Receive,this, _1, _2));
 
 		if(Serial->errorStatus() || Serial->isOpen() == false) {
@@ -72,7 +73,7 @@ bool LowLevelSerialOut::Open() {
 	}
 	catch(std::exception& e) { 
 		std::string ExpString(e.what()); 
-		Log->WriteLogLine("SafetySerial - Caught exception when opening serial port: " + ExpString); 
+		Log->WriteLogLine("LowLevelSerial - Caught exception when opening serial port: " + ExpString); 
 		return false;
 	}
         
@@ -107,14 +108,43 @@ void LowLevelSerialOut::SendCurrent() {
 
 	while(Run) {
 
-		if(CarControl->HeartbeatState) { char Plus = '+'; Serial->write(&Plus,1); }
-		else { char Minus = '-'; Serial->write(&Minus,1); }
+		if(CarControl->CurrentSteeringSetPosn <= 127 && CarControl->CurrentSteeringSetPosn >= -128) {
+			std::string SteeringCommand = "S" + boost::lexical_cast<std::string>(CarControl->CurrentSteeringSetPosn);
+			Serial->writeString(SteeringCommand);
+		}
+
+		else { 
+			Log->WriteLogLine("LowLevelSerial - Steering set point out of range");
+			CarControl->Trip(5);
+		}
+
+		if(CarControl->CurrentThrottleBrakeSetPosn <= 255 && CarControl->CurrentThrottleBrakeSetPosn >= -256) {
+			
+			std::string BrakeCommand = "B0";
+			std::string ThrottleCommand = "A0";			
+
+			if(CarControl->CurrentThrottleBrakeSetPosn < 0) {
+				BrakeCommand = "B" + boost::lexical_cast<std::string>(-1*CarControl->CurrentThrottleBrakeSetPosn);
+			}
+			else {
+				ThrottleCommand = "A" + boost::lexical_cast<std::string>(CarControl->CurrentThrottleBrakeSetPosn);
+			}
+
+			Serial->writeString(BrakeCommand);
+			Serial->writeString(ThrottleCommand);
+
+		}
+
+		else { 
+			Log->WriteLogLine("LowLevelSerial - Brake/throttle set point out of range");
+			CarControl->Trip(5);
+		}
 
 		if(CarControl->TripState > 0) { char E = 'E'; Serial->write(&E,1); }
 
 	
 		if(Serial->errorStatus() || Serial->isOpen() == false) {
-                		Log->WriteLogLine("SafetySerial - Error: serial port unexpectedly closed");
+                		Log->WriteLogLine("LowLevelSerial - Error: serial port unexpectedly closed");
 				Run = false;
 				SerialState = false;
 				CarControl->Trip(2);
@@ -157,15 +187,9 @@ void LowLevelSerialOut::ProcessMessage() {
 
 
 	}
-
-	else if(MsgString.compare(0,5,"ESTOP") == 0) {
-		CarControl->Trip(3);
-		Log->WriteLogLine("SafetySerial - TRIP!");
-	}
-
 	else {
 
-		Log->WriteLogLine("SafetySerial - Received non-ack: " + MsgString);
+		Log->WriteLogLine("LowLevelSerial - Received non-ack: " + MsgString);
 
 	}
 

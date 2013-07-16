@@ -28,14 +28,16 @@ Control::Control() {
 	TripState = 0;
 	ManualOn = false;
 
-	CurrentSteeringPosn = 0;
-	CurrentThrottleBrake = 0;
+	CurrentSteeringSetPosn = 0;
+	CurrentThrottleBrakeSetPosn = 0;
 
 	Log = new Logger("log.txt");
 
 	CarNetworkConnection = new CarNetwork(this, Log);
 
 	SafetySerial = new SafetySerialOut(this,Log);
+
+	LowLevelSerial = new LowLevelSerialOut(this,Log);
 
 }
 
@@ -50,14 +52,21 @@ void Control::Setup() {
 
 	CarNetworkConnection->Open();
 	SafetySerial->Open();
+	LowLevelSerial->Open();
 
 }
 
 void Control::Quit() {
 
+	Log->WriteLogLine("Caught SIGINT...bye!");
+
+	Log->CloseLog();
+
 	CarNetworkConnection->Disconnect();
 
 	SafetySerial->Stop();
+
+	LowLevelSerial->Stop();
 
 	RunState = false;
 
@@ -69,6 +78,7 @@ void Control::Run() {
 
 	CarNetworkConnection->StartProcessMessages();
 	SafetySerial->Start();
+	LowLevelSerial->Start();
 
 	while(RunState) {
 
@@ -80,8 +90,8 @@ void Control::Run() {
 
 		mvprintw(7,0,"Brake IL Status: %i \n", this->BrakeILOn);
 
-		mvprintw(9,0,"Current Steering Posn: %i \n", this->CurrentSteeringPosn);
-		mvprintw(10,0,"Current Throttle/Brake Level: %i \n", this->CurrentThrottleBrake);
+		mvprintw(9,0,"Current Steering Posn: %i \n", this->CurrentSteeringSetPosn);
+		mvprintw(10,0,"Current Throttle/Brake Level: %i \n", this->CurrentThrottleBrakeSetPosn);
 
 		int y,x;
 		getmaxyx(stdscr,y,x);
@@ -134,7 +144,12 @@ void Control::Trip(int TripState) {
 	else if(TripState == 4) {
 		TripReason = "Safety supervisor msgs not ack'd.";
 	}
+	else if(TripState == 5) {
+		TripReason = "Error sending low level commands.";
+	}
 
+	if(BrakeILOn) { CurrentThrottleBrakeSetPosn = -256; }
+	else { CurrentThrottleBrakeSetPosn = 0; }
 
 	Log->WriteLogLine("Control - changed to trip state " + boost::lexical_cast<std::string>(TripState) + " reason: " + TripReason);
 

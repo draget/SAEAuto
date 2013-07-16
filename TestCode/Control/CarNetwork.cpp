@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <boost/thread.hpp> 
+#include <boost/lexical_cast.hpp>
 #include <string>
 
 #include "CarNetwork.h"
@@ -226,6 +227,12 @@ while(Run) {  // Wait for connections
 			}
 			else if(Message.compare(0,3,"BIL") == 0) {
 				CarControl->ToggleBrakeIL();
+			}
+			else if(Message.compare(0,3,"ACL") == 0 && CarControl->ManualOn && CarControl->TripState == 0) {
+				CarControl->CurrentThrottleBrakeSetPosn = boost::lexical_cast<int>(Message.substr(4,std::string::npos));
+			}
+			else if(Message.compare(0,3,"STR") == 0 && CarControl->ManualOn) {
+				CarControl->CurrentSteeringSetPosn = boost::lexical_cast<int>(Message.substr(4,std::string::npos));
 			}
 			
 				
