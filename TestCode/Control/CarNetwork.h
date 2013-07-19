@@ -40,6 +40,8 @@ private:
 
 	Logger* Log;
 
+	timeval last,current;
+
 };
 
 #endif	/* _CarNetwork_H */

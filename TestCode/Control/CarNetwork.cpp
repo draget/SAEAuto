@@ -21,6 +21,8 @@
 #include <boost/lexical_cast.hpp>
 #include <string>
 
+#include <sys/time.h>
+
 #include "CarNetwork.h"
 #include "Logger.h"
 #include "Control.h"
@@ -206,6 +208,10 @@ while(Run) {  // Wait for connections
 			StatusString = "Data read: " + Message;
 
 			if(Message.compare(0,3,"HBT") == 0) {
+
+			gettimeofday(&current,NULL);
+			Log->WriteLogLine(boost::lexical_cast<std::string>((current.tv_usec - last.tv_usec)/1000));
+			gettimeofday(&last,NULL);
 
 				if(Message.compare(4,1,"+") == 0) { 
 					//printf("Set state true \n"); 
