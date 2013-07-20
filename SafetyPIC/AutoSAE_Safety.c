@@ -32,7 +32,7 @@ void trip() {
 
 void interrupt() {
 
-    if(hb_interruptcount > 12) {
+    if(hb_interruptcount > 18) {
                       if(arm_state > 0) {
                                    hb_trip = 1;    // HB LED constant on
                                    tripreq = 1;
@@ -69,8 +69,13 @@ void interrupt() {
 void main() {
 
      OSCCON = 0b1111110;    // Set up internal oscillator.
+     
+     WDTCON.WDTPS0 = 0;
+     WDTCON.WDTPS1 = 0;
+     WDTCON.WDTPS2 = 0;
+     WDTCON.WDTPS3 = 1;
 
-     UART1_Init(9600);       // Init hardware UART
+     UART1_Init(38400);       // Init hardware UART
      Delay_ms(500);
 
      UART1_Write_Text("Hi\n");
@@ -107,7 +112,7 @@ void main() {
      
               if(tripreq == 1) { trip(); }
 
-           //   asm { CLRWDT; }
+             asm { CLRWDT; }
               if (UART1_Data_Ready()) {
                  uart_rd = UART1_Read();
                  

@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-c -Wall #-g -O0
 LDFLAGS=-lboost_thread-mt -lncurses -lpthread -lboost_system
-SOURCES=Control.cpp  CarNetwork.cpp Logger.cpp AsyncSerial.cpp SafetySerialOut.cpp LowLevelSerialOut.cpp
+SOURCES=Control.cpp  CarNetwork.cpp Logger.cpp AsyncSerial.cpp SafetySerialOut.cpp LowLevelSerialOut.cpp GPSConnection.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=Control
 

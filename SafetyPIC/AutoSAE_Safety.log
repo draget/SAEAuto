@@ -2,12 +2,12 @@
 hint: 0	1139	Available RAM: 352 [bytes], Available ROM: 4096 [bytes]	 
 diagnostics: 0	126	All files Preprocessed in 40 ms	 
 diagnostics: 0	122	Compilation Started	AutoSAE_Safety.c
-warning: 73	1509	Generated baud rate is 9615 bps (error = 0.16 percent)	AutoSAE_Safety.c
-diagnostics: 197	123	Compiled Successfully	AutoSAE_Safety.c
-diagnostics: 0	127	All files Compiled in 70 ms	 
+warning: 78	1509	Generated baud rate is 38462 bps (error = 0.16 percent)	AutoSAE_Safety.c
+diagnostics: 202	123	Compiled Successfully	AutoSAE_Safety.c
+diagnostics: 0	127	All files Compiled in 90 ms	 
 hint: 0	1144	Used RAM (bytes): 126 (36%)  Free RAM (bytes): 226 (64%)	Used RAM (bytes): 126 (36%)  Free RAM (bytes): 226 (64%)
-hint: 0	1144	Used ROM (program words): 898 (22%)  Free ROM (program words): 3198 (78%)	Used ROM (program words): 898 (22%)  Free ROM (program words): 3198 (78%)
+hint: 0	1144	Used ROM (program words): 907 (22%)  Free ROM (program words): 3189 (78%)	Used ROM (program words): 907 (22%)  Free ROM (program words): 3189 (78%)
 diagnostics: 0	125	Project Linked Successfully	AutoSAE_Safety.mcppi
-diagnostics: 0	128	Linked in 180 ms	 
-diagnostics: 0	129	Project 'AutoSAE_Safety.mcppi' completed: 390 ms	 
-diagnostics: 0	103	Finished successfully: 16 Jul 2013, 21:55:11	AutoSAE_Safety.mcppi
+diagnostics: 0	128	Linked in 190 ms	 
+diagnostics: 0	129	Project 'AutoSAE_Safety.mcppi' completed: 430 ms	 
+diagnostics: 0	103	Finished successfully: 20 Jul 2013, 19:21:30	AutoSAE_Safety.mcppi
