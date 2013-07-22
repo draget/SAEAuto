@@ -2,7 +2,7 @@
 #ifndef _SafetySerialOut_H
 #define	_SafetySerialOut_H
 
-#define BAUDRATE 9600
+#define BAUDRATE 38400
 #define DEVICE "/dev/ttyUSB0"
 
 #include <vector>

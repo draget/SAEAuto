@@ -132,7 +132,7 @@ void SafetySerialOut::SendHB() {
 				CarControl->Trip(2);
        		}
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(24));
 
 	}
 

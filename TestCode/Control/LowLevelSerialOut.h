@@ -3,7 +3,7 @@
 #define	_LowLevelSerialOut_H
 
 #define LL_BAUDRATE 9600
-#define LL_DEVICE "/dev/ttyUSB1"
+#define LL_DEVICE "/dev/ttyACM0"
 
 #include <vector>
 #include <string>

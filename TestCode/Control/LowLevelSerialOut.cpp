@@ -110,7 +110,7 @@ void LowLevelSerialOut::SendCurrent() {
 
 		if(CarControl->CurrentSteeringSetPosn <= 127 && CarControl->CurrentSteeringSetPosn >= -128) {
 			std::string SteeringCommand = "S" + boost::lexical_cast<std::string>(CarControl->CurrentSteeringSetPosn);
-			Serial->writeString(SteeringCommand);
+			Serial->writeString(SteeringCommand + '\n');
 		}
 
 		else { 
@@ -130,8 +130,8 @@ void LowLevelSerialOut::SendCurrent() {
 				ThrottleCommand = "A" + boost::lexical_cast<std::string>(CarControl->CurrentThrottleBrakeSetPosn);
 			}
 
-			Serial->writeString(BrakeCommand);
-			Serial->writeString(ThrottleCommand);
+			Serial->writeString(BrakeCommand + '\n');
+			Serial->writeString(ThrottleCommand + '\n');
 
 		}
 
@@ -149,8 +149,7 @@ void LowLevelSerialOut::SendCurrent() {
 				SerialState = false;
 				CarControl->Trip(2);
        		}
-
-		boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 
 	}
 
