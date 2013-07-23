@@ -53,7 +53,7 @@ _interrupt:
 	CLRF       PCLATH+0
 
 ;AutoSAE_Safety.c,33 :: 		void interrupt() {
-;AutoSAE_Safety.c,35 :: 		if(hb_interruptcount > 18) {
+;AutoSAE_Safety.c,35 :: 		if(hb_interruptcount > 15) {
 	MOVLW      128
 	MOVWF      R0+0
 	MOVLW      128
@@ -62,7 +62,7 @@ _interrupt:
 	BTFSS      STATUS+0, 2
 	GOTO       L__interrupt80
 	MOVF       _hb_interruptcount+0, 0
-	SUBLW      18
+	SUBLW      15
 L__interrupt80:
 	BTFSC      STATUS+0, 0
 	GOTO       L_interrupt3
@@ -549,12 +549,12 @@ L_main47:
 	CALL       _UART1_Write_Text+0
 ;AutoSAE_Safety.c,166 :: 		PORTB.B6 = 1;
 	BSF        PORTB+0, 6
-;AutoSAE_Safety.c,167 :: 		Delay_ms(120);      // Wait for relay to pull in and power to stabilise.
-	MOVLW      2
+;AutoSAE_Safety.c,167 :: 		Delay_ms(200);      // Wait for relay to pull in and power to stabilise.
+	MOVLW      3
 	MOVWF      R11+0
-	MOVLW      56
+	MOVLW      8
 	MOVWF      R12+0
-	MOVLW      173
+	MOVLW      119
 	MOVWF      R13+0
 L_main51:
 	DECFSZ     R13+0, 1

@@ -33,7 +33,7 @@ void trip() {
 
 void interrupt() {
 
- if(hb_interruptcount > 18) {
+ if(hb_interruptcount > 15) {
  if(arm_state > 0) {
  hb_trip = 1;
  tripreq = 1;
@@ -165,7 +165,7 @@ void main() {
  else if(arm_state == 2) {
  UART1_Write_Text("A 2\n");
  PORTB.B6 = 1;
- Delay_ms(120);
+ Delay_ms(200);
  arm_state = 3;
  arm_interruptcount = 0;
  UART1_Write_Text("A 3\n");

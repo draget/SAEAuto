@@ -99,7 +99,7 @@ int main(void)
 	struct gps_data_t* newdata;
 
 		cout << "about to wait \n";
-	if (!gps_rec.waiting(1000000))
+	if (!gps_rec.waiting(10000))
 	  { cout << "skip\n"; continue; }
 
 	if ((newdata = gps_rec.read()) == NULL) {
