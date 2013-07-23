@@ -18,6 +18,8 @@
 #include "Logger.h"
 #include "SafetySerialOut.h"
 #include "LowLevelSerialOut.h"
+#include "GPSConnection.h"
+#include "IBEO.h"
 
 Control *SAECar;
 
@@ -39,6 +41,10 @@ Control::Control() {
 
 	LowLevelSerial = new LowLevelSerialOut(this,Log);
 
+	GPS = new GPSConnection(this,Log);
+
+	Lux = new IBEO();
+
 }
 
 Control::Control(const Control& orig) {
@@ -53,6 +59,8 @@ void Control::Setup() {
 	CarNetworkConnection->Open();
 	SafetySerial->Open();
 	LowLevelSerial->Open();
+	GPS->Open();
+	Lux->Open();
 
 }
 
@@ -68,6 +76,10 @@ void Control::Quit() {
 
 	LowLevelSerial->Stop();
 
+	GPS->Stop();
+
+	Lux->StopScanner();
+
 	RunState = false;
 
 }
@@ -79,6 +91,8 @@ void Control::Run() {
 	CarNetworkConnection->StartProcessMessages();
 	SafetySerial->Start();
 	LowLevelSerial->Start();
+	GPS->Start();
+	Lux->Start();
 
 	while(RunState) {
 
@@ -93,6 +107,11 @@ void Control::Run() {
 		mvprintw(9,0,"Current Steering Posn: %i \n", this->CurrentSteeringSetPosn);
 		mvprintw(10,0,"Current Throttle/Brake Level: %i \n", this->CurrentThrottleBrakeSetPosn);
 
+		mvprintw(8,45,"GPS State: %i \n", this->GPS->GPSState);
+		mvprintw(9,45,"GPS Latitude: %lf \n", this->GPS->Latitude);
+		mvprintw(10,45,"GPS Longitude: %lf \n", this->GPS->Longitude);
+		mvprintw(11,45,"GPS Speed: %lf \n", this->GPS->Speed);
+
 		int y,x;
 		getmaxyx(stdscr,y,x);
 
@@ -102,7 +121,7 @@ void Control::Run() {
 
 		mvprintw(0,TitleX,"UWA AUTONOMOUS SAE CAR CONTROLLER - THOMAS DRAGE 2013\n");
 
-		int LogStartLine = 12;
+		int LogStartLine = 14;
 
 		if(y > LogStartLine) {
 

@@ -5,6 +5,8 @@ class CarNetwork;
 class Logger;
 class SafetySerialOut;
 class LowLevelSerialOut;
+class GPSConnection;
+class IBEO;
 
 class Control {
 public:
@@ -26,16 +28,17 @@ public:
 
 	int CurrentSteeringSetPosn;
 	int CurrentThrottleBrakeSetPosn;
-
-    
+ 
 private:
 
 	bool RunState;
     
+	GPSConnection* GPS;
 	CarNetwork* CarNetworkConnection;
 	Logger* Log;
 	SafetySerialOut* SafetySerial;
 	LowLevelSerialOut* LowLevelSerial;
+	IBEO *Lux;
 
 };
 
