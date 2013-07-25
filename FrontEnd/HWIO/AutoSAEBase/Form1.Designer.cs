@@ -50,6 +50,8 @@
             this.axDataqSdk1 = new AxDATAQSDKLib.AxDataqSdk();
             this.ConnectButton = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.button3 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.label9 = new System.Windows.Forms.Label();
             this.NetworkStatusPanel = new System.Windows.Forms.Panel();
             this.label7 = new System.Windows.Forms.Label();
@@ -58,11 +60,27 @@
             this.TXPanel = new System.Windows.Forms.Panel();
             this.label3 = new System.Windows.Forms.Label();
             this.CarIPBox = new System.Windows.Forms.TextBox();
+            this.panel4 = new System.Windows.Forms.Panel();
+            this.ThrottleLabel = new System.Windows.Forms.Label();
+            this.BrakeLabel = new System.Windows.Forms.Label();
+            this.YBar = new System.Windows.Forms.TrackBar();
+            this.XBar = new System.Windows.Forms.TrackBar();
+            this.label11 = new System.Windows.Forms.Label();
+            this.jsStatusPanel = new System.Windows.Forms.Panel();
+            this.joystickStart = new System.Windows.Forms.Button();
+            this.label10 = new System.Windows.Forms.Label();
+            this.JoystickTimer = new System.Windows.Forms.Timer(this.components);
+            this.EStopButton = new System.Windows.Forms.Button();
+            this.AlarmPanel = new System.Windows.Forms.Panel();
+            this.label13 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel5.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.axDataqSdk1)).BeginInit();
             this.panel3.SuspendLayout();
+            this.panel4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.YBar)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.XBar)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -242,6 +260,8 @@
             // panel3
             // 
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel3.Controls.Add(this.button3);
+            this.panel3.Controls.Add(this.button2);
             this.panel3.Controls.Add(this.label9);
             this.panel3.Controls.Add(this.NetworkStatusPanel);
             this.panel3.Controls.Add(this.label7);
@@ -253,8 +273,28 @@
             this.panel3.Controls.Add(this.ConnectButton);
             this.panel3.Location = new System.Drawing.Point(282, 13);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(118, 153);
+            this.panel3.Size = new System.Drawing.Size(118, 246);
             this.panel3.TabIndex = 23;
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(18, 203);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(75, 35);
+            this.button3.TabIndex = 28;
+            this.button3.Text = "Toggle Brake IL";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(18, 162);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 35);
+            this.button2.TabIndex = 27;
+            this.button2.Text = "Force Manual";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // label9
             // 
@@ -325,11 +365,145 @@
             this.CarIPBox.TabIndex = 0;
             this.CarIPBox.Text = "10.1.1.3";
             // 
+            // panel4
+            // 
+            this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel4.Controls.Add(this.label13);
+            this.panel4.Controls.Add(this.AlarmPanel);
+            this.panel4.Controls.Add(this.ThrottleLabel);
+            this.panel4.Controls.Add(this.BrakeLabel);
+            this.panel4.Controls.Add(this.YBar);
+            this.panel4.Controls.Add(this.XBar);
+            this.panel4.Controls.Add(this.label11);
+            this.panel4.Controls.Add(this.jsStatusPanel);
+            this.panel4.Controls.Add(this.joystickStart);
+            this.panel4.Controls.Add(this.label10);
+            this.panel4.Location = new System.Drawing.Point(415, 17);
+            this.panel4.Name = "panel4";
+            this.panel4.Size = new System.Drawing.Size(322, 173);
+            this.panel4.TabIndex = 24;
+            // 
+            // ThrottleLabel
+            // 
+            this.ThrottleLabel.AutoSize = true;
+            this.ThrottleLabel.ForeColor = System.Drawing.Color.Gray;
+            this.ThrottleLabel.Location = new System.Drawing.Point(238, 44);
+            this.ThrottleLabel.Name = "ThrottleLabel";
+            this.ThrottleLabel.Size = new System.Drawing.Size(43, 13);
+            this.ThrottleLabel.TabIndex = 32;
+            this.ThrottleLabel.Text = "Throttle";
+            // 
+            // BrakeLabel
+            // 
+            this.BrakeLabel.AutoSize = true;
+            this.BrakeLabel.ForeColor = System.Drawing.Color.Gray;
+            this.BrakeLabel.Location = new System.Drawing.Point(238, 102);
+            this.BrakeLabel.Name = "BrakeLabel";
+            this.BrakeLabel.Size = new System.Drawing.Size(35, 13);
+            this.BrakeLabel.TabIndex = 31;
+            this.BrakeLabel.Text = "Brake";
+            // 
+            // YBar
+            // 
+            this.YBar.Location = new System.Drawing.Point(190, 15);
+            this.YBar.Maximum = 32768;
+            this.YBar.Minimum = -32768;
+            this.YBar.Name = "YBar";
+            this.YBar.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.YBar.Size = new System.Drawing.Size(42, 127);
+            this.YBar.TabIndex = 30;
+            this.YBar.TickFrequency = 1024;
+            this.YBar.TickStyle = System.Windows.Forms.TickStyle.Both;
+            // 
+            // XBar
+            // 
+            this.XBar.Location = new System.Drawing.Point(27, 81);
+            this.XBar.Maximum = 32768;
+            this.XBar.Minimum = -32768;
+            this.XBar.Name = "XBar";
+            this.XBar.Size = new System.Drawing.Size(127, 42);
+            this.XBar.TabIndex = 29;
+            this.XBar.TickFrequency = 1024;
+            this.XBar.TickStyle = System.Windows.Forms.TickStyle.Both;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(108, 35);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(37, 13);
+            this.label11.TabIndex = 28;
+            this.label11.Text = "Status";
+            // 
+            // jsStatusPanel
+            // 
+            this.jsStatusPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.jsStatusPanel.Location = new System.Drawing.Point(151, 29);
+            this.jsStatusPanel.Name = "jsStatusPanel";
+            this.jsStatusPanel.Size = new System.Drawing.Size(18, 19);
+            this.jsStatusPanel.TabIndex = 27;
+            // 
+            // joystickStart
+            // 
+            this.joystickStart.Location = new System.Drawing.Point(15, 28);
+            this.joystickStart.Name = "joystickStart";
+            this.joystickStart.Size = new System.Drawing.Size(75, 23);
+            this.joystickStart.TabIndex = 28;
+            this.joystickStart.Text = "Connect";
+            this.joystickStart.UseVisualStyleBackColor = true;
+            this.joystickStart.Click += new System.EventHandler(this.joystickStart_Click);
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(12, 5);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(97, 13);
+            this.label10.TabIndex = 27;
+            this.label10.Text = "Game Controller";
+            // 
+            // JoystickTimer
+            // 
+            this.JoystickTimer.Tick += new System.EventHandler(this.JoystickTimer_Tick);
+            // 
+            // EStopButton
+            // 
+            this.EStopButton.BackColor = System.Drawing.Color.Red;
+            this.EStopButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.EStopButton.ForeColor = System.Drawing.Color.White;
+            this.EStopButton.Location = new System.Drawing.Point(18, 211);
+            this.EStopButton.Name = "EStopButton";
+            this.EStopButton.Size = new System.Drawing.Size(240, 63);
+            this.EStopButton.TabIndex = 25;
+            this.EStopButton.Text = "EMERGENCY STOP";
+            this.EStopButton.UseVisualStyleBackColor = false;
+            this.EStopButton.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // AlarmPanel
+            // 
+            this.AlarmPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.AlarmPanel.Location = new System.Drawing.Point(40, 143);
+            this.AlarmPanel.Name = "AlarmPanel";
+            this.AlarmPanel.Size = new System.Drawing.Size(18, 19);
+            this.AlarmPanel.TabIndex = 33;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(64, 149);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(33, 13);
+            this.label13.TabIndex = 29;
+            this.label13.Text = "Alarm";
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(828, 493);
+            this.ClientSize = new System.Drawing.Size(754, 288);
+            this.Controls.Add(this.EStopButton);
+            this.Controls.Add(this.panel4);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel5);
@@ -347,6 +521,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.axDataqSdk1)).EndInit();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
+            this.panel4.ResumeLayout(false);
+            this.panel4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.YBar)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.XBar)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -382,6 +560,21 @@
         private System.Windows.Forms.TextBox CarIPBox;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Panel NetworkStatusPanel;
+        private System.Windows.Forms.Panel panel4;
+        private System.Windows.Forms.Button joystickStart;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Panel jsStatusPanel;
+        private System.Windows.Forms.TrackBar YBar;
+        private System.Windows.Forms.TrackBar XBar;
+        private System.Windows.Forms.Timer JoystickTimer;
+        private System.Windows.Forms.Label ThrottleLabel;
+        private System.Windows.Forms.Label BrakeLabel;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button EStopButton;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Panel AlarmPanel;
     }
 }
 

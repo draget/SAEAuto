@@ -18,6 +18,7 @@ namespace AutoSAEBase
     {
 
         private NetworkClient Network;
+        private JoystickIO jsio;
 
         private bool PulseState = false;
 
@@ -47,7 +48,7 @@ namespace AutoSAEBase
 
             axDataqSdk1.EventPoint=1;
 
-            InputTimer.Interval=10;
+            InputTimer.Interval=20;
 
             InputTimer.Enabled = true;
 
@@ -90,8 +91,8 @@ namespace AutoSAEBase
                 if ((Network != null) && Network.Connected)
                 {
 
-                    if (PulseRXState) { Network.Send("HB +"); }
-                    else { Network.Send("HB -"); }
+                    if (PulseRXState) { Network.Send("HBT +"); }
+                    else { Network.Send("HBT -"); }
                     if (!ButtonPosition) { Network.Send("ESTOP"); }
 
                 }
@@ -121,7 +122,7 @@ namespace AutoSAEBase
         private void Form1_Load(object sender, EventArgs e)
         {
 
-            OutputTimer.Interval = 200;
+            OutputTimer.Interval = 50;
             OutputTimer.Enabled = true;
 
         }
@@ -138,8 +139,113 @@ namespace AutoSAEBase
             bool success = Network.Connect();
         }
 
-    
-  
+        private void joystickStart_Click(object sender, EventArgs e)
+        {
+            jsio = new JoystickIO();
+            bool success = jsio.Connect();
+            if(success) { 
+                JoystickTimer.Interval = 40;
+                JoystickTimer.Enabled = true; 
+                jsStatusPanel.BackColor = Color.Green; 
+            }
+        }
+
+        private void JoystickTimer_Tick(object sender, EventArgs e)
+        {
+
+            int[] xy = jsio.getXY();
+            if (xy[0] == -1) { JoystickTimer.Enabled = false; jsStatusPanel.BackColor = Color.Red; }
+            else
+            {
+                XBar.Value = xy[0] - 32768;
+                YBar.Value = -1 * (xy[1] - 32768);
+                
+                if (xy[1] > 32767)
+                {
+                    BrakeLabel.ForeColor = Color.Red;
+                    BrakeLabel.Text = "Brake " +  Math.Round((double)(xy[1] - 32767) / 327.68,1) + "%";
+                    ThrottleLabel.ForeColor = Color.Gray;
+                    ThrottleLabel.Text = "Throttle 0%";
+                }
+                else if (xy[1] < 32767)
+                {
+                    ThrottleLabel.ForeColor = Color.Green;
+                    ThrottleLabel.Text = "Throttle " + Math.Round((double)(32768 - xy[1]) / 327.68,1) + "%";
+                    BrakeLabel.ForeColor = Color.Gray;
+                    BrakeLabel.Text = "Brake 0%";
+
+                }
+                else
+                {
+                    ThrottleLabel.ForeColor = Color.Gray;
+                    BrakeLabel.ForeColor = Color.Gray;
+                    BrakeLabel.Text = "Brake 0%";
+                    ThrottleLabel.Text = "Throttle 0%";
+                }
+
+                if ((Network != null) && Network.Connected)
+                {
+                    Network.Send("ACL " + ((32767 - xy[1]) / 128).ToString());
+                    Network.Send("STR " + ((xy[0] - 32768) / 256).ToString());
+                }
+
+            }
+
+            bool[] Buttons = jsio.getButtons();
+
+            if (Buttons == null) { JoystickTimer.Enabled = false; jsStatusPanel.BackColor = Color.Red; }
+
+            if (Buttons[2])
+            {
+                SendEStop();
+                EStopButton.BackColor = Color.Yellow;
+            }
+            else { EStopButton.BackColor = Color.Red; }
+
+            if (Buttons[6] || Buttons[7])
+            {
+                if ((Network != null) && Network.Connected)
+                {
+                    Network.Send("ALARM");
+                    AlarmPanel.BackColor = Color.Red;
+                }
+            }
+            else { AlarmPanel.BackColor = Color.Gray; }
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if ((Network != null) && Network.Connected)
+            {
+                Network.Send("MAN");
+                Network.Send("ACL 0");
+                Network.Send("STR 0");
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if ((Network != null) && Network.Connected)
+            {
+                Network.Send("BIL");
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            SendEStop();
+        }
+
+        private void SendEStop()
+        {
+            if ((Network != null) && Network.Connected)
+            {
+                Network.Send("ESTOP");
+            }
+            else { MessageBox.Show("ESTOP Send failed - no network conn!"); }
+
+        }
 
 
       
