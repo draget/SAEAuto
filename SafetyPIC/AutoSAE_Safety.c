@@ -9,6 +9,7 @@ short arm_state = 0;
 short hb_trip = 0;
 int hb_interruptcount = 0;
 int arm_interruptcount = 0;
+int alarm_counter = 0;
 
 void trip() {
 
@@ -17,7 +18,7 @@ void trip() {
      PORTB.B6 = 0;    // Open trip circuit
      PORTA.B4 = 1;    // E-stop LED on
      PORTA.B0 = 1;    // Alarm on
-     if(brakeil == 1) { PORTA.B1 = 1; }     // Activate brake interlock
+     if(brakeil == 1) { PORTA.B1 = 0; }     // Activate brake interlock
 
      if(hb_trip == 1) { PORTA.B3 = 1; }
      else { PORTA.B3 = 0; }
@@ -59,6 +60,7 @@ void interrupt() {
     }
     else if(arm_state == 9 || arm_state == 0) { arm_interruptcount = 0; }
 
+    if(alarm_counter > 0) { alarm_counter--; }
 
     TMR0 = 100;
     INTCON.TMR0IF = 0;
@@ -88,7 +90,7 @@ void main() {
      TRISB = 0b10111100;
 
      // Init ports.
-     PORTA = 0;
+     PORTA = 0b00000010;          // Brake IL line is high by default.
      PORTB = 0;
      
      //Timer0 Registers Prescaler= 256 - TMR0 Preset = 100 - Freq = 50.08 Hz - Period = 0.019968 seconds
@@ -125,6 +127,8 @@ void main() {
 
                  if(uart_rd == 'B') { brakeil = 1; }
                  if(uart_rd == 'H') { brakeil = 0; }
+                 
+                 if(uart_rd == 'A') { alarm_counter = 25; PORTA.B0 = 1; }
 
                  if(oldhbstate != hbstate) { hb_interruptcount = 0; }
 
@@ -133,9 +137,13 @@ void main() {
                  UART1_Write_Text("\n");
               }
 
-              if(tripstate == 0) { PORTA.B3 = hbstate; }
-              PORTB.B1 = brakeil;
+              if(tripstate == 0) { 
+                           PORTA.B3 = hbstate; 
+                           if(alarm_counter == 0) { PORTA.B0 = 0; }
+              }
               
+              PORTB.B1 = brakeil;
+
               if(arm_state > 0 && PORTA.B2 == 0 && tripstate == 0) {        // Dash e-stop
                            UART1_Write_Text("DES\n");
                            trip();
@@ -145,7 +153,7 @@ void main() {
                            
                            if(Button(&PORTB,3,20,0)) {
                                        UART1_Write_Text("AR\n");
-                                       if(brakeil == 1) { PORTA.B1 = 1; }     // Activate brake interlock
+                                       if(brakeil == 1) { PORTA.B1 = 0; }     // Activate brake interlock
                                        PORTB.B0 = 0;                          // Throttle LED
                                        PORTA.B4 = 0;                          // E-stop LED
                                        PORTA.B0 = 0;                          // Alarm off
@@ -184,7 +192,7 @@ void main() {
               }
               else if(arm_state == 6 && PORTB.B3 == 1) {
                    UART1_Write_Text("A 6\n");
-                   PORTA.B1 = 0;
+                   PORTA.B1 = 1;              // Brake IL off
                    arm_interruptcount = 0;
                    arm_state = 7;
                    UART1_Write_Text("A 7\n");
