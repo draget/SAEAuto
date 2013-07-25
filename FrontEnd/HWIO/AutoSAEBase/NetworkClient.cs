@@ -30,11 +30,21 @@ namespace AutoSAEBase
         private Panel RXPanel;
         private Panel TXPanel;
 
+        private System.Timers.Timer RXPanelTimer;
+        private System.Timers.Timer TXPanelTimer;
+
         public NetworkClient(string IPString, Panel setStatusPanel, Panel setRXPanel, Panel setTXPanel) {
 
             StatusPanel = setStatusPanel;
             RXPanel = setRXPanel;
             TXPanel = setTXPanel;
+
+            RXPanelTimer = new System.Timers.Timer(6);
+            RXPanelTimer.Elapsed += new System.Timers.ElapsedEventHandler((sender, args) => PanelTimerTimeout(sender, RXPanel));
+
+
+            TXPanelTimer = new System.Timers.Timer(6);
+            TXPanelTimer.Elapsed += new System.Timers.ElapsedEventHandler((sender, args) => PanelTimerTimeout(sender, TXPanel));
 
         try {
             IPAddress ipAddress = IPAddress.Parse(IPString);
@@ -86,7 +96,7 @@ namespace AutoSAEBase
 
                 try
                 { // Send the data through the socket.
-                    PanelTimerSet(TXPanel);
+                    TXPanelTimerSet();
                     int bytesSent = sender.Send(msg);
                 }
     
@@ -103,7 +113,7 @@ namespace AutoSAEBase
                     bool endOfMsg = false;
                     int msgPosn = 0;
                     while(endOfMsg == false) {
-                        PanelTimerSet(RXPanel);
+                        RXPanelTimerSet();
                         try { bytesRec = sender.Receive(rxbyte); }
                         catch (SocketException se)
                         {
@@ -127,7 +137,7 @@ namespace AutoSAEBase
 
 
 
-                    if (response != "ACK|" + message) { Close(); } // MessageBox.Show("Sent " + message + "got " + response); }
+                    if (response != "ACK|" + message) { MessageBox.Show("Ack not received or incorrect"); Close(); } // MessageBox.Show("Sent " + message + "got " + response); }
 
                 return response;
         }
@@ -154,11 +164,16 @@ namespace AutoSAEBase
 
         }
 
-        private void PanelTimerSet(Panel thePanel) {
-            thePanel.BackColor = Color.YellowGreen;
-            System.Timers.Timer PanelTimer = new System.Timers.Timer(6);
-            PanelTimer.Elapsed += new System.Timers.ElapsedEventHandler((sender,args) => PanelTimerTimeout(sender,thePanel));
-            PanelTimer.Enabled = true;
+        private void RXPanelTimerSet() {
+            RXPanel.BackColor = Color.YellowGreen;
+            RXPanelTimer.Enabled = true;
+
+        }
+
+        private void TXPanelTimerSet()
+        {
+            TXPanel.BackColor = Color.YellowGreen;
+            TXPanelTimer.Enabled = true;
 
         }
 
