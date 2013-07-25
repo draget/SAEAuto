@@ -1,13 +1,10 @@
 /* 
- * File:   Network.h
+ * File:   IBEONetwork.cpp
  * Author: Thomas Drage to replace a library by Tim Black which I didn't have access to.
  * Credit: Wikipedia page on Berkeley Sockets API...
  *
  * Created on 3 Mar 2013.
  */
-
-#ifndef _Network_H
-#define	_Network_H
 
 
 #include <sys/types.h>
@@ -21,36 +18,14 @@
 
 #include <iostream>
 
-using namespace std;
-
-class Network {
-public:
-	int socketFD;
-
-	Network();
-    	Network(const Network& orig);
-    	virtual ~Network();
-
-	bool IsConnected();
-	void Disconnect();
-	bool Connect(char * ip_addr, int port);
-
-
-private:
-
-};
-
-
-
-int socketFD;
-
+#include "IBEONetwork.h"
 
 /**
  * Purpose: Creates a new instance of the Network object.
  * Inputs : None.
  * Outputs: None.
  */
-Network::Network() {
+IBEONetwork::IBEONetwork() {
 
 	socketFD = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -68,7 +43,7 @@ Network::Network() {
  * Inputs : An Network object.
  * Outputs: None.
  */
-Network::Network(const Network& orig) {
+IBEONetwork::IBEONetwork(const IBEONetwork& orig) {
 }
 
 /**
@@ -76,11 +51,11 @@ Network::Network(const Network& orig) {
  * Inputs : None.
  * Outputs: None.
  */
-Network::~Network() {
+IBEONetwork::~IBEONetwork() {
    // if (connection->IsConnected()) connection->Disconnect();
 }
 
-bool Network::Connect(char * ip_addr, int port) {
+bool IBEONetwork::Connect(char * ip_addr, int port) {
     
 	struct sockaddr_in stSockAddr;
 	int Res;
@@ -113,7 +88,7 @@ return true;
 
 }
 
-bool Network::IsConnected() {
+bool IBEONetwork::IsConnected() {
 
 	int act;
 	char buff;
@@ -125,13 +100,11 @@ bool Network::IsConnected() {
 
 }
 
-void Network::Disconnect() {
+void IBEONetwork::Disconnect() {
 
     	(void) shutdown(socketFD, SHUT_RDWR);
  
     	close(socketFD);
 
 }
-
-#endif	/* _Network_H */
 
