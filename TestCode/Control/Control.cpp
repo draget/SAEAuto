@@ -107,10 +107,15 @@ void Control::Run() {
 		mvprintw(9,0,"Current Steering Posn: %i \n", this->CurrentSteeringSetPosn);
 		mvprintw(10,0,"Current Throttle/Brake Level: %i \n", this->CurrentThrottleBrakeSetPosn);
 
-		mvprintw(8,45,"GPS State: %i \n", this->GPS->GPSState);
-		mvprintw(9,45,"GPS Latitude: %lf \n", this->GPS->Latitude);
-		mvprintw(10,45,"GPS Longitude: %lf \n", this->GPS->Longitude);
-		mvprintw(11,45,"GPS Speed: %lf \n", this->GPS->Speed);
+		mvprintw(8,50,"GPS State: %i \n", this->GPS->GPSState);
+		mvprintw(9,50,"GPS Latitude: %lf \n", this->GPS->Latitude);
+		mvprintw(10,50,"GPS Longitude: %lf \n", this->GPS->Longitude);
+		mvprintw(11,50,"GPS Speed: %lf \n", this->GPS->Speed);
+
+		mvprintw(3,50,"IBEO State: %i \n", this->Lux->inUse);
+		mvprintw(4,50,"IBEO N Objects: %lf \n", this->Lux->object_data_header[this->Lux->curObjectDataSource].number_of_objects);
+		mvprintw(5,50,"IBEO N Scan Pts: %lf \n", this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_points);
+		mvprintw(6,50,"IBEO Scan No: %lf \n", this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_number);
 
 		int y,x;
 		getmaxyx(stdscr,y,x);

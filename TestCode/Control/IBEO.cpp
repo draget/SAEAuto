@@ -10,6 +10,7 @@
 #include "IBEO.h"
 
 #include <boost/thread.hpp> 
+#include <boost/lexical_cast.hpp>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -17,6 +18,8 @@
 #include <stdlib.h>
 #include <iostream>
 
+#include "Logger.h"
+#include "Control.h"
 
 using namespace std;
 
@@ -80,12 +83,13 @@ IBEO::~IBEO() {
  * Outputs: true if successful, false otherwise.
  */
 bool IBEO::Open(char * ip_addr, int port) {
-    Log->WriteLogLine("ibeo scanner: attempting to connect to " + ip_addr + ":" + port + ".");
+    Log->WriteLogLine("IBEO scanner - attempting to connect to " + boost::lexical_cast<std::string>(ip_addr) + ":" + boost::lexical_cast<std::string>(port) + ".");
     if (!connection->Connect(ip_addr, port)) {
+	Log->WriteLogLine("IBEO scanner - Connecting failed.");
         return false;
     }
     inUse = true;
-    Log->WriteLogLine("ibeo scanner: connected to scanner successfully.");
+    Log->WriteLogLine("IBEO scanner - connected to scanner successfully.");
 
     return true;
 }
