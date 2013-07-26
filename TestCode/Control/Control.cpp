@@ -60,7 +60,7 @@ void Control::Setup() {
 	SafetySerial->Open();
 	LowLevelSerial->Open();
 	GPS->Open();
-	//Lux->Open();
+	Lux->Open();
 
 }
 
