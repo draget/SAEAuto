@@ -113,9 +113,9 @@ void Control::Run() {
 		mvprintw(11,50,"GPS Speed: %lf \n", this->GPS->Speed);
 
 		mvprintw(3,50,"IBEO State: %i \n", this->Lux->inUse);
-		mvprintw(4,50,"IBEO N Objects: %lf \n", this->Lux->object_data_header[this->Lux->curObjectDataSource].number_of_objects);
-		mvprintw(5,50,"IBEO N Scan Pts: %lf \n", this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_points);
-		mvprintw(6,50,"IBEO Scan No: %lf \n", this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_number);
+		mvprintw(4,50,"IBEO N Objects: %i \n", this->Lux->object_data_header[this->Lux->curObjectDataSource].number_of_objects);
+		mvprintw(5,50,"IBEO N Scan Pts: %i \n", this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_points);
+		mvprintw(6,50,"IBEO Scan No: %i \n", this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_number);
 
 		int y,x;
 		getmaxyx(stdscr,y,x);
