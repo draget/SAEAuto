@@ -20,6 +20,7 @@ public:
 	void Quit();
 	void Trip(int TripState);
 	void ToggleBrakeIL();
+	void SendAlarm();
 
 	bool HeartbeatState;
 	int TripState;

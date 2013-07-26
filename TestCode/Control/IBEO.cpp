@@ -44,7 +44,11 @@ bool verbose = false;
  * Inputs : None.
  * Outputs: None.
  */
-IBEO::IBEO() {
+IBEO::IBEO(Control* CarController, Logger* Logger) {
+
+	CarControl = CarController;
+ 	Log = Logger;
+
     connection = new IBEONetwork();
     for (int i=0; i<MSG_BUFFERS; i++) {
         scan_data_header[i].scan_points = 0;
@@ -76,12 +80,12 @@ IBEO::~IBEO() {
  * Outputs: true if successful, false otherwise.
  */
 bool IBEO::Open(char * ip_addr, int port) {
-    if(verbose) { cout << "ibeo scanner: attempting to connect to " << ip_addr << ":" << port << "." << endl; }
+    Log->WriteLogLine("ibeo scanner: attempting to connect to " + ip_addr + ":" + port + ".");
     if (!connection->Connect(ip_addr, port)) {
         return false;
     }
     inUse = true;
-    if(verbose) { cout << "ibeo scanner: connected to scanner successfully." << endl; }
+    Log->WriteLogLine("ibeo scanner: connected to scanner successfully.");
 
     return true;
 }

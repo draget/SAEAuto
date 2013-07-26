@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoSAEBase", "DataqSDKCS\AutoSAEBase.csproj", "{8A3336CE-886B-4C8B-9C8F-5CC186A5C1DE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoSAEBase", "AutoSAEBase\AutoSAEBase.csproj", "{8A3336CE-886B-4C8B-9C8F-5CC186A5C1DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

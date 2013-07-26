@@ -187,7 +187,7 @@ void SafetySerialOut::ProcessMessage() {
 
 	}
 
-	else if(MsgString.compare(0,5,"ESTOP") == 0) {
+	else if(MsgString.compare(0,5,"TRIP") == 0) {
 		CarControl->Trip(3);
 		Log->WriteLogLine("SafetySerial - TRIP!");
 	}

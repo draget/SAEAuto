@@ -157,6 +157,10 @@ private:
 
     boost::thread m_Thread;
 
+	Control* CarControl;
+
+	Logger* Log;
+
     bool Read_Scan_Data();
     bool Read_Object_Data();
     bool Read_Errors();

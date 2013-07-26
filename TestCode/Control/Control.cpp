@@ -43,7 +43,7 @@ Control::Control() {
 
 	GPS = new GPSConnection(this,Log);
 
-	Lux = new IBEO();
+	Lux = new IBEO(this,Log);
 
 }
 
@@ -60,7 +60,7 @@ void Control::Setup() {
 	SafetySerial->Open();
 	LowLevelSerial->Open();
 	GPS->Open();
-	Lux->Open();
+	//Lux->Open();
 
 }
 
@@ -189,6 +189,12 @@ void Control::ToggleBrakeIL() {
 		Log->WriteLogLine("Control - Brake IL toggle failed.");
 	}
 
+
+}
+
+void Control::SendAlarm() {
+
+	if(SafetySerial->SerialState) { SafetySerial->Send('A'); }
 
 }
 
