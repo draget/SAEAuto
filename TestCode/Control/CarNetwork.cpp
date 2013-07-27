@@ -240,7 +240,7 @@ while(Run) {  // Wait for connections
 			else if(Message.compare(0,3,"STR") == 0 && CarControl->ManualOn) {
 				CarControl->CurrentSteeringSetPosn = boost::lexical_cast<int>(Message.substr(4,std::string::npos));
 			}
-			else if(Message.compare(0,5,"ALARM") == 0) {
+			else if(Message.compare(0,5,"ALM") == 0) {
 				CarControl->SendAlarm();
 			}
 			
