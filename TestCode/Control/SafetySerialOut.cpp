@@ -115,10 +115,11 @@ void SafetySerialOut::SendHB() {
 
 		if(ExpectedAck.empty()) {	
 
-			if(CarControl->HeartbeatState) { char Plus = '+'; Serial->write(&Plus,1); ExpectedAck = "ACK +"; }
-			else { char Minus = '-'; Serial->write(&Minus,1); ExpectedAck = "ACK -"; }
-
 			if(CarControl->TripState > 0) { char E = 'E'; Serial->write(&E,1); ExpectedAck = "ACK E"; }
+			else {
+				if(CarControl->HeartbeatState) { char Plus = '+'; Serial->write(&Plus,1); ExpectedAck = "ACK +"; }
+				else { char Minus = '-'; Serial->write(&Minus,1); ExpectedAck = "ACK -"; }
+			}
 
 		}
 
