@@ -164,28 +164,32 @@ IBEO_HEADER IBEO::FindHeader() {
 void IBEO::ReadMessages() {
 
     IBEO_HEADER header;
+
+	gotObject = false;
+	gotScan = false;
     
     while(! (gotObject == true && gotScan == true)) {	// Scan until we have one of each set of data.
         try {
             header = this->FindHeader();
             switch (htons(header.data_type)) {
                 case 0x2202:
-                    if (verbose) cout << "ibeo scanner: found scan data." << endl;
+                    if (verbose) Log->WriteLogLine( "ibeo scanner: found scan data." );
                     if (!Read_Scan_Data()) return;
                     break;
                 case 0x2221:
-                    if (verbose) cout << "ibeo scanner: found object data." << endl;
+                    if (verbose) Log->WriteLogLine( "ibeo scanner: found object data.");
                     if (!Read_Object_Data()) return;
                     break;
                 case 0x2030:
-                    if (verbose) cout << "ibeo scanner: found error data." << endl;
+                    if (verbose) Log->WriteLogLine( "ibeo scanner: found error data.");
                     if (!Read_Errors()) return;
                     break;
                 default:
-                    if (verbose) cout << "ibeo scanner: received unknown message with id " << htons(header.data_type) << endl;
+                    if (verbose) Log->WriteLogLine("ibeo scanner: received unknown message with id " + htons(header.data_type));
             }
 
         } catch (int e) {
+		Log->WriteLogLine("IBEO - caught error!");
             return;
         }
     }
@@ -358,6 +362,7 @@ void IBEO::ProcessMessages() {
 
 	while(Run) {
 		ReadMessages();
+	//	Log->WriteLogLine("IBEO next...");
 	}
 
 }
