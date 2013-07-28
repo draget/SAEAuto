@@ -209,9 +209,10 @@ while(Run) {  // Wait for connections
 
 			if(Message.compare(0,3,"HBT") == 0) {
 
-		//	gettimeofday(&current,NULL);
-		//	Log->WriteLogLine(boost::lexical_cast<std::string>((current.tv_usec - last.tv_usec)/1000));
-		//	gettimeofday(&last,NULL);
+			gettimeofday(&current,NULL);
+			int ms_gap = (current.tv_usec - last.tv_usec)/1000 ;
+			if(ms_gap >100) { Log->WriteLogLine("CarNetwork - Slow response on HB! " + boost::lexical_cast<std::string>(ms_gap) ); }
+			gettimeofday(&last,NULL);
 
 				if(Message.compare(4,1,"+") == 0) { 
 					//printf("Set state true \n"); 

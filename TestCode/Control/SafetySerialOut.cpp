@@ -113,19 +113,30 @@ void SafetySerialOut::SendHB() {
 
 	while(Run) {
 
-		if(ExpectedAck.empty()) {	
-
-			if(CarControl->TripState > 0) { char E = 'E'; Serial->write(&E,1); ExpectedAck = "ACK E"; }
-			else {
-				if(CarControl->HeartbeatState) { char Plus = '+'; Serial->write(&Plus,1); ExpectedAck = "ACK +"; }
-				else { char Minus = '-'; Serial->write(&Minus,1); ExpectedAck = "ACK -"; }
-			}
-
+		if(CarControl->TripState > 0 && CarControl->TripState != 3) { char E = 'E'; Serial->write(&E,1); }
+		else {
+			if(CarControl->HeartbeatState) { char Plus = '+'; Serial->write(&Plus,1); }
+			else { char Minus = '-'; Serial->write(&Minus,1); }
 		}
 
-		else { WrongAckCount++; Log->WriteLogLine("SafetySerial - Ack for last message not received!"); }
+		int i;
+		for(i = 0; i<15; i++) {
+			if(ExpectedAck.empty()) {	
 
-	
+				if(CarControl->TripState > 0  && CarControl->TripState != 3) { ExpectedAck = "ACK E"; }
+				else {
+					if(CarControl->HeartbeatState) { ExpectedAck = "ACK +"; }
+					else { ExpectedAck = "ACK -"; }
+				}
+				break;
+
+			}
+			else { WrongAckCount++; }
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+		}
+
+
+
 		if(Serial->errorStatus() || Serial->isOpen() == false) {
                 		Log->WriteLogLine("SafetySerial - Error: serial port unexpectedly closed");
 				Run = false;
@@ -133,7 +144,7 @@ void SafetySerialOut::SendHB() {
 				CarControl->Trip(2);
        		}
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(24));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 
 	}
 
@@ -179,13 +190,13 @@ void SafetySerialOut::ProcessMessage() {
 
 	std::string MsgString(RxBuffer.begin(), RxBuffer.end());
 
-	//Log->WriteLogLine(MsgString + " " + ExpectedAck);
+//Log->WriteLogLine(MsgString + " " + ExpectedAck);
 
 	if(MsgString.compare(0,3,"ACK") == 0) {
 
-		if(MsgString.compare(ExpectedAck) == 0) { ExpectedAck.clear(); }
-		else { Log->WriteLogLine("SafetySerial - Received wrong ACK!"); WrongAckCount++; }
-
+		if(MsgString.compare(ExpectedAck) == 0) { WrongAckCount = 0; }
+		else { Log->WriteLogLine("SafetySerial - Received wrong ACK! " + MsgString + " " + ExpectedAck); WrongAckCount++; }
+		ExpectedAck.clear(); 
 	}
 
 	else if(MsgString.compare(0,4,"TRIP") == 0) {
@@ -205,9 +216,10 @@ void SafetySerialOut::ProcessMessage() {
 
 void SafetySerialOut::MonitorAckCount() {
 
-	if(WrongAckCount > 10 && CarControl->TripState == 0) { CarControl->Trip(4); }
-
-	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-
+	while(Run) { 
+		if(WrongAckCount > 250 && CarControl->TripState == 0) { Log->WriteLogLine("SafetySerial - Exceeded 250 wrong/no acks!"); CarControl->Trip(4); }
+	
+		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	}
 }
 
