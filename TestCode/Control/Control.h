@@ -11,7 +11,7 @@ class IBEO;
 class Control {
 public:
 
-	Control();
+	Control(std::string LogDir);
     	Control(const Control& orig);
     	virtual ~Control();
 
@@ -33,6 +33,8 @@ public:
 private:
 
 	bool RunState;
+
+	std::string LogDir;
     
 	GPSConnection* GPS;
 	CarNetwork* CarNetworkConnection;
