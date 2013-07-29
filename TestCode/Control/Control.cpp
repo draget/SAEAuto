@@ -24,8 +24,12 @@
 Control *SAECar;
 
 
-Control::Control() {
+Control::Control(std::string LogDir) {
 
+	this->LogDir = LogDir;
+
+	mkdir(this->LogDir.c_str(), S_IRWXG | S_IRWXO | S_IRWXU);
+	
 	HeartbeatState = false;
 	TripState = 0;
 	ManualOn = false;
@@ -33,7 +37,7 @@ Control::Control() {
 	CurrentSteeringSetPosn = 0;
 	CurrentThrottleBrakeSetPosn = 0;
 
-	Log = new Logger("log.txt");
+	Log = new Logger(LogDir + "/mainlog.txt");
 
 	CarNetworkConnection = new CarNetwork(this, Log);
 
@@ -212,14 +216,21 @@ void HandleExit(int param) {
 }
 
 
-int main() {
+int main(int argc, char *argv[]) {
+
+	std::string LogDir;
+
+	if(argc > 1) {
+		LogDir = "./RunFiles/" + boost::lexical_cast<std::string>(argv);
+	}
+	else { LogDir = "./RunFiles/0"; }
 
 	initscr();
 	noecho();
 	nodelay(stdscr, 1);
 	keypad(stdscr, 1);
 
-	SAECar = new Control();
+	SAECar = new Control(LogDir);
 
 	std::signal(SIGINT, HandleExit);
 
