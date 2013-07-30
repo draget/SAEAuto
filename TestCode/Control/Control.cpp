@@ -28,7 +28,9 @@ Control::Control(std::string LogDir) {
 
 	this->LogDir = LogDir;
 
-	mkdir(this->LogDir.c_str(), S_IRWXG | S_IRWXO | S_IRWXU);
+	mode_t process_mask = umask(0);
+	mkdir(this->LogDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+	umask(process_mask);
 	
 	HeartbeatState = false;
 	TripState = 0;
@@ -61,10 +63,10 @@ Control::~Control() {
 void Control::Setup() {
 
 	CarNetworkConnection->Open();
-	SafetySerial->Open();
+//	SafetySerial->Open();
 	LowLevelSerial->Open();
 	GPS->Open();
-	Lux->Open();
+	if(access("noibeo", F_OK ) == -1) { Lux->Open(); }
 
 }
 
@@ -115,6 +117,7 @@ void Control::Run() {
 		mvprintw(9,50,"GPS Latitude: %lf \n", this->GPS->Latitude);
 		mvprintw(10,50,"GPS Longitude: %lf \n", this->GPS->Longitude);
 		mvprintw(11,50,"GPS Speed: %lf \n", this->GPS->Speed);
+		mvprintw(12,50,"GPS Track Angle: %lf \n", this->GPS->TrackAngle);
 
 		mvprintw(3,50,"IBEO State: %i \n", this->Lux->inUse);
 		mvprintw(4,50,"IBEO N Objects: %i \n", this->Lux->object_data_header[this->Lux->curObjectDataSource].number_of_objects);
@@ -221,7 +224,7 @@ int main(int argc, char *argv[]) {
 	std::string LogDir;
 
 	if(argc > 1) {
-		LogDir = "./RunFiles/" + boost::lexical_cast<std::string>(argv);
+		LogDir = "./RunFiles/" + boost::lexical_cast<std::string>(argv[1]);
 	}
 	else { LogDir = "./RunFiles/0"; }
 

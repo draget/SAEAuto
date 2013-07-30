@@ -51,16 +51,24 @@ Logger::~Logger() {
 }
 
 
-void Logger::WriteLogLine(std::string LogLine) {
+void Logger::WriteLogLine(std::string LogLine) { WriteLogLine(LogLine, false); }
 
-	std::time_t t = std::time(NULL);
-	char timestr[50];
+void Logger::WriteLogLine(std::string LogLine, bool NoTime) {
 
-	std::strftime(timestr, 50, "%d/%m/%y %T", std::localtime(&t));
+	if(! NoTime) {	
 
-	std::string TimeString = timestr;
+		std::time_t t = std::time(NULL);
+		char timestr[50];
 
-	LogFileStream << TimeString + ": " + LogLine + '\n';
+		std::strftime(timestr, 50, "%d/%m/%y %T", std::localtime(&t));
+
+		std::string TimeString = timestr;
+
+		LogFileStream << TimeString + ": " + LogLine + '\n';
+	}
+	else {
+		LogFileStream << LogLine;
+	}
 	LogFileStream.flush();
 
 }

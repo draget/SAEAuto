@@ -27,6 +27,8 @@ public:
 	bool ManualOn;
 	bool BrakeILOn;
 
+	std::string LogDir;
+
 	int CurrentSteeringSetPosn;
 	int CurrentThrottleBrakeSetPosn;
  
@@ -34,8 +36,6 @@ private:
 
 	bool RunState;
 
-	std::string LogDir;
-    
 	GPSConnection* GPS;
 	CarNetwork* CarNetworkConnection;
 	Logger* Log;

@@ -57,6 +57,10 @@ GPSConnection::~GPSConnection() {
 
 bool GPSConnection::Open() {
 
+	std::string LogPath = CarControl->LogDir + "/gps.log";
+
+	GPSLog = new Logger(LogPath.c_str());
+
 	GPSReceiver = new gpsmm("localhost", DEFAULT_GPSD_PORT);
 
     	if (GPSReceiver->stream(WATCH_ENABLE|WATCH_JSON) == NULL) {
@@ -99,10 +103,17 @@ void GPSConnection::ProcessMessages() {
 			if(NewData->set & LATLON_SET) {
 				Latitude = NewData->fix.latitude;
 				Longitude = NewData->fix.longitude;
+
 			}
 			if(NewData->set & SPEED_SET) { 
 				Speed = NewData->fix.speed;
+
 			}
+			if(NewData->set & TRACK_SET) { Log->WriteLogLine("track"); 
+				TrackAngle = NewData->fix.track;
+
+			}
+			if(NewData->set & SPEED_SET & LATLON_SET) { NewState(); }
 		}
     }
 
@@ -111,7 +122,18 @@ void GPSConnection::ProcessMessages() {
 void GPSConnection::Stop() {
 
 	Run = false;
+	GPSLog->CloseLog();
 	sleep(1);
+
+}
+
+void GPSConnection::NewState() {
+
+	timeval current;
+	gettimeofday(&current,NULL);
+
+	GPSLog->WriteLogLine(boost::lexical_cast<std::string>(current.tv_sec + current.tv_usec/1000000) + "," + boost::lexical_cast<std::string>(Latitude) + "," + boost::lexical_cast<std::string>(Longitude) + "," + boost::lexical_cast<std::string>(Speed) + "," + boost::lexical_cast<std::string>(TrackAngle), true);
+
 
 }
 

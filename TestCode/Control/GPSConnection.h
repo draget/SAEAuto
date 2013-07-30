@@ -28,16 +28,20 @@ public:
 	double Latitude;
 	double Longitude;
 	double Speed;
+	double TrackAngle;
 
 private:
 
 	gpsmm* GPSReceiver;
+
+	Logger* GPSLog;
 
 	boost::thread m_Thread;
 
 	bool Run;
 
 	void ProcessMessages();
+	void NewState();
 
 	Control* CarControl;
 

@@ -1,0 +1,48 @@
+<!DOCTYPE html >
+<html>
+<head>
+
+    
+    <script src="RGraph/libraries/RGraph.common.core.js" ></script>
+    <script src="RGraph/libraries/RGraph.common.dynamic.js" ></script>
+    <script src="RGraph/libraries/RGraph.common.tooltips.js" ></script>
+    <script src="RGraph/libraries/RGraph.rscatter_half.js" ></script>
+    
+    <title>Live IBEO</title>
+
+</head>
+<body>
+
+    <canvas id="cvs" width="1000" height="500">[No canvas support]</canvas>
+    
+    <script>
+
+
+        window.onload = function ()
+        {
+        	updateLuxPlot();
+		
+        }
+
+	function updateLuxPlot() {
+
+		RGraph.AJAX.getJSON('getlux.cgi', drawLuxGraph);
+		setTimeout(updateLuxPlot(),200);
+
+	}
+
+        function drawLuxGraph(json)
+        {
+
+		RGraph.Reset(document.getElementById('cvs'));
+            var rscatter = new RGraph.Rscatter('cvs', json.data)
+
+		.Set('labels.axes', 'new')
+		.Set('labels.count', 2)
+
+                .Draw();
+        }
+    </script>
+
+</body>
+</html>
