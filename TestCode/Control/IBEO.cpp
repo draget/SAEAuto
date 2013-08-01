@@ -49,6 +49,8 @@ bool verbose = false;
  */
 IBEO::IBEO(Control* CarController, Logger* Logger) {
 
+	gettimeofday(&lastwrite,NULL);
+
 	CarControl = CarController;
  	Log = Logger;
 
@@ -162,6 +164,8 @@ IBEO_HEADER IBEO::FindHeader() {
  * Outputs: None.
  */
 void IBEO::ReadMessages() {
+
+
 
     IBEO_HEADER header;
 
@@ -363,22 +367,27 @@ void IBEO::ProcessMessages() {
 	while(Run) {
 		ReadMessages();
 
-		ofstream outfile;
+
 
 		timeval current;
 		gettimeofday(&current,NULL);
 
-		std::string FileName = boost::lexical_cast<std::string>(current.tv_sec + current.tv_usec/1000000) + ".lux";
+		if((current.tv_sec + ((double)current.tv_usec)/1000000) > (lastwrite.tv_sec + ((double)lastwrite.tv_usec)/1000000) + 0.1) {
 
-		outfile.open(FileName.c_str(), ios::out);
+			ofstream outfile;
 
-		for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
-			outfile << (int)scan_data_points[curScanDataSource][i].layer_echo << "," << (int)scan_data_points[curScanDataSource][i].flags << "," << scan_data_points[curScanDataSource][i].horiz_angle << "," << scan_data_points[curScanDataSource][i].radial_dist << "," << scan_data_points[curScanDataSource][i].echo_pulse_width << "," << scan_data_points[curScanDataSource][i].res << "\n";
-		}
+			std::string FileName = CarControl->LogDir + "/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".lux";
+
+			outfile.open(FileName.c_str(), ios::out);
+
+			for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
+				outfile << (int)scan_data_points[curScanDataSource][i].layer_echo << "," << (int)scan_data_points[curScanDataSource][i].flags << "," << scan_data_points[curScanDataSource][i].horiz_angle << "," << scan_data_points[curScanDataSource][i].radial_dist << "," << scan_data_points[curScanDataSource][i].echo_pulse_width << "," << scan_data_points[curScanDataSource][i].res << "\n";
+			}
 		
-		outfile.close();
+			outfile.close();
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+		}
+
 
 	//	Log->WriteLogLine("IBEO next...");
 	}

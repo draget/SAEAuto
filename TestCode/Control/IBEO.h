@@ -171,6 +171,8 @@ private:
     bool Read_Size2D(SIZE_2D*);
 
     void ProcessMessages();
+	
+	timeval lastwrite;
 
     bool Run;
 };
