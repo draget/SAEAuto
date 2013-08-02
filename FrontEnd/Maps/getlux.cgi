@@ -45,6 +45,7 @@ foreach my $LuxLine (@LuxLines) {
 	elsif($LuxLineParts[0] == 1) { $Colour = 'blue'; }
 	elsif($LuxLineParts[0] == 2) { $Colour = 'green'; }
 	elsif($LuxLineParts[0] == 3) { $Colour = 'purple'; }
+	else { next; }
 	
 
 	push(@{$PlotInfo->{"data"}},[$LuxLineParts[2]*360/11520,$LuxLineParts[3]*1.0, $Colour]);

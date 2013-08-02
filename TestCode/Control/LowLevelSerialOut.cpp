@@ -114,7 +114,7 @@ void LowLevelSerialOut::SendCurrent() {
 		}
 
 		else { 
-			Log->WriteLogLine("LowLevelSerial - Steering set point out of range");
+			Log->WriteLogLine("LowLevelSerial - Steering set point out of range " + boost::lexical_cast<std::string>(CarControl->CurrentSteeringSetPosn));
 			CarControl->Trip(5);
 		}
 
