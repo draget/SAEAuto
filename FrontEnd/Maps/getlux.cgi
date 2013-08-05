@@ -7,7 +7,29 @@ use JSON;
 
 print header('application/json');
 
-open (LUXFILE, "test.lux");
+my $Run = "0";
+
+if(param('run')) { $Run = param('run'); }
+
+my $LuxFileNumber = 0;
+
+opendir(LUXDIR, "/opt/SAE/git/SAEAuto/TestCode/Control/RunFiles/$Run");
+foreach my $FileName (readdir(LUXDIR)) {
+
+	if($FileName !~ /\.lux$/i) { next; }
+	else {
+
+	$FileName =~ /^([0-9\.]+)\.lux$/i;
+
+	if($1 > $LuxFileNumber) { $LuxFileNumber = $1; }
+
+	}
+
+
+}
+closedir(LUXDIR);
+
+open (LUXFILE, "/opt/SAE/git/SAEAuto/TestCode/Control/RunFiles/$Run/$LuxFileNumber.lux");
 @LuxLines = <LUXFILE>;
 close LUXFILE;
 
@@ -23,6 +45,7 @@ foreach my $LuxLine (@LuxLines) {
 	elsif($LuxLineParts[0] == 1) { $Colour = 'blue'; }
 	elsif($LuxLineParts[0] == 2) { $Colour = 'green'; }
 	elsif($LuxLineParts[0] == 3) { $Colour = 'purple'; }
+	else { next; }
 	
 
 	push(@{$PlotInfo->{"data"}},[$LuxLineParts[2]*360/11520,$LuxLineParts[3]*1.0, $Colour]);

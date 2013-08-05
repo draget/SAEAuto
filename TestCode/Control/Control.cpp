@@ -63,7 +63,7 @@ Control::~Control() {
 void Control::Setup() {
 
 	CarNetworkConnection->Open();
-//	SafetySerial->Open();
+	SafetySerial->Open();
 	LowLevelSerial->Open();
 	GPS->Open();
 	if(access("noibeo", F_OK ) == -1) { Lux->Open(); }
@@ -243,6 +243,8 @@ int main(int argc, char *argv[]) {
 	SAECar->Setup();
 
 	SAECar->Run();
+
+	cout << "Close.\n";
 
 	echo();
 	endwin();
