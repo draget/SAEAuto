@@ -178,6 +178,9 @@ void Control::Trip(int TripState) {
 	else if(TripState == 5) {
 		TripReason = "Error sending low level commands.";
 	}
+	else if(TripState == 6) {
+		TripReason = "Network error!";
+	}
 
 	if(BrakeILOn) { CurrentThrottleBrakeSetPosn = -256; }
 	else { CurrentThrottleBrakeSetPosn = 0; }

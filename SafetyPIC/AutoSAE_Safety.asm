@@ -53,7 +53,7 @@ _interrupt:
 	CLRF       PCLATH+0
 
 ;AutoSAE_Safety.c,34 :: 		void interrupt() {
-;AutoSAE_Safety.c,36 :: 		if(hb_interruptcount > 18) {
+;AutoSAE_Safety.c,36 :: 		if(hb_interruptcount > 20) {
 	MOVLW      128
 	MOVWF      R0+0
 	MOVLW      128
@@ -62,7 +62,7 @@ _interrupt:
 	BTFSS      STATUS+0, 2
 	GOTO       L__interrupt83
 	MOVF       _hb_interruptcount+0, 0
-	SUBLW      18
+	SUBLW      20
 L__interrupt83:
 	BTFSC      STATUS+0, 0
 	GOTO       L_interrupt3
@@ -634,8 +634,17 @@ L_main53:
 	MOVWF      FARG_UART1_Write_Text_uart_text+0
 	CALL       _UART1_Write_Text+0
 L_main57:
-;AutoSAE_Safety.c,182 :: 		if(PORTB.B4 == 0) { arm_state = -1; PORTB.B0 = 1; UART1_Write_Text("AF 2\n"); }  // Throttle
-	BTFSC      PORTB+0, 4
+;AutoSAE_Safety.c,182 :: 		if(Button(&PORTB,4,1,0)) { arm_state = -1; PORTB.B0 = 1; UART1_Write_Text("AF 2\n"); }  // Throttle
+	MOVLW      PORTB+0
+	MOVWF      FARG_Button_port+0
+	MOVLW      4
+	MOVWF      FARG_Button_pin+0
+	MOVLW      1
+	MOVWF      FARG_Button_time_ms+0
+	CLRF       FARG_Button_active_state+0
+	CALL       _Button+0
+	MOVF       R0+0, 0
+	BTFSC      STATUS+0, 2
 	GOTO       L_main58
 	MOVLW      255
 	MOVWF      _arm_state+0
@@ -680,8 +689,17 @@ L_main60:
 	GOTO       L__main77
 	GOTO       L_main64
 L__main77:
-;AutoSAE_Safety.c,191 :: 		if(PORTB.B4 == 0) { arm_state = -1; PORTB.B0 = 1; UART1_Write_Text("AF 3\n"); }      // Throttle
-	BTFSC      PORTB+0, 4
+;AutoSAE_Safety.c,191 :: 		if(Button(&PORTB,4,1,0)) { arm_state = -1; PORTB.B0 = 1; UART1_Write_Text("AF 3\n"); }      // Throttle
+	MOVLW      PORTB+0
+	MOVWF      FARG_Button_port+0
+	MOVLW      4
+	MOVWF      FARG_Button_pin+0
+	MOVLW      1
+	MOVWF      FARG_Button_time_ms+0
+	CLRF       FARG_Button_active_state+0
+	CALL       _Button+0
+	MOVF       R0+0, 0
+	BTFSC      STATUS+0, 2
 	GOTO       L_main65
 	MOVLW      255
 	MOVWF      _arm_state+0
@@ -740,13 +758,14 @@ L_main71:
 	XORLW      255
 	BTFSS      STATUS+0, 2
 	GOTO       L_main73
-;AutoSAE_Safety.c,205 :: 		if(PORTB.B3 == 1) { PORTB.B6 = 0; arm_state = 0; }
+;AutoSAE_Safety.c,205 :: 		PORTB.B6 = 0;
+	BCF        PORTB+0, 6
+;AutoSAE_Safety.c,206 :: 		if(PORTB.B3 == 1) { arm_state = 0; }
 	BTFSS      PORTB+0, 3
 	GOTO       L_main74
-	BCF        PORTB+0, 6
 	CLRF       _arm_state+0
 L_main74:
-;AutoSAE_Safety.c,206 :: 		}
+;AutoSAE_Safety.c,207 :: 		}
 L_main73:
 L_main72:
 L_main70:
@@ -756,9 +775,9 @@ L_main59:
 L_main55:
 L_main52:
 L_main49:
-;AutoSAE_Safety.c,208 :: 		}
+;AutoSAE_Safety.c,209 :: 		}
 	GOTO       L_main28
-;AutoSAE_Safety.c,210 :: 		}
+;AutoSAE_Safety.c,211 :: 		}
 L_end_main:
 	GOTO       $+0
 ; end of _main
