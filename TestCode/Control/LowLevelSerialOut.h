@@ -3,7 +3,7 @@
 #define	_LowLevelSerialOut_H
 
 #define LL_BAUDRATE 9600
-#define LL_DEVICE "/dev/ttyACM0"
+#define LL_DEVICE "/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_74134373733351609070-if00"
 
 #include <vector>
 #include <string>

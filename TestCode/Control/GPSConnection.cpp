@@ -109,7 +109,7 @@ void GPSConnection::ProcessMessages() {
 				Speed = NewData->fix.speed;
 
 			}
-			if(NewData->set & TRACK_SET) { Log->WriteLogLine("track"); 
+			if(NewData->set & TRACK_SET) {// Log->WriteLogLine("track"); 
 				TrackAngle = NewData->fix.track;
 
 			}

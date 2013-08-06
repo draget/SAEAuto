@@ -372,7 +372,7 @@ void IBEO::ProcessMessages() {
 		timeval current;
 		gettimeofday(&current,NULL);
 
-		if((current.tv_sec + ((double)current.tv_usec)/1000000) > (lastwrite.tv_sec + ((double)lastwrite.tv_usec)/1000000) + 0.1) {
+		if((current.tv_sec + ((double)current.tv_usec)/1000000) > (lastwrite.tv_sec + ((double)lastwrite.tv_usec)/1000000) + 0.2) {
 
 			ofstream outfile;
 

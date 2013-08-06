@@ -3,7 +3,7 @@
 #define	_SafetySerialOut_H
 
 #define BAUDRATE 38400
-#define DEVICE "/dev/ttyUSB0"
+#define DEVICE "/dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Controller-if00-port0"
 
 #include <vector>
 #include <string>
