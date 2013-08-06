@@ -372,19 +372,31 @@ void IBEO::ProcessMessages() {
 		timeval current;
 		gettimeofday(&current,NULL);
 
-		if((current.tv_sec + ((double)current.tv_usec)/1000000) > (lastwrite.tv_sec + ((double)lastwrite.tv_usec)/1000000) + 0.1) {
+		if((current.tv_sec + ((double)current.tv_usec)/1000000) > (lastwrite.tv_sec + ((double)lastwrite.tv_usec)/1000000) + 0.2) {
 
-			ofstream outfile;
+			ofstream outfile_scan;
 
 			std::string FileName = CarControl->LogDir + "/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".lux";
 
-			outfile.open(FileName.c_str(), ios::out);
+			outfile_scan.open(FileName.c_str(), ios::out);
 
 			for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
-				outfile << (int)scan_data_points[curScanDataSource][i].layer_echo << "," << (int)scan_data_points[curScanDataSource][i].flags << "," << scan_data_points[curScanDataSource][i].horiz_angle << "," << scan_data_points[curScanDataSource][i].radial_dist << "," << scan_data_points[curScanDataSource][i].echo_pulse_width << "," << scan_data_points[curScanDataSource][i].res << "\n";
+				outfile_scan << (int)scan_data_points[curScanDataSource][i].layer_echo << "," << (int)scan_data_points[curScanDataSource][i].flags << "," << scan_data_points[curScanDataSource][i].horiz_angle << "," << scan_data_points[curScanDataSource][i].radial_dist << "," << scan_data_points[curScanDataSource][i].echo_pulse_width << "," << scan_data_points[curScanDataSource][i].res << "\n";
 			}
 		
-			outfile.close();
+			outfile_scan.close();
+
+			ofstream outfile_obj;
+
+			FileName = CarControl->LogDir + "/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".luxobj";
+
+			outfile_obj.open(FileName.c_str(), ios::out);
+
+			for(int i = 0; i < object_data_header[curObjectDataSource].number_of_objects; i++) {
+				outfile_obj << (int)object_data[curObjectDataSource][i].object_id << "," << (int)object_data[curObjectDataSource][i].reference_point.x << "," << object_data[curObjectDataSource][i].reference_point.y << "," << (int)object_data[curObjectDataSource][i].closest_point.x << "," << object_data[curObjectDataSource][i].closest_point.y << "," << object_data[curObjectDataSource][i].classification << "\n";
+			}
+		
+			outfile_obj.close();
 
 		}
 

@@ -533,7 +533,7 @@
                     var d2 = data[i][1];
                     var a   = d1 / (180 / PI); // RADIANS
                     var r   = ( (d2 - prop['chart.ymin']) / (this.scale2.max - this.scale2.min) ) * this.radius;
-                    var x   = Math.sin(a) * r;
+                    var x   = -Math.sin(a) * r; // TD - changed sign.
                     var y   = Math.cos(a) * r;
                     var color = data[i][2] ? data[i][2] : prop['chart.colors.default'];
                     var tooltip = data[i][3] ? data[i][3] : null;

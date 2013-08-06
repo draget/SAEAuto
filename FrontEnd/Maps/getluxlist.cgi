@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+
+use CGI qw(:standard);
+use CGI::Carp qw(fatalsToBrowser);
+use JSON;
+
+
+print header('application/json');
+
+my $Run = "0";
+
+if(param('run')) { $Run = param('run'); }
+
+my $LuxFileNumber = 0;
+
+
+my $PlotInfo;
+
+opendir(LUXDIR, "/opt/SAE/git/SAEAuto/TestCode/Control/RunFiles/$Run");
+foreach my $FileName (readdir(LUXDIR)) {
+
+	if($FileName !~ /\.lux$/i) { next; }
+	else {
+
+	$FileName =~ /^([0-9\.]+)\.lux$/i;
+
+
+
+	push(@{$PlotInfo->{"files"}}, $1);
+
+	}
+
+
+}
+closedir(LUXDIR);
+
+
+
+
+@{$PlotInfo->{"files"}} = sort(@{$PlotInfo->{"files"}});
+
+
+
+
+my $json = JSON->new->allow_nonref;
+
+print $json->encode($PlotInfo);
+

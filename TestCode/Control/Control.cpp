@@ -287,7 +287,7 @@ int main(int argc, char *argv[]) {
 	if(argc > 1) {
 		LogDir = "./RunFiles/" + boost::lexical_cast<std::string>(argv[1]);
 	}
-	else { LogDir = "./RunFiles/0"; }
+	else { system("rm -rf ./RunFiles/0"); LogDir = "./RunFiles/0"; }
 
 	initscr();
 	noecho();

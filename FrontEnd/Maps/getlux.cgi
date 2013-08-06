@@ -13,6 +13,9 @@ if(param('run')) { $Run = param('run'); }
 
 my $LuxFileNumber = 0;
 
+if(param('no')) { $LuxFileNumber = param('no'); }
+else {
+
 opendir(LUXDIR, "/opt/SAE/git/SAEAuto/TestCode/Control/RunFiles/$Run");
 foreach my $FileName (readdir(LUXDIR)) {
 
@@ -28,6 +31,8 @@ foreach my $FileName (readdir(LUXDIR)) {
 
 }
 closedir(LUXDIR);
+
+}
 
 open (LUXFILE, "/opt/SAE/git/SAEAuto/TestCode/Control/RunFiles/$Run/$LuxFileNumber.lux");
 @LuxLines = <LUXFILE>;
