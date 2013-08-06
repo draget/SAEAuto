@@ -8,7 +8,16 @@
     <script type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUx74Zh1SWTbx4wxEjyWCxjJg4MaA8FUI&sensor=true">
     </script>
+	<script type="text/javascript" src="jquery-2.0.3.js">
+  	</script>
     <script type="text/javascript">
+
+window.onload = function ()
+        {
+        	setTimeout(updateLog,1000);
+		
+        }
+
 
 var map;
 
@@ -81,6 +90,25 @@ document.getElementById("markerstext").innerHTML = markersString;
 }
 
 
+function updateLog() {
+
+	$.ajax({
+		type: "GET"
+		,url: "getcarinfo.cgi"
+		,dataType: "json"
+		,cache: false
+		,success: function(json){
+
+				document.getElementById("logarea").innerHTML = json.log;
+
+                            }
+		,error: function() { alert("AJAX Error!"); }
+		});
+
+		setTimeout(updateLog,1000);
+
+}
+
     </script>
   </head>
   <body>
@@ -101,7 +129,11 @@ document.getElementById("markerstext").innerHTML = markersString;
 
     <td height="600" width="75%"><div id="map-canvas"/></td></tr>
 
+<tr><td colspan="2"><textarea rows="15" cols="100" id="logarea"></textarea></td></tr>
+
 </table>
+
+
 
   </body>
 </html>

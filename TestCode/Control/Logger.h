@@ -18,6 +18,7 @@ public:
 	void WriteLogLine(std::string LogLine, bool NoTime);
 	void WriteLogLine(std::string LogLine);
 	void CloseLog();
+	void ClearLog();
 
 private:
 

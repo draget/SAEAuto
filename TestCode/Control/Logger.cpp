@@ -67,9 +67,16 @@ void Logger::WriteLogLine(std::string LogLine, bool NoTime) {
 		LogFileStream << TimeString + ": " + LogLine + '\n';
 	}
 	else {
-		LogFileStream << LogLine;
+		LogFileStream << LogLine + '\n';
 	}
 	LogFileStream.flush();
+
+}
+
+void Logger::ClearLog() {
+
+	LogFileStream.close();
+	LogFileStream.open(LogFile.c_str(), std::ios::trunc);
 
 }
 

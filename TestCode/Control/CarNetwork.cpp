@@ -199,7 +199,7 @@ while(Run) {  // Wait for connections
 				msg_length++;
 			} 
 
-			if(breakandclose) { breakandclose = false; break; }
+			if(breakandclose) { breakandclose = false; CarControl->Trip(6); break; }
 
 			//printf("Data: *%s* \n",msgbuf);
 
@@ -262,7 +262,7 @@ while(Run) {  // Wait for connections
 					//printf("Did it go away before write?\n");  
 					StatusString = "Problem writing";
 					Log->WriteLogLine("Car Network - Problem writing");
-					break; 
+					CarControl->Trip(6); break; 
 				}
 
 				write(ConnectFD,ackmsg_no0,sizeof(ackmsg_no0));

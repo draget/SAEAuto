@@ -34,7 +34,7 @@ void trip() {
 
 void interrupt() {
 
- if(hb_interruptcount > 18) {
+ if(hb_interruptcount > 20) {
  if(arm_state > 0) {
  hb_trip = 1;
  tripreq = 1;
@@ -180,7 +180,7 @@ void main() {
  }
  else if(arm_state == 3) {
  if(PORTB.B3 == 1) { arm_state = -1; UART1_Write_Text("AF 1\n"); }
- if(PORTB.B4 == 0) { arm_state = -1; PORTB.B0 = 1; UART1_Write_Text("AF 2\n"); }
+ if(Button(&PORTB,4,1,0)) { arm_state = -1; PORTB.B0 = 1; UART1_Write_Text("AF 2\n"); }
  }
  else if(arm_state == 4) {
  UART1_Write_Text("A 4\n");
@@ -189,7 +189,7 @@ void main() {
  UART1_Write_Text("A 5\n");
  }
  else if(arm_state == 5 || arm_state == 7) {
- if(PORTB.B4 == 0) { arm_state = -1; PORTB.B0 = 1; UART1_Write_Text("AF 3\n"); }
+ if(Button(&PORTB,4,1,0)) { arm_state = -1; PORTB.B0 = 1; UART1_Write_Text("AF 3\n"); }
  }
  else if(arm_state == 6 && PORTB.B3 == 1) {
  UART1_Write_Text("A 6\n");
@@ -203,7 +203,8 @@ void main() {
  arm_state = 9;
  }
  else if(arm_state == -1) {
- if(PORTB.B3 == 1) { PORTB.B6 = 0; arm_state = 0; }
+ PORTB.B6 = 0;
+ if(PORTB.B3 == 1) { arm_state = 0; }
  }
 
 }
