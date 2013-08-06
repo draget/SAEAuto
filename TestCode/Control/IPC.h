@@ -6,19 +6,32 @@
 #include <iostream>
 #include <fstream>
 
+class Control;
+class Logger;
 
 class IPC {
 public:
 
-	IPC();
-    	Logger(const IPC& orig);
+	IPC(Control* CarController, Logger* Logger);
+    	IPC(const IPC& orig);
     	virtual ~IPC();
 
-
+	void Open();
+	void Start();
+	void ProcessMessages();
 
 private:
 
+	bool OpenState;
 
+	bool Run;
+
+	boost::thread m_Thread;
+	FILE *RXpipe;
+
+	Control* CarControl;
+
+	Logger* Log;
 
 };
 

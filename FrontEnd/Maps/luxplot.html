@@ -27,7 +27,7 @@
 	function updateLuxPlot() {
 
 		RGraph.AJAX.getJSON('getlux.cgi', drawLuxGraph);
-		setTimeout(updateLuxPlot(),200);
+		setTimeout(updateLuxPlot,200);
 
 	}
 

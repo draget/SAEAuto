@@ -20,6 +20,7 @@
 #include "LowLevelSerialOut.h"
 #include "GPSConnection.h"
 #include "IBEO.h"
+#include "IPC.h"
 
 Control *SAECar;
 
@@ -51,6 +52,10 @@ Control::Control(std::string LogDir) {
 
 	Lux = new IBEO(this,Log);
 
+	WebIPC = new IPC(this,Log);
+
+	WebLogger = new Logger("./weblog.txt");
+
 }
 
 Control::Control(const Control& orig) {
@@ -62,8 +67,9 @@ Control::~Control() {
 
 void Control::Setup() {
 
+	WebIPC->Open();
 	CarNetworkConnection->Open();
-	SafetySerial->Open();
+	//SafetySerial->Open();
 	LowLevelSerial->Open();
 	GPS->Open();
 	if(access("noibeo", F_OK ) == -1) { Lux->Open(); }
@@ -94,67 +100,116 @@ void Control::Run() {
 
 	RunState = true;
 
+	WebIPC->Start();
 	CarNetworkConnection->StartProcessMessages();
-	SafetySerial->Start();
+	//SafetySerial->Start();
 	LowLevelSerial->Start();
 	GPS->Start();
 	Lux->Start();
 
 	while(RunState) {
 
-		mvprintw(1,0,"Manual State: %i \n", this->ManualOn);
-		mvprintw(2,0,"Trip State: %i \n", this->TripState);
-		mvprintw(3,0,"HB State: %i \n", this->HeartbeatState);
-		mvprintw(4,0,"Car Net State: %s \n", this->CarNetworkConnection->StatusString.c_str());
-		mvprintw(5,0,"Safety Serial State: %i \n", this->SafetySerial->SerialState);
-
-		mvprintw(7,0,"Brake IL Status: %i \n", this->BrakeILOn);
-
-		mvprintw(9,0,"Current Steering Posn: %i \n", this->CurrentSteeringSetPosn);
-		mvprintw(10,0,"Current Throttle/Brake Level: %i \n", this->CurrentThrottleBrakeSetPosn);
-
-		mvprintw(8,50,"GPS State: %i \n", this->GPS->GPSState);
-		mvprintw(9,50,"GPS Latitude: %lf \n", this->GPS->Latitude);
-		mvprintw(10,50,"GPS Longitude: %lf \n", this->GPS->Longitude);
-		mvprintw(11,50,"GPS Speed: %lf \n", this->GPS->Speed);
-		mvprintw(12,50,"GPS Track Angle: %lf \n", this->GPS->TrackAngle);
-
-		mvprintw(3,50,"IBEO State: %i \n", this->Lux->inUse);
-		mvprintw(4,50,"IBEO N Objects: %i \n", this->Lux->object_data_header[this->Lux->curObjectDataSource].number_of_objects);
-		mvprintw(5,50,"IBEO N Scan Pts: %i \n", this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_points);
-		mvprintw(6,50,"IBEO Scan No: %i \n", this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_number);
-
-		int y,x;
-		getmaxyx(stdscr,y,x);
-
-		int TitleX = 0;
-
-		if((x/2 - 28) > 0) { TitleX = x/2 - 28; }
-
-		mvprintw(0,TitleX,"UWA AUTONOMOUS SAE CAR CONTROLLER - THOMAS DRAGE 2013\n");
-
-		int LogStartLine = 14;
-
-		if(y > LogStartLine) {
-
-			std::string RecentLogLines[y - LogStartLine];
-			this->Log->GetLogLines(RecentLogLines, y - LogStartLine);
-
-			for(int i = y; i > LogStartLine; i--) {
-
-				mvprintw(i-1,0,"Log: %s", (RecentLogLines[y - i] + '\n').c_str());
-
-			}
-
-		}
-
-		refresh();
+		UpdateTerminal();
+		WriteInfoFile();
 
 		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
 	}
 
 }
+
+void Control::UpdateTerminal() {
+
+	mvprintw(1,0,"Manual State: %i \n", this->ManualOn);
+	mvprintw(2,0,"Trip State: %i \n", this->TripState);
+	mvprintw(3,0,"HB State: %i \n", this->HeartbeatState);
+	mvprintw(4,0,"Car Net State: %s \n", this->CarNetworkConnection->StatusString.c_str());
+	mvprintw(5,0,"Safety Serial State: %i \n", this->SafetySerial->SerialState);
+
+	mvprintw(7,0,"Brake IL Status: %i \n", this->BrakeILOn);
+
+	mvprintw(9,0,"Current Steering Posn: %i \n", this->CurrentSteeringSetPosn);
+	mvprintw(10,0,"Current Throttle/Brake Level: %i \n", this->CurrentThrottleBrakeSetPosn);
+
+	mvprintw(8,50,"GPS State: %i \n", this->GPS->GPSState);
+	mvprintw(9,50,"GPS Latitude: %lf \n", this->GPS->Latitude);
+	mvprintw(10,50,"GPS Longitude: %lf \n", this->GPS->Longitude);
+	mvprintw(11,50,"GPS Speed: %lf \n", this->GPS->Speed);
+	mvprintw(12,50,"GPS Track Angle: %lf \n", this->GPS->TrackAngle);
+
+	mvprintw(3,50,"IBEO State: %i \n", this->Lux->inUse);
+	mvprintw(4,50,"IBEO N Objects: %i \n", this->Lux->object_data_header[this->Lux->curObjectDataSource].number_of_objects);
+	mvprintw(5,50,"IBEO N Scan Pts: %i \n", this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_points);
+	mvprintw(6,50,"IBEO Scan No: %i \n", this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_number);
+
+	int y,x;
+	getmaxyx(stdscr,y,x);
+
+	int TitleX = 0;
+
+	if((x/2 - 28) > 0) { TitleX = x/2 - 28; }
+
+	mvprintw(0,TitleX,"UWA AUTONOMOUS SAE CAR CONTROLLER - THOMAS DRAGE 2013\n");
+
+	int LogStartLine = 14;
+
+	if(y > LogStartLine) {
+
+		std::string RecentLogLines[y - LogStartLine];
+		this->Log->GetLogLines(RecentLogLines, y - LogStartLine);
+			
+		for(int i = y; i > LogStartLine; i--) {
+
+			mvprintw(i-1,0,"Log: %s", (RecentLogLines[y - i] + '\n').c_str());
+
+		}
+
+	}
+
+	refresh();
+
+}
+
+
+void Control::WriteInfoFile() {
+
+	WebLogger->ClearLog();
+
+	WebLogger->WriteLogLine("Manual State|" + boost::lexical_cast<std::string>(this->ManualOn), true);
+	WebLogger->WriteLogLine("Trip State|" + boost::lexical_cast<std::string>(this->TripState), true);
+	WebLogger->WriteLogLine("HB State|" + boost::lexical_cast<std::string>(this->HeartbeatState), true);
+	WebLogger->WriteLogLine("Car Net State|" + boost::lexical_cast<std::string>(this->CarNetworkConnection->StatusString.c_str()), true);
+	WebLogger->WriteLogLine("Safety Serial State|" + boost::lexical_cast<std::string>(this->SafetySerial->SerialState), true);
+
+	WebLogger->WriteLogLine("Brake IL Status|" + boost::lexical_cast<std::string>(this->BrakeILOn), true);
+
+	WebLogger->WriteLogLine("Current Steering Posn|" + boost::lexical_cast<std::string>(this->CurrentSteeringSetPosn), true);
+	WebLogger->WriteLogLine("Current Throttle/Brake Level|" + boost::lexical_cast<std::string>(this->CurrentThrottleBrakeSetPosn), true);
+
+	WebLogger->WriteLogLine("GPS State|" + boost::lexical_cast<std::string>(this->GPS->GPSState), true);
+	WebLogger->WriteLogLine("GPS Latitude|" + boost::lexical_cast<std::string>(this->GPS->Latitude), true);
+	WebLogger->WriteLogLine("GPS Longitude|" + boost::lexical_cast<std::string>(this->GPS->Longitude), true);
+	WebLogger->WriteLogLine("GPS Speed|" + boost::lexical_cast<std::string>(this->GPS->Speed), true);
+	WebLogger->WriteLogLine("GPS Track Angle|" + boost::lexical_cast<std::string>(this->GPS->TrackAngle), true);
+
+	WebLogger->WriteLogLine("IBEO State|" + boost::lexical_cast<std::string>(this->Lux->inUse), true);
+	WebLogger->WriteLogLine("IBEO N Objects|" + boost::lexical_cast<std::string>(this->Lux->object_data_header[this->Lux->curObjectDataSource].number_of_objects), true);
+	WebLogger->WriteLogLine("IBEO N Scan Pts|" + boost::lexical_cast<std::string>(this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_points), true);
+	WebLogger->WriteLogLine("IBEO Scan No|" + boost::lexical_cast<std::string>(this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_number), true);
+
+	int y = 20;
+	
+	std::string RecentLogLines[y];
+	this->Log->GetLogLines(RecentLogLines, y);
+			
+	for(int i = y; i > 0; i--) {
+
+		WebLogger->WriteLogLine("Log|" + RecentLogLines[y - i], true);
+
+	}
+
+}
+
 
 
 void Control::Trip(int TripState) {
@@ -180,6 +235,9 @@ void Control::Trip(int TripState) {
 	}
 	else if(TripState == 6) {
 		TripReason = "Network error!";
+	}
+	else if(TripState == 7) {
+		TripReason = "GPS Error";
 	}
 
 	if(BrakeILOn) { CurrentThrottleBrakeSetPosn = -256; }

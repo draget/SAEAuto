@@ -7,6 +7,7 @@ class SafetySerialOut;
 class LowLevelSerialOut;
 class GPSConnection;
 class IBEO;
+class IPC;
 
 class Control {
 public:
@@ -32,9 +33,14 @@ public:
 	int CurrentSteeringSetPosn;
 	int CurrentThrottleBrakeSetPosn;
  
+	
+
 private:
 
 	bool RunState;
+
+	void UpdateTerminal();
+	void WriteInfoFile();
 
 	GPSConnection* GPS;
 	CarNetwork* CarNetworkConnection;
@@ -42,6 +48,9 @@ private:
 	SafetySerialOut* SafetySerial;
 	LowLevelSerialOut* LowLevelSerial;
 	IBEO *Lux;
+	IPC *WebIPC;
+
+	Logger* WebLogger;
 
 };
 

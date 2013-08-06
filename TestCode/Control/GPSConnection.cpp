@@ -65,6 +65,7 @@ bool GPSConnection::Open() {
 
     	if (GPSReceiver->stream(WATCH_ENABLE|WATCH_JSON) == NULL) {
     	    	Log->WriteLogLine("GPS - No GPSD running.");
+		CarControl->Trip(7);
         	return false;
    	}
 
@@ -98,8 +99,12 @@ void GPSConnection::ProcessMessages() {
 
 		if ((NewData = GPSReceiver->read()) == NULL) {
 	    		Log->WriteLogLine("GPS - Read error!");
+			CarControl->Trip(7);
 		} 
 		else {
+			if (NewData->set & TIME_SET) {
+				// Do something to make sure GPS data isn't terribly old!
+			}
 			if(NewData->set & LATLON_SET) {
 				Latitude = NewData->fix.latitude;
 				Longitude = NewData->fix.longitude;
