@@ -49,7 +49,7 @@ foreach my $LogLine (@LogLines) {
 	my ($LineType, $LineContents) = split(/|/,$LogLine);
 
 
-	$PlotInfo->{"objdata"} .= $LogLine;
+	push(@{$PlotInfo->{"objdata"}}, $LogLine);
 
 }
 

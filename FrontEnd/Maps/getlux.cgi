@@ -16,7 +16,7 @@ my $LuxFileNumber = 0;
 if(param('no')) { $LuxFileNumber = param('no'); }
 else {
 
-opendir(LUXDIR, "/opt/SAE/git/SAEAuto/TestCode/Control/RunFiles/$Run");
+opendir(LUXDIR, "../../TestCode/Control/RunFiles/$Run");
 foreach my $FileName (readdir(LUXDIR)) {
 
 	if($FileName !~ /\.lux$/i) { next; }
@@ -34,7 +34,7 @@ closedir(LUXDIR);
 
 }
 
-open (LUXFILE, "/opt/SAE/git/SAEAuto/TestCode/Control/RunFiles/$Run/$LuxFileNumber.lux");
+open (LUXFILE, "../../TestCode/Control/RunFiles/$Run/$LuxFileNumber.lux");
 @LuxLines = <LUXFILE>;
 close LUXFILE;
 

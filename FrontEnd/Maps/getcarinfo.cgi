@@ -16,7 +16,9 @@ my $PlotInfo;
 
 foreach my $LogLine (@LogLines) {
 	
-	my ($LineType, $LineContents) = split(/|/,$LogLine);
+	my ($LineType, $LineContents) = split(/\|/,$LogLine);
+
+	$LineContents =~ s/\n//;
 
 	if($LineType eq 'GPS Latitude') { $PlotInfo->{"gps"}->{"lat"} = $LineContents; }
 	elsif($LineType eq 'GPS Longitude') { $PlotInfo->{"gps"}->{"long"} = $LineContents; }

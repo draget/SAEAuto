@@ -7,6 +7,7 @@
     <script src="RGraph/libraries/RGraph.common.dynamic.js" ></script>
     <script src="RGraph/libraries/RGraph.common.tooltips.js" ></script>
     <script src="RGraph/libraries/RGraph.rscatter_half.js" ></script>
+	<script src="RGraph/libraries/RGraph.drawing.circle.js" ></script>
     
     <title>Live IBEO</title>
 
@@ -14,12 +15,15 @@
   	</script>
 
  <script>
+var centerx = 0;
+var centery = 0;
+var scale = 0;
 
+var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", "car", "truck"];
 
         window.onload = function ()
         {
         	updateLuxPlot();
-		setTimeout(updateLog,1000);
 		setTimeout(updateList,1000);
 		
         }
@@ -31,7 +35,8 @@
 		if(document.getElementById("plotnos").selectedIndex >= 0) { arg = document.getElementById("plotnos").options[document.getElementById("plotnos").selectedIndex].innerHTML; }
 
 		RGraph.AJAX.getJSON("getlux.cgi?no=" + arg, drawLuxGraph);
-		setTimeout(updateLuxPlot,500);
+
+		setTimeout(updateLuxPlot,1000);
 
 	}
 
@@ -42,9 +47,17 @@
             var rscatter = new RGraph.Rscatter('cvs', json.data)
 
 		.Set('labels.axes', 'new')
-		.Set('labels.count', 2)
+		.Set('labels.count', 3)
 
                 .Draw();
+
+	centerx = ((rscatter.canvas.width - rscatter.Get("chart.gutter.left") - rscatter.Get("chart.gutter.right")) / 2) + rscatter.Get("chart.gutter.left");
+	centery = (rscatter.canvas.height - rscatter.Get("chart.gutter.top") - rscatter.Get("chart.gutter.bottom")) + rscatter.Get("chart.gutter.top");
+	scale = rscatter.GetScale();
+
+	updateLog();
+
+
         }
 
 
@@ -64,11 +77,27 @@
 
 				document.getElementById("logarea").innerHTML = json.objdata;
 
+				$.each(json.objdata,function(index, value){ 
+
+					var parts = value.split(",");
+
+					var x = (centerx - parseInt(parts[2],10)*scale);
+					var y = (centery - parseInt(parts[1],10)*scale);
+
+					var circle = new RGraph.Drawing.Circle('cvs',x,y, 5)
+            				.Set('chart.strokestyle', 'black')
+           				.Set('chart.fillstyle', 'rgba(255,0,0,0.7)')
+            				.Set('chart.tooltips', ["ID: " + parts[0] + "<br /> Type: " + objtypes[parseInt(parts[5],10)]])
+            				.Draw();
+					
+ 				});
+
+
                             }
 		,error: function() { alert("AJAX Error!"); }
 		});
 
-		setTimeout(updateLog,1000);
+
 
 }
 
