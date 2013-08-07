@@ -137,7 +137,7 @@ void GPSConnection::NewPosition() {
 
 
 	GPSLog->WriteLogLine("P," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Latitude) + "," + boost::lexical_cast<std::string>(Longitude), true);
-
+	if(CarControl->AutoRun) { CarControl->AutoPosUpdate(CarControl->LatLongToXY(Latitude, Longitude)); }
 
 }
 
@@ -145,7 +145,7 @@ void GPSConnection::NewSpeed() {
 
 
 	GPSLog->WriteLogLine("S," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Speed), true);
-
+	if(CarControl->AutoRun) { CarControl->AutoSpeedUpdate(Speed); }
 
 }
 
@@ -153,7 +153,7 @@ void GPSConnection::NewTrack() {
 
 
 	GPSLog->WriteLogLine("T," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(TrackAngle), true);
-
+	if(CarControl->AutoRun) { CarControl->AutoTrackUpdate(TrackAngle); }
 
 }
 

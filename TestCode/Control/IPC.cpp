@@ -113,12 +113,17 @@ void IPC::ProcessMessages() {
 
 		if(MessageParts[0].compare(0,8,"SETDATUM") == 0) { 
 			Log->WriteLogLine("IPC - Setting new datum " + MessageParts[1] + " " + MessageParts[2]);
-			CarControl->DatumLat = boost::lexical_cast<double>(MessageParts[1]); 
-			CarControl->DatumLong = boost::lexical_cast<double>(MessageParts[2]); 
+			if(! CarControl->AutoOn)	{
+				CarControl->ClearMap();		
+				CarControl->DatumLat = boost::lexical_cast<double>(MessageParts[1]); 
+				CarControl->DatumLong = boost::lexical_cast<double>(MessageParts[2]); 
+			}
+			else { Log->WriteLogLine("IPC - Can't change datum during auto!!!!"); }
 		}
 		else if(MessageParts[0].compare(0,7,"LOADMAP") == 0) {
 			Log->WriteLogLine("IPC - calling load map");
-			CarControl->LoadMap(MessageParts[1]);
+			if(! CarControl->AutoOn) { CarControl->LoadMap(MessageParts[1]); }
+			else { Log->WriteLogLine("IPC - Can't change map during auto!!!!"); }
 		}
 		else if(MessageParts[0].compare(0,7,"DUMPMAP") == 0) {
 			Log->WriteLogLine("IPC - calling dump map");

@@ -26,6 +26,8 @@
 #include "IBEO.h"
 #include "IPC.h"
 
+#include "PID.h"
+
 Control *SAECar;
 
 double TwoPi = 4*acos(0);
@@ -281,8 +283,7 @@ void Control::ToggleBrakeIL() {
 
 void Control::LoadMap(std::string MapFilename) {
 
-	CurrentMap.Fenceposts.clear();
-	CurrentMap.Waypoints.clear();
+	ClearMap();
 
 	std::ifstream infile(("../../FrontEnd/Maps/maps/" + MapFilename).c_str());
 
@@ -300,8 +301,7 @@ void Control::LoadMap(std::string MapFilename) {
 
 			MAPPOINT_2D MapPoint;
 
-			MapPoint.x = EARTH_RADIUS*TwoPi*(DatumLat - boost::lexical_cast<double>(LineParts[1]))/360;
-			MapPoint.y = EARTH_RADIUS*cos(abs(boost::lexical_cast<double>(LineParts[1])))*TwoPi*(DatumLong - boost::lexical_cast<double>(LineParts[2]))/360;
+			MapPoint = LatLongToXY(boost::lexical_cast<double>(LineParts[1]), boost::lexical_cast<double>(LineParts[2]));
 
 			if(LineParts[0].compare(0,1,"F") == 0 ) {
 				Log->WriteLogLine("Adding fence.");
@@ -321,6 +321,15 @@ void Control::LoadMap(std::string MapFilename) {
 
 }
 
+void Control::ClearMap() {
+
+	NextWaypoint = 0;
+
+	CurrentMap.Fenceposts.clear();
+	CurrentMap.Waypoints.clear();
+
+}
+
 void Control::DumpMap() {
 
 	BOOST_FOREACH( MAPPOINT_2D MapPoint, CurrentMap.Waypoints ) {
@@ -336,42 +345,61 @@ void Control::DumpMap() {
 
 void Control::AutoStart() {
 
+	if(CurrentMap.Waypoints.size() == 0) { Log->WriteLogLine("Control - No map loaded, can't start auto."); }
+
 	NextWaypoint = 0;
 	ManualOn = false;
 	AutoOn = true;
+	AutoRun = true;
 	AutoSpeedTarget = 0;
 
+	SpeedController = new PID(10.0,10.0,0,0.2);
+	SpeedController->setInputLimits(0.0, 30);
+	SpeedController->setOutputLimits(-255,255);
+	SpeedController->setMode(AUTO_MODE);
+
+	SteerController = new PID(2.0,1.0,0,0.2);
+	SteerController->setInputLimits(-360, 360);
+	SteerController->setOutputLimits(-127,127);
+	SteerController->setMode(AUTO_MODE);
+
 }
 
-void Control::AutoPosUpdate() {
+void Control::AutoPosUpdate(MAPPOINT_2D CurPosn) {
 
+	MAPPOINT_2D VectorToNextWp = SubtractMapPoint(CurrentMap.Waypoints[NextWaypoint], CurPosn);
+
+	if(VectorToNextWp.x > 0) { DesiredBearing = 90 - 360*atan(VectorToNextWp.y/VectorToNextWp.x)/TwoPi; }
+	else { DesiredBearing = 270 - 360*atan(VectorToNextWp.y/VectorToNextWp.x)/TwoPi; }
 
 }
 
-void Control::AutoSpeedUpdate() {
+void Control::AutoSpeedUpdate(double CurSpeed) {
 
+	SpeedController->setProcessValue(CurSpeed);
+	CurrentThrottleBrakeSetPosn = SpeedController->compute();
+
+}
+
+
+void Control::AutoTrackUpdate(double CurTrack) {
+
+	SteerController->setProcessValue(CurTrack);
+	CurrentSteeringSetPosn = SteerController->compute();
+
+}
+
+void Control::AutoPause() {
 	
-
-}
-
-
-void Control::AutoTrackUpdate() {
-
-
-
-}
-
-void AutoPause() {
-	
-	AutoOn = false;
+	AutoRun = false;
 	boost::thread brake_Thread = boost::thread(&Control::TimedBrake, this);
 	brake_Thread.detach();
 
 }
 
-void AutoContinue() {
+void Control::AutoContinue() {
 	
-	AutoOn = false;
+	AutoRun = true;
 
 }
 
@@ -398,6 +426,27 @@ double Control::TimeStamp() {
 
 }
 
+MAPPOINT_2D Control::LatLongToXY(double lat, double lng) {
+
+	MAPPOINT_2D MapPoint;
+
+	MapPoint.x = EARTH_RADIUS*TwoPi*(DatumLat - lat)/360;
+	MapPoint.y = EARTH_RADIUS*cos(abs(lat))*TwoPi*(DatumLong - lng)/360;
+
+	return MapPoint;
+
+}
+
+MAPPOINT_2D Control::SubtractMapPoint(MAPPOINT_2D Point1, MAPPOINT_2D Point2) {
+
+	MAPPOINT_2D Result;
+
+	Result.x = Point1.x - Point2.x;
+	Result.y = Point1.y - Point2.y;
+
+	return Result;
+
+}
 
 // C-style non -member functions follow.
 

@@ -6,6 +6,8 @@
 #include <vector>
 #include <string>
 
+#include "PID.h"
+
 class CarNetwork;
 class Logger;
 class SafetySerialOut;
@@ -13,6 +15,8 @@ class LowLevelSerialOut;
 class GPSConnection;
 class IBEO;
 class IPC;
+
+
 
 
 struct MAPPOINT_2D {
@@ -49,12 +53,23 @@ public:
 	int TripState;
 	bool ManualOn;
 	bool AutoOn;
+	bool AutoRun;
 	bool BrakeILOn;
 
 	double DatumLat;
 	double DatumLong;
 
 	double AutoSpeedTarget;
+
+	void AutoStart();
+	void AutoPosUpdate(MAPPOINT_2D CurPosn);
+	void AutoSpeedUpdate(double CurSpeed);
+	void AutoTrackUpdate(double CurTrack);
+	void AutoPause();
+	void AutoContinue();
+	
+	void ClearMap();
+
 
 	int NextWaypoint;
 
@@ -65,12 +80,21 @@ public:
  
 	static double TimeStamp();
 
+	MAPPOINT_2D LatLongToXY(double lat, double lng);
+
+	static MAPPOINT_2D SubtractMapPoint(MAPPOINT_2D Point1, MAPPOINT_2D Point2);
+
 private:
 
 	bool RunState;
 
 	void UpdateTerminal();
 	void WriteInfoFile();
+
+	void TimedBrake();
+
+	PID *SpeedController;
+	PID *SteerController;
 
 	MAP CurrentMap;
 
