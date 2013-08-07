@@ -235,6 +235,12 @@
 
 
 
+	this.GetScale = function ()
+        {
+	alert((this.scale2.max - this.scale2.min)  * this.radius);
+            return (this.scale2.max - this.scale2.min)  * this.radius;
+        }
+
 
         /**
         * This method draws the rose chart
