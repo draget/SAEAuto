@@ -233,7 +233,10 @@
             return prop[name.toLowerCase()];
         }
 
-
+	this.GetScale = function ()
+        {
+            return this.radius/(this.scale2.max - this.scale2.min);
+        }
 
 	this.GetScale = function ()
         {

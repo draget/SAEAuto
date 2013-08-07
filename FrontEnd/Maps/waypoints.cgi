@@ -73,33 +73,58 @@ window.onload = function ()
 var map;
 
 var markers = [];
+var fencemarkers = [];
 
 var greenCross = {url: 'cross.png'};
+var blueDot = {url: 'blue-dot.png'};
+
+var redCross = {url: 'redcross.png'};
+
+var currentLocationMarker;
 
 function initialize() {
         
-var mapOptions = {
-	center: new google.maps.LatLng(-31.980569, 115.817807),
-	zoom: 17,
-	mapTypeId: google.maps.MapTypeId.SATELLITE
+	var mapOptions = {
+		center: new google.maps.LatLng(-31.980569, 115.817807),
+		zoom: 17,
+		mapTypeId: google.maps.MapTypeId.SATELLITE
         };
 
-map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+	map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 
-google.maps.event.addListener(map, 'click', function(event) { logLocation(event.latLng); });
+	google.maps.event.addListener(map, 'click', function(event) { logLocation(event.latLng); });
+
+	var zeroposition = new google.maps.LatLng(0, 0);
+
+	currentLocationMarker = new google.maps.Marker({
+		position: zeroposition,
+		map: map,
+		draggable: true,
+		raiseOnDrag: false,
+		icon: blueDot,
+	});
+
+}
+
+function logLocation(location) {
+
+	if(document.getElementById("markertype").options[document.getElementById("markertype").selectedIndex].value == 0) {
+		logMarkerLocation(location);
+	}
+	else { logFenceLocation(location); }
 
 }
 
 
-function logLocation(location) {
+function logMarkerLocation(location) {
  
 
-var marker = new google.maps.Marker({
-	position: location,
-	map: map,
-	draggable: true,
-	raiseOnDrag: false,
-	icon: greenCross,
+	var marker = new google.maps.Marker({
+		position: location,
+		map: map,
+		draggable: true,
+		raiseOnDrag: false,
+		icon: greenCross,
 	});
 
 	google.maps.event.addListener(marker, 'rightclick',  function() { removeMarker(marker); });
@@ -112,65 +137,109 @@ var marker = new google.maps.Marker({
 
 }
 
+function logFenceLocation(location) {
 
-function updateMarkersText() {
+	var circleOptions = {
+      		strokeColor: '#FF0000',
+      		strokeOpacity: 0.8,
+      		strokeWeight: 2,
+      		fillColor: '#FF0000',
+      		fillOpacity: 0.35,
+      		map: map,
+      		center: location,
+      		radius: 1.5
+    	};
 
-var markersString = "";
+	var fenceCircle = new google.maps.Circle(circleOptions);
 
-for(i in markers) {
+	google.maps.event.addListener(fenceCircle, 'rightclick',  function() { removeFenceMarker(fenceCircle); });
 
-markersString += i + "," + markers[i].getPosition().lat() + "," + markers[i].getPosition().lng() + "\\n";
+	fencemarkers.push(fenceCircle);
 
-markers[i].setTitle(i.toString());
+	updateMarkersText();
 
 }
 
-document.getElementById("markerstext").value = markersString;
+
+function updateMarkersText() {
+
+	var markersString = "";
+
+	for(i in markers) {
+
+		markersString += i + "," + markers[i].getPosition().lat() + "," + markers[i].getPosition().lng() + "\\n";
+
+		markers[i].setTitle(i.toString());
+
+	}
+
+	for(i in fencemarkers) {
+
+		markersString += "F" + i + "," + fencemarkers[i].getCenter().lat() + "," + fencemarkers[i].getCenter().lng() + "\\n";
+
+	}
+
+
+
+	document.getElementById("markerstext").value = markersString;
 
 }
 
 function updateMarkersFromText() {
 
-var lines = document.getElementById("markerstext").value.split("\\n");
+	var lines = document.getElementById("markerstext").value.split("\\n");
 
-clearMap();
+	clearMap();
 
-for(i in lines) {
+	for(i in lines) {
 
-if(lines[i] == '') { continue; }
+		if(lines[i] == '') { continue; }
 
-var lineParts = lines[i].split(",");
+		var lineParts = lines[i].split(",");
 
-var position = new google.maps.LatLng(lineParts[1],lineParts[2]);
+		var position = new google.maps.LatLng(lineParts[1],lineParts[2]);
 
-logLocation(position);
+		if(lineParts[0].substring(0,1) == "F") { logFenceLocation(position); }
+		else { logMarkerLocation(position); }
 
-}
+	}
 
 }
 
 
 function clearMap() {
 
-document.getElementById("nextposn").value = 0;
+	document.getElementById("nextposn").value = 0;
 
-while(markers.length > 0) {
-	for(i in markers) {
-		removeMarker(markers[i]);
+	while(markers.length > 0) {
+		for(i in markers) {
+			removeMarker(markers[i]);
+		}
 	}
-}
 
 }
 
 function removeMarker(marker) { 
 
-marker.setMap(null);
+	marker.setMap(null);
 
-var index = markers.indexOf(marker);
+	var index = markers.indexOf(marker);
 
-markers.splice(index,1);
+	markers.splice(index,1);
 
-updateMarkersText();
+	updateMarkersText();
+	
+}
+
+function removeFenceMarker(marker) { 
+
+	marker.setMap(null);
+
+	var index = fencemarkers.indexOf(marker);
+
+	fencemarkers.splice(index,1);
+
+	updateMarkersText();
 	
 }
 
@@ -189,12 +258,14 @@ function updateLog() {
 		,success: function(json){
 
 				document.getElementById("logarea").innerHTML = json.log;
+				var position = new google.maps.LatLng(json.gps.lat, json.gps.long);
+				currentLocationMarker.setPosition(position);
 
                             }
 		,error: function() { alert("AJAX Error!"); }
-		});
+	});
 
-		setTimeout(updateLog,1000);
+	setTimeout(updateLog,1000);
 
 }
 
@@ -214,7 +285,7 @@ Saved maps: <select name="openfilename">
 
 END
 
-opendir(DIR,"../maps/");
+opendir(DIR,"./maps/");
 my @Files = readdir(DIR);
 close DIR;
 
@@ -239,6 +310,7 @@ print <<END;
 Next Position: <input type="text" id="nextposn" size="4" value="0" />
 <input type="button" onclick="clearMap()" value="Clear" /> <input type="button" onclick="updateMarkersFromText()" value="Update Map" /> 
 <br />
+Type to place: <select id="markertype"><option selected="selected" value="0">Waypoint</option><option value="1">Fence Post</option></select>
 <textarea name="markerstext" id="markerstext" rows="15" cols="45">
 END
 
