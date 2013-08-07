@@ -41,7 +41,9 @@ private:
 	bool Run;
 
 	void ProcessMessages();
-	void NewState();
+	void NewPosition();
+	void NewSpeed();
+	void NewTrack();
 
 	Control* CarControl;
 

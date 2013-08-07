@@ -10,8 +10,12 @@
 #include <curses.h>
 #include <csignal>
 #include <string>
+#include <fstream>
+#include <vector>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/foreach.hpp>
 
 #include "Control.h"
 #include "CarNetwork.h"
@@ -24,6 +28,7 @@
 
 Control *SAECar;
 
+double TwoPi = 4*acos(0);
 
 Control::Control(std::string LogDir) {
 
@@ -36,6 +41,10 @@ Control::Control(std::string LogDir) {
 	HeartbeatState = false;
 	TripState = 0;
 	ManualOn = false;
+	AutoOn = false;
+
+	DatumLat = -31.980569;
+	DatumLong = 115.817807;
 
 	CurrentSteeringSetPosn = 0;
 	CurrentThrottleBrakeSetPosn = 0;
@@ -192,6 +201,11 @@ void Control::WriteInfoFile() {
 	WebLogger->WriteLogLine("GPS Speed|" + boost::lexical_cast<std::string>(this->GPS->Speed), true);
 	WebLogger->WriteLogLine("GPS Track Angle|" + boost::lexical_cast<std::string>(this->GPS->TrackAngle), true);
 
+	WebLogger->WriteLogLine("Datum Lat|" + boost::lexical_cast<std::string>(this->DatumLat), true);
+	WebLogger->WriteLogLine("Datum Long|" + boost::lexical_cast<std::string>(this->DatumLong), true);
+
+
+
 	WebLogger->WriteLogLine("IBEO State|" + boost::lexical_cast<std::string>(this->Lux->inUse), true);
 	WebLogger->WriteLogLine("IBEO N Objects|" + boost::lexical_cast<std::string>(this->Lux->object_data_header[this->Lux->curObjectDataSource].number_of_objects), true);
 	WebLogger->WriteLogLine("IBEO N Scan Pts|" + boost::lexical_cast<std::string>(this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_points), true);
@@ -265,11 +279,125 @@ void Control::ToggleBrakeIL() {
 
 }
 
+void Control::LoadMap(std::string MapFilename) {
+
+	CurrentMap.Fenceposts.clear();
+	CurrentMap.Waypoints.clear();
+
+	std::ifstream infile(("../../FrontEnd/Maps/maps/" + MapFilename).c_str());
+
+	if (infile.is_open()) {
+		while ( infile.good() ) {
+			std::string line;
+      			getline (infile,line);
+
+			boost::algorithm::trim(line);
+
+			if(line.empty()) { continue; }
+      			
+			std::vector<std::string> LineParts;
+			boost::algorithm::split(LineParts, line,  boost::algorithm::is_any_of(","));
+
+			MAPPOINT_2D MapPoint;
+
+			MapPoint.x = EARTH_RADIUS*TwoPi*(DatumLat - boost::lexical_cast<double>(LineParts[1]))/360;
+			MapPoint.y = EARTH_RADIUS*cos(abs(boost::lexical_cast<double>(LineParts[1])))*TwoPi*(DatumLong - boost::lexical_cast<double>(LineParts[2]))/360;
+
+			if(LineParts[0].compare(0,1,"F") == 0 ) {
+				Log->WriteLogLine("Adding fence.");
+				CurrentMap.Fenceposts.push_back(MapPoint);
+			}
+			else {
+				Log->WriteLogLine("Adding wp.");
+				CurrentMap.Waypoints.push_back(MapPoint);
+			}
+
+    		}
+    		infile.close();
+  	}
+	else { Log->WriteLogLine("Couldn't open map"); }
+	
+
+
+}
+
+void Control::DumpMap() {
+
+	BOOST_FOREACH( MAPPOINT_2D MapPoint, CurrentMap.Waypoints ) {
+   		Log->WriteLogLine("WP " + boost::lexical_cast<std::string>(MapPoint.x) + " " + boost::lexical_cast<std::string>(MapPoint.y));
+	}
+
+	BOOST_FOREACH( MAPPOINT_2D MapPoint, CurrentMap.Fenceposts ) {
+   		Log->WriteLogLine("F " + boost::lexical_cast<std::string>(MapPoint.x) + " " + boost::lexical_cast<std::string>(MapPoint.y));
+	}
+	
+
+}
+
+void Control::AutoStart() {
+
+	NextWaypoint = 0;
+	ManualOn = false;
+	AutoOn = true;
+	AutoSpeedTarget = 0;
+
+}
+
+void Control::AutoPosUpdate() {
+
+
+}
+
+void Control::AutoSpeedUpdate() {
+
+	
+
+}
+
+
+void Control::AutoTrackUpdate() {
+
+
+
+}
+
+void AutoPause() {
+	
+	AutoOn = false;
+	boost::thread brake_Thread = boost::thread(&Control::TimedBrake, this);
+	brake_Thread.detach();
+
+}
+
+void AutoContinue() {
+	
+	AutoOn = false;
+
+}
+
+void Control::TimedBrake() {
+
+	CurrentThrottleBrakeSetPosn = -255;
+	boost::this_thread::sleep(boost::posix_time::milliseconds(1500));
+	CurrentThrottleBrakeSetPosn = 0;
+
+}
+
 void Control::SendAlarm() {
 
 	if(SafetySerial->SerialState) { SafetySerial->Send('A'); }
 
 }
+
+double Control::TimeStamp() {
+
+	timeval current;
+	gettimeofday(&current,NULL);
+
+	return current.tv_sec + (double)current.tv_usec/1000000;
+
+}
+
 
 // C-style non -member functions follow.
 

@@ -16,10 +16,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
+#include <vector>
 
 #include <boost/thread.hpp> 
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "IPC.h"
 #include "Logger.h"
@@ -40,7 +41,10 @@ IPC::IPC(Control* CarController, Logger* Logger) {
 	CarControl = CarController;
  	Log = Logger;	
 
-	int res = mkfifo("./IPC_FIFO_RX", 0777);
+	mode_t process_mask = umask(0);
+	int res = mkfifo("./IPC_FIFO_RX", S_IRWXU | S_IRWXG | S_IRWXO);
+	umask(process_mask);
+
 	if(res != 0) { Log->WriteLogLine("IPC - Couldn't create fifo!"); }
 
 }
@@ -88,21 +92,38 @@ IPC::~IPC() {
 
 void IPC::ProcessMessages() {
 
-	char readbuf[30];
+	char readbuf[150];
 
 	while(Run) {
 
 		bzero(readbuf,sizeof(readbuf));
 
-		fgets(readbuf,30,RXpipe);
+		fgets(readbuf,150,RXpipe); // Block here waiting for a message.
 	
 		std::string Message = readbuf;
+		
+		boost::algorithm::trim(Message);
 
 		Log->WriteLogLine("IPC - Received " + Message);
 
-		std::string WriteData;
+		std::vector<std::string> MessageParts;
 
-		if(Message.compare(0,6,"COOL") == 0) { Log->WriteLogLine("yea"); }
+		boost::algorithm::split(MessageParts, Message,  boost::algorithm::is_any_of(","));
+
+
+		if(MessageParts[0].compare(0,8,"SETDATUM") == 0) { 
+			Log->WriteLogLine("IPC - Setting new datum " + MessageParts[1] + " " + MessageParts[2]);
+			CarControl->DatumLat = boost::lexical_cast<double>(MessageParts[1]); 
+			CarControl->DatumLong = boost::lexical_cast<double>(MessageParts[2]); 
+		}
+		else if(MessageParts[0].compare(0,7,"LOADMAP") == 0) {
+			Log->WriteLogLine("IPC - calling load map");
+			CarControl->LoadMap(MessageParts[1]);
+		}
+		else if(MessageParts[0].compare(0,7,"DUMPMAP") == 0) {
+			Log->WriteLogLine("IPC - calling dump map");
+			CarControl->DumpMap();
+		}
 
 	}
 

@@ -81,6 +81,7 @@ var blueDot = {url: 'blue-dot.png'};
 var redCross = {url: 'redcross.png'};
 
 var currentLocationMarker;
+var datumMarker;
 
 function initialize() {
         
@@ -99,9 +100,14 @@ function initialize() {
 	currentLocationMarker = new google.maps.Marker({
 		position: zeroposition,
 		map: map,
-		draggable: true,
 		raiseOnDrag: false,
 		icon: blueDot,
+	});
+
+	datumMarker = new google.maps.Marker({
+		position: zeroposition,
+		map: map,
+		raiseOnDrag: false,
 	});
 
 }
@@ -110,6 +116,9 @@ function logLocation(location) {
 
 	if(document.getElementById("markertype").options[document.getElementById("markertype").selectedIndex].value == 0) {
 		logMarkerLocation(location);
+	}
+	else if(document.getElementById("markertype").options[document.getElementById("markertype").selectedIndex].value == 3) {
+		setDatumLocation(location);
 	}
 	else { logFenceLocation(location); }
 
@@ -157,6 +166,21 @@ function logFenceLocation(location) {
 	fencemarkers.push(fenceCircle);
 
 	updateMarkersText();
+
+}
+
+function setDatumLocation(location) {
+
+	datumMarker.setPosition(location);
+	
+	\$.ajax({
+		type: "POST",
+		url: "sendcommand.cgi",
+		data: "command=SETDATUM," + location.lat() + "," + location.lng(),
+		success: function() { },
+		dataType: "text",
+		error: function() { alert("AJAX IPC send Error!"); }
+	});
 
 }
 
@@ -217,6 +241,12 @@ function clearMap() {
 		}
 	}
 
+	while(fencemarkers.length > 0) {
+		for(i in fencemarkers) {
+			removeFenceMarker(fencemarkers[i]);
+		}
+	}
+
 }
 
 function removeMarker(marker) { 
@@ -269,6 +299,20 @@ function updateLog() {
 
 }
 
+function loadMap() {
+
+	\$.ajax({
+		type: "POST",
+		url: "sendcommand.cgi",
+		data: "command=LOADMAP," + document.getElementById("openfilename").options[document.getElementById("openfilename").selectedIndex].value,
+		success: function() { },
+		dataType: "text",
+		error: function() { alert("AJAX IPC send Error!"); }
+	});
+
+
+}
+
 
     </script>
   </head>
@@ -281,7 +325,7 @@ function updateLog() {
 
 <form method="POST" action="waypoints.cgi">
 
-Saved maps: <select name="openfilename">
+Saved maps: <select id="openfilename" name="openfilename">
 
 END
 
@@ -305,12 +349,13 @@ print <<END;
 </select>
 
 <input type="submit" name="open" value="Open" />
+<input type="button" onclick="loadMap()" name="load" value="Load into Control" />
 
 <br /><br />
 Next Position: <input type="text" id="nextposn" size="4" value="0" />
 <input type="button" onclick="clearMap()" value="Clear" /> <input type="button" onclick="updateMarkersFromText()" value="Update Map" /> 
 <br />
-Type to place: <select id="markertype"><option selected="selected" value="0">Waypoint</option><option value="1">Fence Post</option></select>
+Type to place: <select id="markertype"><option selected="selected" value="0">Waypoint</option><option value="1">Fence Post</option><option value="3">Datum</option></select>
 <textarea name="markerstext" id="markerstext" rows="15" cols="45">
 END
 

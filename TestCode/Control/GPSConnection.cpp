@@ -108,17 +108,18 @@ void GPSConnection::ProcessMessages() {
 			if(NewData->set & LATLON_SET) {
 				Latitude = NewData->fix.latitude;
 				Longitude = NewData->fix.longitude;
+				NewPosition();
 
 			}
 			if(NewData->set & SPEED_SET) { 
 				Speed = NewData->fix.speed;
-
+				NewSpeed();
 			}
-			if(NewData->set & TRACK_SET) {// Log->WriteLogLine("track"); 
+			if(NewData->set & TRACK_SET) {
 				TrackAngle = NewData->fix.track;
-
+				NewTrack();
 			}
-			if(NewData->set & SPEED_SET & LATLON_SET) { NewState(); }
+			
 		}
     }
 
@@ -132,12 +133,26 @@ void GPSConnection::Stop() {
 
 }
 
-void GPSConnection::NewState() {
+void GPSConnection::NewPosition() {
 
-	timeval current;
-	gettimeofday(&current,NULL);
 
-	GPSLog->WriteLogLine(boost::lexical_cast<std::string>(current.tv_sec + current.tv_usec/1000000) + "," + boost::lexical_cast<std::string>(Latitude) + "," + boost::lexical_cast<std::string>(Longitude) + "," + boost::lexical_cast<std::string>(Speed) + "," + boost::lexical_cast<std::string>(TrackAngle), true);
+	GPSLog->WriteLogLine("P," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Latitude) + "," + boost::lexical_cast<std::string>(Longitude), true);
+
+
+}
+
+void GPSConnection::NewSpeed() {
+
+
+	GPSLog->WriteLogLine("S," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Speed), true);
+
+
+}
+
+void GPSConnection::NewTrack() {
+
+
+	GPSLog->WriteLogLine("T," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(TrackAngle), true);
 
 
 }
