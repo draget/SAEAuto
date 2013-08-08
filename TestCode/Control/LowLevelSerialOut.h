@@ -36,6 +36,7 @@ private:
 	CallbackAsyncSerial* Serial;
 
 	boost::thread m_Thread;
+	boost::thread s_Thread;
 
 	bool Run;
 
@@ -44,6 +45,10 @@ private:
 	void ProcessMessage();
 
 	void SendCurrent();
+
+	void Monitor();
+
+	double LastAckTime;
 
 	Control* CarControl;
 

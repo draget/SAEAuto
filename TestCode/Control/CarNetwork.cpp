@@ -43,6 +43,7 @@ CarNetwork::CarNetwork(Control* CarController, Logger* Logger) {
 	Log = Logger;
 
 	Run = false;
+	HasConnection = false;
 
     	if(-1 == SocketFD) {
       		perror("can not create socket");
@@ -139,6 +140,8 @@ while(Run) {  // Wait for connections
 		StatusString = "Conn. accepted - waiting for first message";
 		Log->WriteLogLine("Car Network - waiting for messages");
  
+		HasConnection = true;
+
     		while(1) { // Wait for messages
 		
 			bool breakandclose = false;
@@ -148,7 +151,7 @@ while(Run) {  // Wait for connections
 			bzero(msgbuf,sizeof(msgbuf));
 
 			struct timeval timeoutlong;
-			timeoutlong.tv_sec = 10;
+			timeoutlong.tv_sec = 1;
 			timeoutlong.tv_usec = 0;
 	
 			FD_ZERO(&read_set);
@@ -162,6 +165,7 @@ while(Run) {  // Wait for connections
 				//printf("No message?!\n");
 				StatusString = "No message rxd";
 				Log->WriteLogLine("Car Network - No message rxd"); 
+				CarControl->Trip(6);
 				break; 
 			}
 			
@@ -278,6 +282,7 @@ while(Run) {  // Wait for connections
     		}
 	// printf("Going to close connection...\n");
 	close(ConnectFD);
+	HasConnection = false;
 
 	}
 

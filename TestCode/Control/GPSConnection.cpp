@@ -83,6 +83,9 @@ void GPSConnection::Start() {
 		m_Thread = boost::thread(&GPSConnection::ProcessMessages, this);
 		m_Thread.detach();
 
+		s_Thread = boost::thread(&GPSConnection::Monitor, this);
+		s_Thread.detach();
+
 	}
         
 }
@@ -103,7 +106,7 @@ void GPSConnection::ProcessMessages() {
 		} 
 		else {
 			if (NewData->set & TIME_SET) {
-				// Do something to make sure GPS data isn't terribly old!
+				Time = NewData->fix.time;
 			}
 			if(NewData->set & LATLON_SET) {
 				Latitude = NewData->fix.latitude - CarControl->LatOffset;
@@ -159,5 +162,21 @@ void GPSConnection::NewTrack() {
 
 }
 
+void GPSConnection::Monitor() {
+
+	while(Run) {
+
+		//Log->WriteLogLine("old " + boost::lexical_cast<std::string>(OldTime) + " new " + boost::lexical_cast<std::string>(Time));
+
+		if(CarControl->AutoRun) {
+			if(! (Time > (OldTime + 0.1))) { Log->WriteLogLine("GPS - GPS Fix is old."); CarControl->Trip(7); } 
+		}
+
+		OldTime = Time;
+
+		boost::this_thread::sleep(boost::posix_time::milliseconds(500));
+	}
+
+}
 
 

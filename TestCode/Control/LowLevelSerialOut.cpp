@@ -35,6 +35,8 @@ LowLevelSerialOut::LowLevelSerialOut(Control* CarController, Logger* Logger) {
 	SerialState = false;
 	Run = false;
 
+	LastAckTime = 0;
+
 	RxBuffer.reserve(10);
 
 }
@@ -87,6 +89,9 @@ void LowLevelSerialOut::Start() {
 
 		m_Thread = boost::thread(&LowLevelSerialOut::SendCurrent, this);
 		m_Thread.detach();
+
+		s_Thread = boost::thread(&LowLevelSerialOut::Monitor, this);
+		s_Thread.detach();
 
 	}
 
@@ -184,6 +189,7 @@ void LowLevelSerialOut::ProcessMessage() {
 
 	if(MsgString.compare(0,3,"ACK") == 0) {
 
+		LastAckTime = CarControl->TimeStamp();
 
 	}
 	else {
@@ -194,5 +200,20 @@ void LowLevelSerialOut::ProcessMessage() {
 
 	RxBuffer.clear();
 
+}
+
+void LowLevelSerialOut::Monitor() {
+	
+
+	while(Run) {
+
+		if(CarControl->TimeStamp() - LastAckTime > 0.3) { 
+			Log->WriteLogLine("LowLevelSerial - No acks in 300ms!");
+			CarControl->Trip(2);
+		}	
+
+		boost::this_thread::sleep(boost::posix_time::milliseconds(400));
+
+	}
 }
 

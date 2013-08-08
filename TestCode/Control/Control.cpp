@@ -191,6 +191,8 @@ void Control::WriteInfoFile() {
 	WebLogger->ClearLog();
 
 	WebLogger->WriteLogLine("Manual State|" + boost::lexical_cast<std::string>(this->ManualOn), true);
+	WebLogger->WriteLogLine("Auto On|" + boost::lexical_cast<std::string>(this->AutoOn), true);
+	WebLogger->WriteLogLine("Auto Run|" + boost::lexical_cast<std::string>(this->AutoRun), true);
 	WebLogger->WriteLogLine("Trip State|" + boost::lexical_cast<std::string>(this->TripState), true);
 	WebLogger->WriteLogLine("HB State|" + boost::lexical_cast<std::string>(this->HeartbeatState), true);
 	WebLogger->WriteLogLine("Car Net State|" + boost::lexical_cast<std::string>(this->CarNetworkConnection->StatusString.c_str()), true);
@@ -206,6 +208,7 @@ void Control::WriteInfoFile() {
 	WebLogger->WriteLogLine("GPS Longitude|" + boost::lexical_cast<std::string>(this->GPS->Longitude), true);
 	WebLogger->WriteLogLine("GPS Speed|" + boost::lexical_cast<std::string>(this->GPS->Speed), true);
 	WebLogger->WriteLogLine("GPS Track Angle|" + boost::lexical_cast<std::string>(this->GPS->TrackAngle), true);
+	WebLogger->WriteLogLine("GPS Time|" + boost::lexical_cast<std::string>(this->GPS->Time), true);
 
 	WebLogger->WriteLogLine("Datum Lat|" + boost::lexical_cast<std::string>(this->DatumLat), true);
 	WebLogger->WriteLogLine("Datum Long|" + boost::lexical_cast<std::string>(this->DatumLong), true);
@@ -372,6 +375,8 @@ void Control::AutoStart() {
 
 	if(CurrentMap.Waypoints.size() == 0) { Log->WriteLogLine("Control - No map loaded, can't start auto."); return; }
 
+	if(! CarNetworkConnection->HasConnection) { Log->WriteLogLine("Control - No base connection, can't start auto."); return; }
+
 	NextWaypoint = 0;
 	ManualOn = false;
 	AutoOn = true;
@@ -418,21 +423,23 @@ void Control::AutoPosUpdate(MAPPOINT_2D CurPosn) {
 
 	MAPPOINT_2D VectorToNextWp = SubtractMapPoint(CurrentMap.Waypoints[NextWaypoint], CurPosn);
 
-	Log->WriteLogLine("Current xy " + boost::lexical_cast<std::string>(CurPosn.x) + " " +  boost::lexical_cast<std::string>(CurPosn.y));
-	Log->WriteLogLine("Current vec " + boost::lexical_cast<std::string>(VectorToNextWp.x) + " " +  boost::lexical_cast<std::string>(VectorToNextWp.y));
-		Log->WriteLogLine("next wp " + boost::lexical_cast<std::string>(CurrentMap.Waypoints[NextWaypoint].x) + " " +  boost::lexical_cast<std::string>(CurrentMap.Waypoints[NextWaypoint].y));
+	//Log->WriteLogLine("Current xy " + boost::lexical_cast<std::string>(CurPosn.x) + " " +  boost::lexical_cast<std::string>(CurPosn.y));
+	//Log->WriteLogLine("Current vec " + boost::lexical_cast<std::string>(VectorToNextWp.x) + " " +  boost::lexical_cast<std::string>(VectorToNextWp.y));
+	//Log->WriteLogLine("next wp " + boost::lexical_cast<std::string>(CurrentMap.Waypoints[NextWaypoint].x) + " " +  boost::lexical_cast<std::string>(CurrentMap.Waypoints[NextWaypoint].y));
 
 	if(VectorToNextWp.y > 0 && VectorToNextWp.x < 0) { DesiredBearing = 360 + 90 - 360*atan2(VectorToNextWp.y,VectorToNextWp.x)/TwoPi; }
 	else { DesiredBearing = 90 - 360*atan2(VectorToNextWp.y,VectorToNextWp.x)/TwoPi; }
-	Log->WriteLogLine("pre flip: " + boost::lexical_cast<std::string>(DesiredBearing));
+	//Log->WriteLogLine("pre flip: " + boost::lexical_cast<std::string>(DesiredBearing));
 
 	// Sometimes we need to go backwards.
 	if(DesiredBearing > 180 + this->GPS->TrackAngle && this->GPS->TrackAngle < 180) { DesiredBearing = DesiredBearing - 360; }
 
 	SteerController->setSetPoint(DesiredBearing);
 
+	
 	if(CurrentSteeringSetPosn > 40) { SpeedController->setSetPoint(0.5); }
 	else { SpeedController->setSetPoint(1.0); }
+
 
 }
 
@@ -459,7 +466,10 @@ void Control::AutoSpeedUpdate(double CurSpeed) {
 	}
 	else { CurrentThrottleBrakeSetPosn = 0; }
 
-	if(CurrentThrottleBrakeSetPosn < 0 && CurSpeed == 0) { TimedBrake(); } // If we are almost stopped, we don't need to keep braking.
+	if(CurrentThrottleBrakeSetPosn < 0 && CurSpeed == 0) { 
+		boost::thread brake_Thread = boost::thread(&Control::TimedBrake, this);
+		brake_Thread.detach(); 
+	} // If we are almost stopped, we don't need to keep braking.
 
 }
 
@@ -495,6 +505,9 @@ void Control::AutoStop() {
 	AutoOn = false;
 	CurrentThrottleBrakeSetPosn = 0;
 	CurrentSteeringSetPosn = 0;
+
+	boost::thread brake_Thread = boost::thread(&Control::TimedBrake, this);
+	brake_Thread.detach();
 
 	Log->WriteLogLine("Control - autonomous stop.");
 

@@ -23,6 +23,8 @@ public:
 	bool Open();
 	void StartProcessMessages();
 
+	bool HasConnection;
+
 	std::string StatusString;
 
 

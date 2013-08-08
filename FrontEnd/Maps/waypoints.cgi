@@ -419,7 +419,7 @@ Save map as: <input type="text" size="20" name="mapname" value="$CurrentName" />
 <input type="text" id="longoffset" value="0.0" />
 <input type="button" onclick="setGPSOffset()" name="start" value="Set GPS Offset" />
 
-<tr><td colspan="2"><textarea rows="15" cols="60" id="logarea"></textarea><div style="float: left; height: 15em; width: 25em; overflow: auto; border: 1px solid black" id="paramarea"></div></td></tr>
+<tr><td colspan="2"><textarea rows="20" cols="60" id="logarea"></textarea><div style="float: left; height: 20em; width: 25em; overflow: auto; border: 1px solid black" id="paramarea"></div></td></tr>
 </table>
 
 END

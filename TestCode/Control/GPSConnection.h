@@ -29,6 +29,7 @@ public:
 	double Longitude;
 	double Speed;
 	double TrackAngle;
+	double Time;
 
 
 private:
@@ -38,13 +39,18 @@ private:
 	Logger* GPSLog;
 
 	boost::thread m_Thread;
+	boost::thread s_Thread;
 
 	bool Run;
+
+	double OldTime;
 
 	void ProcessMessages();
 	void NewPosition();
 	void NewSpeed();
 	void NewTrack();
+
+	void Monitor();
 
 	Control* CarControl;
 
