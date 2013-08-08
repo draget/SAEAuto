@@ -30,6 +30,7 @@ public:
 	double Speed;
 	double TrackAngle;
 
+
 private:
 
 	gpsmm* GPSReceiver;

@@ -288,6 +288,7 @@ function updateLog() {
 		,success: function(json){
 
 				document.getElementById("logarea").innerHTML = json.log;
+				document.getElementById("paramarea").innerHTML = json.params;
 				var position = new google.maps.LatLng(json.gps.lat, json.gps.long);
 				currentLocationMarker.setPosition(position);
 
@@ -313,6 +314,34 @@ function loadMap() {
 
 }
 
+function setGPSOffset() {
+
+	\$.ajax({
+		type: "POST",
+		url: "sendcommand.cgi",
+		data: "command=SETGPSOFF," + document.getElementById("latoffset").value + "," + document.getElementById("longoffset").value,
+		success: function() { },
+		dataType: "text",
+		error: function() { alert("AJAX IPC send Error!"); }
+	});
+
+
+}
+
+function sendCommand(Command) {
+
+	\$.ajax({
+		type: "POST",
+		url: "sendcommand.cgi",
+		data: "command=" + Command,
+		success: function() { },
+		dataType: "text",
+		error: function() { alert("AJAX IPC send Error!"); }
+	});
+
+
+}
+
 
     </script>
   </head>
@@ -320,7 +349,7 @@ function loadMap() {
 
 
 <table border="1" width="100%">
-
+<tr><td colspan="2" style="font-family: Arial; text-align: center; font-size: 18px">UWA Autonomous SAE Car Web Interface</td></tr>
 <tr><td>
 
 <form method="POST" action="waypoints.cgi">
@@ -376,8 +405,21 @@ Save map as: <input type="text" size="20" name="mapname" value="$CurrentName" />
 
 </td>
 
-    <td height="600" width="75%"><div id="map-canvas"></div></td></tr>
-<tr><td colspan="2"><textarea rows="15" cols="100" id="logarea"></textarea></td></tr>
+    <td height="600" width="75%" rowspan="2"><div id="map-canvas"></div></td></tr>
+
+<tr><td>
+
+<input type="button" onclick="sendCommand('AUTOSTART')" name="start" value="Start Auto" />
+<input type="button" onclick="sendCommand('AUTOSTOP')" name="stop" value="STOP Auto" />
+<input type="button" onclick="sendCommand('AUTOPAUSE')" name="pause" value="Pause Auto" />
+<input type="button" onclick="sendCommand('AUTOCONT')" name="cont" value="Continue Auto" />
+<input style="background-color : red;" type="button" onclick="sendCommand('ESTOP')" name="estop" value="ESTOP Car" />
+<br />
+<input type="text" id="latoffset" value="0.0" />
+<input type="text" id="longoffset" value="0.0" />
+<input type="button" onclick="setGPSOffset()" name="start" value="Set GPS Offset" />
+
+<tr><td colspan="2"><textarea rows="15" cols="60" id="logarea"></textarea><div style="float: left; height: 15em; width: 25em; overflow: auto; border: 1px solid black" id="paramarea"></div></td></tr>
 </table>
 
 END

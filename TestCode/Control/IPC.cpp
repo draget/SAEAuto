@@ -110,8 +110,10 @@ void IPC::ProcessMessages() {
 
 		boost::algorithm::split(MessageParts, Message,  boost::algorithm::is_any_of(","));
 
-
-		if(MessageParts[0].compare(0,8,"SETDATUM") == 0) { 
+		if(MessageParts[0].compare(0,5,"ESTOP") == 0) {
+			CarControl->Trip(9);
+		}
+		else if(MessageParts[0].compare(0,8,"SETDATUM") == 0) { 
 			Log->WriteLogLine("IPC - Setting new datum " + MessageParts[1] + " " + MessageParts[2]);
 			if(! CarControl->AutoOn)	{
 				CarControl->ClearMap();		
@@ -128,6 +130,30 @@ void IPC::ProcessMessages() {
 		else if(MessageParts[0].compare(0,7,"DUMPMAP") == 0) {
 			Log->WriteLogLine("IPC - calling dump map");
 			CarControl->DumpMap();
+		}
+		else if(MessageParts[0].compare(0,9,"AUTOSTART") == 0) {
+			Log->WriteLogLine("IPC - calling auto start");
+			CarControl->AutoStart();
+		}
+		else if(MessageParts[0].compare(0,8,"AUTOSTOP") == 0) {
+			Log->WriteLogLine("IPC - calling auto stop");
+			CarControl->AutoStop();
+		}
+		else if(MessageParts[0].compare(0,9,"AUTOPAUSE") == 0) {
+			Log->WriteLogLine("IPC - calling auto pause");
+			CarControl->AutoPause();
+		}
+		else if(MessageParts[0].compare(0,8,"AUTOCONT") == 0) {
+			Log->WriteLogLine("IPC - calling auto cont");
+			CarControl->AutoContinue();
+		}
+		else if(MessageParts[0].compare(0,9,"SETGPSOFF") == 0) {
+			Log->WriteLogLine("IPC - setting GPS offset" + MessageParts[1] + " " + MessageParts[2]);
+			if(! CarControl->AutoOn) {
+				CarControl->LatOffset = boost::lexical_cast<double>(MessageParts[1]);
+				CarControl->LongOffset = boost::lexical_cast<double>(MessageParts[2]);
+			}
+			else { Log->WriteLogLine("IPC - Can't change offset during auto!!!!"); }
 		}
 
 	}

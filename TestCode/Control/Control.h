@@ -67,11 +67,15 @@ public:
 	void AutoTrackUpdate(double CurTrack);
 	void AutoPause();
 	void AutoContinue();
+	void AutoStop();
+	void CheckFenceposts(MAPPOINT_2D CurPosn);
 	
 	void ClearMap();
 
+	double LatOffset;
+	double LongOffset;
 
-	int NextWaypoint;
+	unsigned int NextWaypoint;
 
 	std::string LogDir;
 
@@ -92,6 +96,8 @@ private:
 	void WriteInfoFile();
 
 	void TimedBrake();
+
+	double DesiredBearing;
 
 	PID *SpeedController;
 	PID *SteerController;

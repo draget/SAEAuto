@@ -20,10 +20,14 @@ foreach my $LogLine (@LogLines) {
 
 	$LineContents =~ s/\n//;
 
-	if($LineType eq 'GPS Latitude') { $PlotInfo->{"gps"}->{"lat"} = $LineContents; }
-	elsif($LineType eq 'GPS Longitude') { $PlotInfo->{"gps"}->{"long"} = $LineContents; }
+	if($LineType eq 'Log') { $PlotInfo->{"log"} .= $LineContents . "\n"; }
+	else {
 
-	$PlotInfo->{"log"} .= $LogLine;
+		if($LineType eq 'GPS Latitude') { $PlotInfo->{"gps"}->{"lat"} = $LineContents; }
+		elsif($LineType eq 'GPS Longitude') { $PlotInfo->{"gps"}->{"long"} = $LineContents; }
+		$PlotInfo->{"params"} .= "<b>$LineType: </b>$LineContents<br />";
+
+	}
 
 }
 

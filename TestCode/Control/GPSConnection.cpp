@@ -106,8 +106,8 @@ void GPSConnection::ProcessMessages() {
 				// Do something to make sure GPS data isn't terribly old!
 			}
 			if(NewData->set & LATLON_SET) {
-				Latitude = NewData->fix.latitude;
-				Longitude = NewData->fix.longitude;
+				Latitude = NewData->fix.latitude - CarControl->LatOffset;
+				Longitude = NewData->fix.longitude - CarControl->LongOffset;
 				NewPosition();
 
 			}
@@ -135,9 +135,11 @@ void GPSConnection::Stop() {
 
 void GPSConnection::NewPosition() {
 
+	MAPPOINT_2D Position = CarControl->LatLongToXY(Latitude, Longitude);
 
 	GPSLog->WriteLogLine("P," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Latitude) + "," + boost::lexical_cast<std::string>(Longitude), true);
-	if(CarControl->AutoRun) { CarControl->AutoPosUpdate(CarControl->LatLongToXY(Latitude, Longitude)); }
+	if(CarControl->AutoRun) { CarControl->AutoPosUpdate(Position); }
+	CarControl->CheckFenceposts(Position);
 
 }
 

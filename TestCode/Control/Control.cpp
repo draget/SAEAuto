@@ -12,6 +12,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <cmath>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -47,6 +48,9 @@ Control::Control(std::string LogDir) {
 
 	DatumLat = -31.980569;
 	DatumLong = 115.817807;
+
+	LatOffset = 0.0;
+	LongOffset = 0.0;
 
 	CurrentSteeringSetPosn = 0;
 	CurrentThrottleBrakeSetPosn = 0;
@@ -206,14 +210,18 @@ void Control::WriteInfoFile() {
 	WebLogger->WriteLogLine("Datum Lat|" + boost::lexical_cast<std::string>(this->DatumLat), true);
 	WebLogger->WriteLogLine("Datum Long|" + boost::lexical_cast<std::string>(this->DatumLong), true);
 
+	WebLogger->WriteLogLine("Offset Lat|" + boost::lexical_cast<std::string>(this->LatOffset), true);
+	WebLogger->WriteLogLine("Offset Long|" + boost::lexical_cast<std::string>(this->LongOffset), true);
 
+	WebLogger->WriteLogLine("Desired Bearing|" + boost::lexical_cast<std::string>(this->DesiredBearing), true);
+	WebLogger->WriteLogLine("NextWaypoint|" + boost::lexical_cast<std::string>(this->NextWaypoint), true);
 
 	WebLogger->WriteLogLine("IBEO State|" + boost::lexical_cast<std::string>(this->Lux->inUse), true);
 	WebLogger->WriteLogLine("IBEO N Objects|" + boost::lexical_cast<std::string>(this->Lux->object_data_header[this->Lux->curObjectDataSource].number_of_objects), true);
 	WebLogger->WriteLogLine("IBEO N Scan Pts|" + boost::lexical_cast<std::string>(this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_points), true);
 	WebLogger->WriteLogLine("IBEO Scan No|" + boost::lexical_cast<std::string>(this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_number), true);
 
-	int y = 20;
+	int y = 30;
 	
 	std::string RecentLogLines[y];
 	this->Log->GetLogLines(RecentLogLines, y);
@@ -255,6 +263,15 @@ void Control::Trip(int TripState) {
 	else if(TripState == 7) {
 		TripReason = "GPS Error";
 	}
+	else if(TripState == 8) {
+		TripReason = "Autonomous issue";
+	}
+	else if(TripState == 9) {
+		TripReason = "Web IPC estop";
+	}
+ 
+	AutoOn = false;
+	AutoRun = false;
 
 	if(BrakeILOn) { CurrentThrottleBrakeSetPosn = -256; }
 	else { CurrentThrottleBrakeSetPosn = 0; }
@@ -288,6 +305,10 @@ void Control::LoadMap(std::string MapFilename) {
 	std::ifstream infile(("../../FrontEnd/Maps/maps/" + MapFilename).c_str());
 
 	if (infile.is_open()) {
+
+		int f = 0;
+		int w = 0;
+
 		while ( infile.good() ) {
 			std::string line;
       			getline (infile,line);
@@ -303,19 +324,23 @@ void Control::LoadMap(std::string MapFilename) {
 
 			MapPoint = LatLongToXY(boost::lexical_cast<double>(LineParts[1]), boost::lexical_cast<double>(LineParts[2]));
 
+
+
+
 			if(LineParts[0].compare(0,1,"F") == 0 ) {
-				Log->WriteLogLine("Adding fence.");
+				f++;
 				CurrentMap.Fenceposts.push_back(MapPoint);
 			}
 			else {
-				Log->WriteLogLine("Adding wp.");
+				w++;
 				CurrentMap.Waypoints.push_back(MapPoint);
 			}
 
     		}
     		infile.close();
+		Log->WriteLogLine("Control - loaded " + boost::lexical_cast<std::string>(f) + " fence and " + boost::lexical_cast<std::string>(w) + " waypoints.");
   	}
-	else { Log->WriteLogLine("Couldn't open map"); }
+	else { Log->WriteLogLine("Control - Couldn't open map"); }
 	
 
 
@@ -345,7 +370,7 @@ void Control::DumpMap() {
 
 void Control::AutoStart() {
 
-	if(CurrentMap.Waypoints.size() == 0) { Log->WriteLogLine("Control - No map loaded, can't start auto."); }
+	if(CurrentMap.Waypoints.size() == 0) { Log->WriteLogLine("Control - No map loaded, can't start auto."); return; }
 
 	NextWaypoint = 0;
 	ManualOn = false;
@@ -353,7 +378,7 @@ void Control::AutoStart() {
 	AutoRun = true;
 	AutoSpeedTarget = 0;
 
-	SpeedController = new PID(10.0,10.0,0,0.2);
+	SpeedController = new PID(10.0,1.0,0,0.2);
 	SpeedController->setInputLimits(0.0, 30);
 	SpeedController->setOutputLimits(-255,255);
 	SpeedController->setMode(AUTO_MODE);
@@ -363,21 +388,78 @@ void Control::AutoStart() {
 	SteerController->setOutputLimits(-127,127);
 	SteerController->setMode(AUTO_MODE);
 
+	SteerController->setSetPoint(0);
+	SpeedController->setSetPoint(0);
 }
+
+void Control::CheckFenceposts(MAPPOINT_2D CurPosn) {
+
+	BOOST_FOREACH( MAPPOINT_2D Fencepost, CurrentMap.Fenceposts ) {
+		MAPPOINT_2D DistanceVector = SubtractMapPoint(Fencepost,CurPosn);
+		if(sqrt(pow(DistanceVector.x,2) + pow(DistanceVector.y,2)) < 2) {
+			Log->WriteLogLine("Control - Near fence post!");
+			Control::AutoStop();
+			if(TripState == 0) { Trip(8); }
+		}
+	}
+
+}
+
 
 void Control::AutoPosUpdate(MAPPOINT_2D CurPosn) {
 
+	MAPPOINT_2D DistanceVector = SubtractMapPoint(CurrentMap.Waypoints[NextWaypoint],CurPosn);
+	if(sqrt(pow(DistanceVector.x,2) + pow(DistanceVector.y,2)) < 2) {
+		Log->WriteLogLine("Control - Reached waypoint " + boost::lexical_cast<std::string>(NextWaypoint));
+		NextWaypoint++;
+		if(NextWaypoint >= CurrentMap.Waypoints.size()) { Log->WriteLogLine("Control - Reached end of map."); Control::AutoStop(); }
+	}
+
+
 	MAPPOINT_2D VectorToNextWp = SubtractMapPoint(CurrentMap.Waypoints[NextWaypoint], CurPosn);
 
-	if(VectorToNextWp.x > 0) { DesiredBearing = 90 - 360*atan(VectorToNextWp.y/VectorToNextWp.x)/TwoPi; }
-	else { DesiredBearing = 270 - 360*atan(VectorToNextWp.y/VectorToNextWp.x)/TwoPi; }
+	Log->WriteLogLine("Current xy " + boost::lexical_cast<std::string>(CurPosn.x) + " " +  boost::lexical_cast<std::string>(CurPosn.y));
+	Log->WriteLogLine("Current vec " + boost::lexical_cast<std::string>(VectorToNextWp.x) + " " +  boost::lexical_cast<std::string>(VectorToNextWp.y));
+		Log->WriteLogLine("next wp " + boost::lexical_cast<std::string>(CurrentMap.Waypoints[NextWaypoint].x) + " " +  boost::lexical_cast<std::string>(CurrentMap.Waypoints[NextWaypoint].y));
+
+	if(VectorToNextWp.y > 0 && VectorToNextWp.x < 0) { DesiredBearing = 360 + 90 - 360*atan2(VectorToNextWp.y,VectorToNextWp.x)/TwoPi; }
+	else { DesiredBearing = 90 - 360*atan2(VectorToNextWp.y,VectorToNextWp.x)/TwoPi; }
+	Log->WriteLogLine("pre flip: " + boost::lexical_cast<std::string>(DesiredBearing));
+
+	// Sometimes we need to go backwards.
+	if(DesiredBearing > 180 + this->GPS->TrackAngle && this->GPS->TrackAngle < 180) { DesiredBearing = DesiredBearing - 360; }
+
+	SteerController->setSetPoint(DesiredBearing);
+
+	if(CurrentSteeringSetPosn > 40) { SpeedController->setSetPoint(0.5); }
+	else { SpeedController->setSetPoint(1.0); }
 
 }
 
 void Control::AutoSpeedUpdate(double CurSpeed) {
 
+	if(CurSpeed < 0.5) { CurSpeed = 0; } // Going slower than GPS noise.
+
 	SpeedController->setProcessValue(CurSpeed);
-	CurrentThrottleBrakeSetPosn = SpeedController->compute();
+
+	double SpeedIncrement = SpeedController->compute();
+	
+	if(TripState == 0) { 
+
+		if((CurrentThrottleBrakeSetPosn + SpeedIncrement) > 255) {
+			CurrentThrottleBrakeSetPosn = 255;
+		}
+		else if ((CurrentThrottleBrakeSetPosn + SpeedIncrement) < -255) {
+			CurrentThrottleBrakeSetPosn = -255;
+		}
+		else {
+			CurrentThrottleBrakeSetPosn = CurrentThrottleBrakeSetPosn + SpeedIncrement; 
+		}
+
+	}
+	else { CurrentThrottleBrakeSetPosn = 0; }
+
+	if(CurrentThrottleBrakeSetPosn < 0 && CurSpeed == 0) { TimedBrake(); } // If we are almost stopped, we don't need to keep braking.
 
 }
 
@@ -395,18 +477,35 @@ void Control::AutoPause() {
 	boost::thread brake_Thread = boost::thread(&Control::TimedBrake, this);
 	brake_Thread.detach();
 
+	Log->WriteLogLine("Control - autonomous pause.");
+
 }
 
 void Control::AutoContinue() {
 	
 	AutoRun = true;
 
+	Log->WriteLogLine("Control - autonomous continue.");
+
+}
+
+void Control::AutoStop() {
+
+	AutoRun = false;
+	AutoOn = false;
+	CurrentThrottleBrakeSetPosn = 0;
+	CurrentSteeringSetPosn = 0;
+
+	Log->WriteLogLine("Control - autonomous stop.");
+
 }
 
 void Control::TimedBrake() {
 
+	Log->WriteLogLine("Control - Braking for 2s.");
+
 	CurrentThrottleBrakeSetPosn = -255;
-	boost::this_thread::sleep(boost::posix_time::milliseconds(1500));
+	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 	CurrentThrottleBrakeSetPosn = 0;
 
 }
@@ -430,8 +529,8 @@ MAPPOINT_2D Control::LatLongToXY(double lat, double lng) {
 
 	MAPPOINT_2D MapPoint;
 
-	MapPoint.x = EARTH_RADIUS*TwoPi*(DatumLat - lat)/360;
-	MapPoint.y = EARTH_RADIUS*cos(abs(lat))*TwoPi*(DatumLong - lng)/360;
+	MapPoint.y = -1*EARTH_RADIUS*TwoPi*(DatumLat - lat)/360;
+	MapPoint.x = -1*EARTH_RADIUS*cos(abs(lat))*TwoPi*(DatumLong - lng)/360;
 
 	return MapPoint;
 
