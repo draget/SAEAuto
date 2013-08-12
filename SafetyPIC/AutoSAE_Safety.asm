@@ -53,7 +53,7 @@ _interrupt:
 	CLRF       PCLATH+0
 
 ;AutoSAE_Safety.c,34 :: 		void interrupt() {
-;AutoSAE_Safety.c,36 :: 		if(hb_interruptcount > 20) {
+;AutoSAE_Safety.c,36 :: 		if(hb_interruptcount > 30) {
 	MOVLW      128
 	MOVWF      R0+0
 	MOVLW      128
@@ -62,7 +62,7 @@ _interrupt:
 	BTFSS      STATUS+0, 2
 	GOTO       L__interrupt83
 	MOVF       _hb_interruptcount+0, 0
-	SUBLW      20
+	SUBLW      30
 L__interrupt83:
 	BTFSC      STATUS+0, 0
 	GOTO       L_interrupt3
