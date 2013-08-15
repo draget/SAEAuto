@@ -8,7 +8,7 @@ use JSON;
 print header('application/json');
 
 
-open (LOGFILE, "../../TestCode/Control/weblog.txt");
+open (LOGFILE, "../../TestCode/Control/ramdisk/weblog.txt");
 @LogLines = <LOGFILE>;
 close LOGFILE;
 

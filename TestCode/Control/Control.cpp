@@ -69,7 +69,7 @@ Control::Control(std::string LogDir) {
 
 	WebIPC = new IPC(this,Log);
 
-	WebLogger = new Logger("./weblog.txt");
+	WebLogger = new Logger("./ramdisk/weblog.txt");
 
 }
 
@@ -84,7 +84,7 @@ void Control::Setup() {
 
 	WebIPC->Open();
 	CarNetworkConnection->Open();
-	//SafetySerial->Open();
+	SafetySerial->Open();
 	LowLevelSerial->Open();
 	GPS->Open();
 	if(access("noibeo", F_OK ) == -1) { Lux->Open(); }
@@ -117,7 +117,7 @@ void Control::Run() {
 
 	WebIPC->Start();
 	CarNetworkConnection->StartProcessMessages();
-	//SafetySerial->Start();
+	SafetySerial->Start();
 	LowLevelSerial->Start();
 	GPS->Start();
 	Lux->Start();
@@ -271,6 +271,9 @@ void Control::Trip(int TripState) {
 	}
 	else if(TripState == 9) {
 		TripReason = "Web IPC estop";
+	}
+	else if(TripState == 10) {
+		TripReason = "Low Level Error";
 	}
  
 	AutoOn = false;

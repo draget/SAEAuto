@@ -152,7 +152,7 @@ void LowLevelSerialOut::SendCurrent() {
                 		Log->WriteLogLine("LowLevelSerial - Error: serial port unexpectedly closed");
 				Run = false;
 				SerialState = false;
-				CarControl->Trip(2);
+				CarControl->Trip(5);
        		}
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 
@@ -192,6 +192,18 @@ void LowLevelSerialOut::ProcessMessage() {
 		LastAckTime = CarControl->TimeStamp();
 
 	}
+	else if(MsgString.compare(0,2,"ER") == 0) {
+
+		Log->WriteLogLine("LowLevelSerial - Rxd Error! " + MsgString);
+		if(MsgString.compare(2,1,"0") == 0){ Log->WriteLogLine("LowLevelSerial - Serial overflow!"); }
+		else if(MsgString.compare(2,1,"1") == 0) { Log->WriteLogLine("LowLevelSerial - Emergency brake engaged!"); }
+		else if(MsgString.compare(2,1,"2") == 0) { Log->WriteLogLine("LowLevelSerial - WDT Timeout!"); CarControl->Trip(10); }
+		else if(MsgString.compare(2,1,"3") == 0) { Log->WriteLogLine("LowLevelSerial - Brake servo on for too long!"); }
+		else if(MsgString.compare(2,1,"4") == 0) { Log->WriteLogLine("LowLevelSerial - Steering control fault!"); CarControl->Trip(10); }
+		else if(MsgString.compare(2,1,"5") == 0) { Log->WriteLogLine("LowLevelSerial - No new command in 300ms!"); CarControl->Trip(10); }
+
+
+	}
 	else {
 
 		Log->WriteLogLine("LowLevelSerial - Received non-ack: " + MsgString);
@@ -207,9 +219,9 @@ void LowLevelSerialOut::Monitor() {
 
 	while(Run) {
 
-		if(CarControl->TimeStamp() - LastAckTime > 0.3) { 
+		if(CarControl->TimeStamp() - LastAckTime > 0.3 && LastAckTime > 0) { 
 			Log->WriteLogLine("LowLevelSerial - No acks in 300ms!");
-			CarControl->Trip(2);
+			CarControl->Trip(10);
 		}	
 
 		boost::this_thread::sleep(boost::posix_time::milliseconds(400));
