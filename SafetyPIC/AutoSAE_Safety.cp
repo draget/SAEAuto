@@ -34,7 +34,7 @@ void trip() {
 
 void interrupt() {
 
- if(hb_interruptcount > 20) {
+ if(hb_interruptcount > 30) {
  if(arm_state > 0) {
  hb_trip = 1;
  tripreq = 1;
