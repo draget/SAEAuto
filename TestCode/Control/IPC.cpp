@@ -41,6 +41,8 @@ IPC::IPC(Control* CarController, Logger* Logger) {
 	CarControl = CarController;
  	Log = Logger;	
 
+	if(access("noibeo", F_OK ) != -1) { unlink("./IPC_FIFO_RX"); }
+
 	mode_t process_mask = umask(0);
 	int res = mkfifo("./IPC_FIFO_RX", S_IRWXU | S_IRWXG | S_IRWXO);
 	umask(process_mask);

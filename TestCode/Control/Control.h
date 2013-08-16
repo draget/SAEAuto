@@ -15,6 +15,7 @@ class LowLevelSerialOut;
 class GPSConnection;
 class IBEO;
 class IPC;
+class Xsens;
 
 
 
@@ -109,8 +110,9 @@ private:
 	Logger* Log;
 	SafetySerialOut* SafetySerial;
 	LowLevelSerialOut* LowLevelSerial;
-	IBEO *Lux;
-	IPC *WebIPC;
+	IBEO* Lux;
+	IPC* WebIPC;
+	Xsens* IMU;
 
 	Logger* WebLogger;
 

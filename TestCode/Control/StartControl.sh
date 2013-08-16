@@ -6,6 +6,7 @@ sudo gpsd /dev/serial/by-id/usb-MTK_GPS_Receiver-if01
 
 sudo chmod 777 /dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Controller-if00-port0
 sudo chmod 777 /dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_74134373733351609070-if00
+sudo chmod 777 /dev/serial/by-id/usb-Xsens_Xsens_USB-serial_converter_XST8R2K9-if00-port0
 
 User=`whoami`
 

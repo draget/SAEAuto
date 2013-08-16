@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,7 +50,15 @@ CarNetwork::CarNetwork(Control* CarController, Logger* Logger) {
       		perror("can not create socket");
       		exit(EXIT_FAILURE);
    	}
-	
+
+	int flag = 1;
+        int result = setsockopt(SocketFD, IPPROTO_TCP, TCP_NODELAY, (char *) &flag, sizeof(int));
+    	if(result < 0) {
+      		perror("Can't set socket options.");
+      		exit(EXIT_FAILURE);
+   	}	
+
+
 	StatusString = "Socket created";
 
 }
@@ -142,7 +151,7 @@ while(Run) {  // Wait for connections
  
 		HasConnection = true;
 
-    		while(1) { // Wait for messages
+    		while(Run) { // Wait for messages
 		
 			bool breakandclose = false;
 

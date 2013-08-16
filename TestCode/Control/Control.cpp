@@ -26,6 +26,7 @@
 #include "GPSConnection.h"
 #include "IBEO.h"
 #include "IPC.h"
+#include "Xsens.h"
 
 #include "PID.h"
 
@@ -67,6 +68,8 @@ Control::Control(std::string LogDir) {
 
 	Lux = new IBEO(this,Log);
 
+	IMU = new Xsens(this,Log);
+
 	WebIPC = new IPC(this,Log);
 
 	WebLogger = new Logger("./weblog.txt");
@@ -84,10 +87,11 @@ void Control::Setup() {
 
 	WebIPC->Open();
 	CarNetworkConnection->Open();
-	//SafetySerial->Open();
+	SafetySerial->Open();
 	LowLevelSerial->Open();
 	GPS->Open();
 	if(access("noibeo", F_OK ) == -1) { Lux->Open(); }
+	IMU->Open();
 
 }
 
@@ -117,10 +121,11 @@ void Control::Run() {
 
 	WebIPC->Start();
 	CarNetworkConnection->StartProcessMessages();
-	//SafetySerial->Start();
+	SafetySerial->Start();
 	LowLevelSerial->Start();
 	GPS->Start();
 	Lux->Start();
+	IMU->Start();
 
 	while(RunState) {
 
@@ -140,7 +145,7 @@ void Control::UpdateTerminal() {
 	mvprintw(3,0,"HB State: %i \n", this->HeartbeatState);
 	mvprintw(4,0,"Car Net State: %s \n", this->CarNetworkConnection->StatusString.c_str());
 	mvprintw(5,0,"Safety Serial State: %i \n", this->SafetySerial->SerialState);
-
+	mvprintw(6,0,"LowLevel Serial State: %i \n", this->LowLevelSerial->SerialState);
 	mvprintw(7,0,"Brake IL Status: %i \n", this->BrakeILOn);
 
 	mvprintw(9,0,"Current Steering Posn: %i \n", this->CurrentSteeringSetPosn);
@@ -197,6 +202,7 @@ void Control::WriteInfoFile() {
 	WebLogger->WriteLogLine("HB State|" + boost::lexical_cast<std::string>(this->HeartbeatState), true);
 	WebLogger->WriteLogLine("Car Net State|" + boost::lexical_cast<std::string>(this->CarNetworkConnection->StatusString.c_str()), true);
 	WebLogger->WriteLogLine("Safety Serial State|" + boost::lexical_cast<std::string>(this->SafetySerial->SerialState), true);
+	WebLogger->WriteLogLine("LowLevel Serial State|" + boost::lexical_cast<std::string>(this->LowLevelSerial->SerialState), true);
 
 	WebLogger->WriteLogLine("Brake IL Status|" + boost::lexical_cast<std::string>(this->BrakeILOn), true);
 
@@ -215,6 +221,8 @@ void Control::WriteInfoFile() {
 
 	WebLogger->WriteLogLine("Offset Lat|" + boost::lexical_cast<std::string>(this->LatOffset), true);
 	WebLogger->WriteLogLine("Offset Long|" + boost::lexical_cast<std::string>(this->LongOffset), true);
+
+	WebLogger->WriteLogLine("IMU Heading|" + boost::lexical_cast<std::string>(this->IMU->Yaw), true);
 
 	WebLogger->WriteLogLine("Desired Bearing|" + boost::lexical_cast<std::string>(this->DesiredBearing), true);
 	WebLogger->WriteLogLine("NextWaypoint|" + boost::lexical_cast<std::string>(this->NextWaypoint), true);
@@ -388,7 +396,7 @@ void Control::AutoStart() {
 	SpeedController->setOutputLimits(-255,255);
 	SpeedController->setMode(AUTO_MODE);
 
-	SteerController = new PID(2.0,1.0,0,0.2);
+	SteerController = new PID(3.0,0.5,0,0.2);
 	SteerController->setInputLimits(-360, 360);
 	SteerController->setOutputLimits(-127,127);
 	SteerController->setMode(AUTO_MODE);
@@ -437,15 +445,15 @@ void Control::AutoPosUpdate(MAPPOINT_2D CurPosn) {
 	SteerController->setSetPoint(DesiredBearing);
 
 	
-	if(CurrentSteeringSetPosn > 40) { SpeedController->setSetPoint(0.5); }
-	else { SpeedController->setSetPoint(1.0); }
+	if(CurrentSteeringSetPosn > 40) { SpeedController->setSetPoint(0.75); }
+	else { SpeedController->setSetPoint(1.25); }
 
 
 }
 
 void Control::AutoSpeedUpdate(double CurSpeed) {
 
-	if(CurSpeed < 0.5) { CurSpeed = 0; } // Going slower than GPS noise.
+	if(CurSpeed < 0.2) { CurSpeed = 0; } // Going slower than GPS noise.
 
 	SpeedController->setProcessValue(CurSpeed);
 
@@ -475,6 +483,9 @@ void Control::AutoSpeedUpdate(double CurSpeed) {
 
 
 void Control::AutoTrackUpdate(double CurTrack) {
+
+	if(GPS->speed < 10) { CurTrack = IMU->Yaw + (double)CurrentSteeringSetPosn*0.157; }
+	if(CurTrack < 0) { CurTrack = 360 + CurTrack; }
 
 	SteerController->setProcessValue(CurTrack);
 	CurrentSteeringSetPosn = SteerController->compute();

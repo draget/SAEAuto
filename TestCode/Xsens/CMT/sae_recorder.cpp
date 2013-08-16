@@ -11,7 +11,7 @@ Modifed from example_3s, T. Drage 2013.
 #include <stdio.h>
 #include <signal.h>
 #include <math.h>
-
+#include <sys/time.h>
 
 int quit = 0;
 
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 		EXIT_ERROR("set timeout");
 	printf("Measurement timeout set to %d ms\n", timeOut);
 	
-    CmtDeviceMode mode(CMT_OUTPUTMODE_ORIENT | CMT_OUTPUTMODE_CALIB, CMT_OUTPUTSETTINGS_TIMESTAMP_SAMPLECNT | CMT_OUTPUTSETTINGS_COORDINATES_NED |CMT_OUTPUTSETTINGS_ORIENTMODE_EULER | CMT_OUTPUTSETTINGS_CALIBMODE_ACCGYR, 256);
+    CmtDeviceMode mode(CMT_OUTPUTMODE_ORIENT | CMT_OUTPUTMODE_CALIB, CMT_OUTPUTSETTINGS_TIMESTAMP_SAMPLECNT | CMT_OUTPUTSETTINGS_COORDINATES_NED |CMT_OUTPUTSETTINGS_ORIENTMODE_EULER | CMT_OUTPUTSETTINGS_CALIBMODE_ACCGYR, 100);
     if (serial.setDeviceMode(mode, false, CMT_DID_BROADCAST))
         EXIT_ERROR("set device mode");
     printf("Device modes set\n");
@@ -76,7 +76,10 @@ int main(int argc, char* argv[])
 
     long msgCount = 0;
 
-long int lasttime = getTimeOfDay();
+struct timeval lasttime, newtime;
+
+gettimeofday(&lasttime,NULL);
+gettimeofday(&newtime,NULL);
 
 double xpos = 0;
 double xvel = 0;
@@ -131,7 +134,12 @@ double xvel = 0;
 xvel += xacc*3.90625/1000;
 xpos += xvel*3.90625/1000;
 
-lasttime = getTimeOfDay();
+gettimeofday(&newtime,NULL);
+printf("Time %f\n",(double)(newtime.tv_usec - lasttime.tv_usec)/1000);
+lasttime = newtime;
+
+
+
 
 
 
