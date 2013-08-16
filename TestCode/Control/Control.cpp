@@ -72,7 +72,7 @@ Control::Control(std::string LogDir) {
 
 	WebIPC = new IPC(this,Log);
 
-	WebLogger = new Logger("./weblog.txt");
+	WebLogger = new Logger("./ramdisk/weblog.txt");
 
 }
 
@@ -279,6 +279,9 @@ void Control::Trip(int TripState) {
 	}
 	else if(TripState == 9) {
 		TripReason = "Web IPC estop";
+	}
+	else if(TripState == 10) {
+		TripReason = "Low Level Error";
 	}
  
 	AutoOn = false;

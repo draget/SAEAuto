@@ -1,6 +1,15 @@
 #!/bin/sh
 
-killall gpsd
+sudo mkfs -t ext3 -q /dev/ram1 8192
+sudo [ ! -d ./ramdisk ] && mkdir -p ./ramdisk
+sudo mount /dev/ram1 ./ramdisk
+
+sudo chmod 777 ./ramdisk
+
+sudo chmod 777 /dev/video1
+
+
+sudo killall gpsd
 
 sudo gpsd /dev/serial/by-id/usb-MTK_GPS_Receiver-if01
 

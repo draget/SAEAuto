@@ -224,7 +224,7 @@ while(Run) {  // Wait for connections
 
 			gettimeofday(&current,NULL);
 			int ms_gap = (current.tv_usec - last.tv_usec)/1000 ;
-			if(ms_gap >100) { Log->WriteLogLine("CarNetwork - Slow response on HB! " + boost::lexical_cast<std::string>(ms_gap) ); }
+			if(ms_gap > 100) { Log->WriteLogLine("CarNetwork - Slow response on HB! " + boost::lexical_cast<std::string>(ms_gap) + " " +  Message.substr(4,1)); }
 			gettimeofday(&last,NULL);
 
 				if(Message.compare(4,1,"+") == 0) { 
