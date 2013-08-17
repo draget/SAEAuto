@@ -119,7 +119,7 @@ void Xsens::ProcessMessages() {
 	long double yacc_comp = (long double) sin_pitch*sin_roll*xacc + cos_roll*yacc - sin_roll*cos_pitch*zacc;
 	long double zacc_comp = (long double) -cos_roll*sin_pitch*xacc + sin_roll*yacc + cos_roll*cos_pitch*zacc;
 
-	if(reply->getOriEuler().m_yaw < 0) { Yaw = reply->getOriEuler().m_yaw + 360; }
+	if(reply->getOriEuler().m_yaw < 0) { Yaw = 360 + reply->getOriEuler().m_yaw ; }
 	else { Yaw = reply->getOriEuler().m_yaw; }
 
     }

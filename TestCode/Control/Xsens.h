@@ -8,7 +8,7 @@
 
 #include "xsens/cmt3.h"
 
-#define IMU_PORT "/dev/ttyUSB0"
+#define IMU_PORT "/dev/ttyUSB1"
 
 class Control;
 class Logger;

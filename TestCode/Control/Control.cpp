@@ -487,7 +487,7 @@ void Control::AutoSpeedUpdate(double CurSpeed) {
 
 void Control::AutoTrackUpdate(double CurTrack) {
 
-	if(GPS->speed < 10) { CurTrack = IMU->Yaw + (double)CurrentSteeringSetPosn*0.157; }
+	if(GPS->Speed < 10) { CurTrack = IMU->Yaw + (double)CurrentSteeringSetPosn*0.157; }
 	if(CurTrack < 0) { CurTrack = 360 + CurTrack; }
 
 	SteerController->setProcessValue(CurTrack);
