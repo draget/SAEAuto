@@ -19,6 +19,7 @@
 #include "Logger.h"
 #include "Control.h"
 
+#include <boost/lexical_cast.hpp>
 
 
 #define EXIT_ERROR(loc) {printf("Error %d occurred during " loc ": %s\n", serial.getLastResult(), xsensResultText(serial.getLastResult())); exit(-1); }
@@ -54,6 +55,10 @@ Xsens::~Xsens() {
 }
 
 bool Xsens::Open() {
+
+	std::string LogPath = CarControl->LogDir + "/imu.log";
+
+	IMULog = new Logger(LogPath.c_str());
 
 	char portname[32];
 	sprintf(portname, IMU_PORT);
@@ -98,6 +103,13 @@ void Xsens::Start() {
 
 void Xsens::ProcessMessages() {
 
+	CmtMatrix matrix_data;
+	long double xacc;
+	long double yacc;
+	long double zacc;
+	long double xacc_comp;
+	long double yacc_comp;
+	long double zacc_comp;
 
     while (Run)
     {
@@ -106,21 +118,32 @@ void Xsens::ProcessMessages() {
 		Log->WriteLogLine("XSens - Error reading messages!");
         }
 
-	long double cos_roll = cosl((long double)reply->getOriEuler().m_roll*2*M_PI/360);
-	long double cos_pitch = cosl((long double)reply->getOriEuler().m_pitch*2*M_PI/360);
-	long double sin_roll = sinl((long double)reply->getOriEuler().m_roll*2*M_PI/360);
-	long double sin_pitch = sinl((long double)reply->getOriEuler().m_pitch*2*M_PI/360);
+	matrix_data = reply->getOriMatrix();
 
-	long double xacc = (long double) reply->getCalData().m_acc.m_data[0];
-	long double yacc = (long double) reply->getCalData().m_acc.m_data[1];
-	long double zacc = (long double) reply->getCalData().m_acc.m_data[2];
+	//long double cos_roll = cosl((long double)reply->getOriEuler().m_roll*2*M_PI/360);
+	//long double cos_pitch = cosl((long double)reply->getOriEuler().m_pitch*2*M_PI/360);
+	//long double sin_roll = sinl((long double)reply->getOriEuler().m_roll*2*M_PI/360);
+	//long double sin_pitch = sinl((long double)reply->getOriEuler().m_pitch*2*M_PI/360);
 
-	long double xacc_comp = (long double) cos_pitch*xacc + sin_pitch*zacc;
-	long double yacc_comp = (long double) sin_pitch*sin_roll*xacc + cos_roll*yacc - sin_roll*cos_pitch*zacc;
-	long double zacc_comp = (long double) -cos_roll*sin_pitch*xacc + sin_roll*yacc + cos_roll*cos_pitch*zacc;
+	xacc = (long double) reply->getCalData().m_acc.m_data[0];
+	yacc = (long double) reply->getCalData().m_acc.m_data[1];
+	zacc = (long double) reply->getCalData().m_acc.m_data[2];
 
-	if(reply->getOriEuler().m_yaw < 0) { Yaw = reply->getOriEuler().m_yaw + 360; }
-	else { Yaw = reply->getOriEuler().m_yaw; }
+	xacc_comp = (long double) matrix_data.m_data[0][0]*xacc + matrix_data.m_data[1][0]*yacc + matrix_data.m_data[2][0]*zacc;
+	yacc_comp = (long double) matrix_data.m_data[0][1]*xacc + matrix_data.m_data[1][1]*yacc + matrix_data.m_data[2][1]*zacc;
+	zacc_comp = (long double) matrix_data.m_data[0][2]*xacc + matrix_data.m_data[1][2]*yacc + matrix_data.m_data[2][2]*zacc;
+
+
+	//long double xacc_comp = (long double) cos_pitch*xacc + sin_pitch*zacc;
+	//long double yacc_comp = (long double) sin_pitch*sin_roll*xacc + cos_roll*yacc - sin_roll*cos_pitch*zacc;
+	//long double zacc_comp = (long double) -cos_roll*sin_pitch*xacc + sin_roll*yacc + cos_roll*cos_pitch*zacc;
+
+	
+	if(matrix_data.m_data[0][1] < 0 && matrix_data.m_data[1][1] < 0) { Yaw = 360*asinl(matrix_data.m_data[1][0])/2/M_PI; }
+	else if(matrix_data.m_data[1][1] > 0) { Yaw = 180 - 360*asinl(matrix_data.m_data[1][0])/2/M_PI; }
+	else { Yaw = 360 + 360*asinl(matrix_data.m_data[1][0])/2/M_PI; }
+
+	IMULog->WriteLogLine(boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Yaw) + "," + boost::lexical_cast<std::string>(xacc_comp) + "," + boost::lexical_cast<std::string>(yacc_comp));
 
     }
 

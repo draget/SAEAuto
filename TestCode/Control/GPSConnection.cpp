@@ -140,7 +140,7 @@ void GPSConnection::NewPosition() {
 
 	MAPPOINT_2D Position = CarControl->LatLongToXY(Latitude, Longitude);
 
-	GPSLog->WriteLogLine("P," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Latitude) + "," + boost::lexical_cast<std::string>(Longitude), true);
+	GPSLog->WriteLogLine("P," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Latitude) + "," + boost::lexical_cast<std::string>(Longitude) + "," + boost::lexical_cast<std::string>(Position.x) + "," + boost::lexical_cast<std::string>(Position.y), true);
 	if(CarControl->AutoRun) { CarControl->AutoPosUpdate(Position); }
 	CarControl->CheckFenceposts(Position);
 

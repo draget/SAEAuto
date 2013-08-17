@@ -34,6 +34,8 @@ private:
 	Cmt3* serial;
   	Packet* reply;
 
+	Logger* IMULog;
+
 	bool Run;
 
 	boost::thread m_Thread;
