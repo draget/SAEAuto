@@ -399,7 +399,7 @@ void Control::AutoStart() {
 	SpeedController->setOutputLimits(-255,255);
 	SpeedController->setMode(AUTO_MODE);
 
-	SteerController = new PID(3.0,0.5,0,0.2);
+	SteerController = new PID(6.0,0.75,0,0.2);
 	SteerController->setInputLimits(-360, 360);
 	SteerController->setOutputLimits(-127,127);
 	SteerController->setMode(AUTO_MODE);
@@ -425,7 +425,7 @@ void Control::CheckFenceposts(MAPPOINT_2D CurPosn) {
 void Control::AutoPosUpdate(MAPPOINT_2D CurPosn) {
 
 	MAPPOINT_2D DistanceVector = SubtractMapPoint(CurrentMap.Waypoints[NextWaypoint],CurPosn);
-	if(sqrt(pow(DistanceVector.x,2) + pow(DistanceVector.y,2)) < 2) {
+	if(sqrt(pow(DistanceVector.x,2) + pow(DistanceVector.y,2)) < 3.5) {
 		Log->WriteLogLine("Control - Reached waypoint " + boost::lexical_cast<std::string>(NextWaypoint));
 		NextWaypoint++;
 		if(NextWaypoint >= CurrentMap.Waypoints.size()) { Log->WriteLogLine("Control - Reached end of map."); Control::AutoStop(); }
@@ -448,8 +448,8 @@ void Control::AutoPosUpdate(MAPPOINT_2D CurPosn) {
 	SteerController->setSetPoint(DesiredBearing);
 
 	
-	if(CurrentSteeringSetPosn > 40) { SpeedController->setSetPoint(0.75); }
-	else { SpeedController->setSetPoint(1.25); }
+	if(CurrentSteeringSetPosn > 60) { SpeedController->setSetPoint(1.5); }
+	else { SpeedController->setSetPoint(2.5); }
 
 
 }

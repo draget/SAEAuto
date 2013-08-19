@@ -199,7 +199,7 @@ void LowLevelSerialOut::ProcessMessage() {
 		else if(MsgString.compare(2,1,"1") == 0) { Log->WriteLogLine("LowLevelSerial - Emergency brake engaged!"); }
 		else if(MsgString.compare(2,1,"2") == 0) { Log->WriteLogLine("LowLevelSerial - WDT Timeout!"); CarControl->Trip(10); }
 		else if(MsgString.compare(2,1,"3") == 0) { Log->WriteLogLine("LowLevelSerial - Brake servo on for too long!"); }
-		else if(MsgString.compare(2,1,"4") == 0) { Log->WriteLogLine("LowLevelSerial - Steering control fault!"); CarControl->Trip(10); }
+		else if(MsgString.compare(2,1,"4") == 0) { Log->WriteLogLine("LowLevelSerial - Steering control fault!");  } // CarControl->Trip(10); }
 		else if(MsgString.compare(2,1,"5") == 0) { Log->WriteLogLine("LowLevelSerial - No new command in 300ms!"); CarControl->Trip(10); }
 
 
