@@ -19,6 +19,8 @@ public:
 	void WriteLogLine(std::string LogLine);
 	void CloseLog();
 	void ClearLog();
+	void WriteLock();
+	void ClearLock();
 
 private:
 

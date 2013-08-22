@@ -55,7 +55,7 @@ public:
 	bool ManualOn;
 	bool AutoOn;
 	bool AutoRun;
-	bool BrakeILOn;
+	bool BrakeILOn; // If this is off we don't require a heartbeat or network connection for auto!
 
 	double DatumLat;
 	double DatumLong;

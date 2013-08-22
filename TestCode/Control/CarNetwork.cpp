@@ -174,7 +174,7 @@ while(Run) {  // Wait for connections
 				//printf("No message?!\n");
 				StatusString = "No message rxd";
 				Log->WriteLogLine("Car Network - No message rxd"); 
-				CarControl->Trip(6);
+				if(CarControl->BrakeILOn) { CarControl->Trip(6); }
 				break; 
 			}
 			
@@ -212,7 +212,7 @@ while(Run) {  // Wait for connections
 				msg_length++;
 			} 
 
-			if(breakandclose) { breakandclose = false; CarControl->Trip(6); break; }
+			if(breakandclose) { breakandclose = false; if(CarControl->BrakeILOn) { CarControl->Trip(6); } break; }
 
 			//printf("Data: *%s* \n",msgbuf);
 
@@ -275,7 +275,8 @@ while(Run) {  // Wait for connections
 					//printf("Did it go away before write?\n");  
 					StatusString = "Problem writing";
 					Log->WriteLogLine("Car Network - Problem writing");
-					CarControl->Trip(6); break; 
+					if(CarControl->BrakeILOn) { CarControl->Trip(6); } 
+					break; 
 				}
 
 				write(ConnectFD,ackmsg_no0,sizeof(ackmsg_no0));

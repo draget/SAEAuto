@@ -46,6 +46,7 @@ Control::Control(std::string LogDir) {
 	TripState = 0;
 	ManualOn = false;
 	AutoOn = false;
+	BrakeILOn = true;
 
 	DatumLat = -31.980569;
 	DatumLong = 115.817807;
@@ -193,6 +194,7 @@ void Control::UpdateTerminal() {
 
 void Control::WriteInfoFile() {
 
+	WebLogger->WriteLock();
 	WebLogger->ClearLog();
 
 	WebLogger->WriteLogLine("Manual State|" + boost::lexical_cast<std::string>(this->ManualOn), true);
@@ -242,6 +244,8 @@ void Control::WriteInfoFile() {
 		WebLogger->WriteLogLine("Log|" + RecentLogLines[y - i], true);
 
 	}
+
+	WebLogger->ClearLock();
 
 }
 
@@ -323,6 +327,8 @@ void Control::LoadMap(std::string MapFilename) {
 		int f = 0;
 		int w = 0;
 
+		MAPPOINT_2D MapPoint;
+
 		while ( infile.good() ) {
 			std::string line;
       			getline (infile,line);
@@ -330,15 +336,18 @@ void Control::LoadMap(std::string MapFilename) {
 			boost::algorithm::trim(line);
 
 			if(line.empty()) { continue; }
-      			
+
 			std::vector<std::string> LineParts;
 			boost::algorithm::split(LineParts, line,  boost::algorithm::is_any_of(","));
 
-			MAPPOINT_2D MapPoint;
+			if(LineParts[0].compare(0,1,"D") == 0) { 
+				DatumLat = boost::lexical_cast<double>(LineParts[1]); 
+				DatumLong = boost::lexical_cast<double>(LineParts[2]);
+				continue;
+			}
 
-			MapPoint = LatLongToXY(boost::lexical_cast<double>(LineParts[1]), boost::lexical_cast<double>(LineParts[2]));
-
-
+			MapPoint.x = boost::lexical_cast<double>(LineParts[1]);
+			MapPoint.y = boost::lexical_cast<double>(LineParts[2]);
 
 
 			if(LineParts[0].compare(0,1,"F") == 0 ) {
@@ -386,7 +395,7 @@ void Control::AutoStart() {
 
 	if(CurrentMap.Waypoints.size() == 0) { Log->WriteLogLine("Control - No map loaded, can't start auto."); return; }
 
-	if(! CarNetworkConnection->HasConnection) { Log->WriteLogLine("Control - No base connection, can't start auto."); return; }
+	if(! CarNetworkConnection->HasConnection && BrakeILOn) { Log->WriteLogLine("Control - No base connection, can't start auto."); return; }
 
 	NextWaypoint = 0;
 	ManualOn = false;
@@ -442,8 +451,16 @@ void Control::AutoPosUpdate(MAPPOINT_2D CurPosn) {
 	else { DesiredBearing = 90 - 360*atan2(VectorToNextWp.y,VectorToNextWp.x)/TwoPi; }
 	//Log->WriteLogLine("pre flip: " + boost::lexical_cast<std::string>(DesiredBearing));
 
+	
+
+	double CurTrack = 0;
+	if(GPS->Speed < 10) { CurTrack = IMU->Yaw + (double)CurrentSteeringSetPosn*0.157; }
+	else { CurTrack = GPS->TrackAngle; }
+	if(CurTrack < 0) { CurTrack = 360 + CurTrack; }
+
+
 	// Sometimes we need to go backwards.
-	if(DesiredBearing > 180 + this->GPS->TrackAngle && this->GPS->TrackAngle < 180) { DesiredBearing = DesiredBearing - 360; }
+	if(DesiredBearing > 180 + CurTrack && CurTrack < 180) { DesiredBearing = DesiredBearing - 360; }
 
 	SteerController->setSetPoint(DesiredBearing);
 

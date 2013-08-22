@@ -3,10 +3,13 @@
 use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 use JSON;
+use Time::HiRes qw(usleep);
 
 
 print header('application/json');
 
+my $i = 0;
+while(-e "../../TestCode/Control/ramdisk/weblog.txt_LOCK") { if($i > 1000) { last; } usleep(1000); $i++; }
 
 open (LOGFILE, "../../TestCode/Control/ramdisk/weblog.txt");
 @LogLines = <LOGFILE>;

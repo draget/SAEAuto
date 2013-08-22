@@ -149,6 +149,10 @@ void IPC::ProcessMessages() {
 			Log->WriteLogLine("IPC - calling auto cont");
 			CarControl->AutoContinue();
 		}
+		else if(MessageParts[0].compare(0,8,"TOGBIL") == 0) {
+			Log->WriteLogLine("IPC - calling toggle brakeil");
+			CarControl->ToggleBrakeIL();
+		}
 		else if(MessageParts[0].compare(0,9,"SETGPSOFF") == 0) {
 			Log->WriteLogLine("IPC - setting GPS offset" + MessageParts[1] + " " + MessageParts[2]);
 			if(! CarControl->AutoOn) {

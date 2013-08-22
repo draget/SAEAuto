@@ -5,6 +5,41 @@ use strict;
 use CGI qw/:standard/;
 use CGI::Carp qw(fatalsToBrowser warningsToBrowser);
 
+use Math::Trig;
+
+my $TwoPi = 4*acos(0);
+my $EARTH_RADIUS = 6371000;
+
+
+sub LatLongToXY {
+
+	my($lat,$lng,$DatumLat,$DatumLong) = @_;
+
+	my @Result;
+
+	$Result[1] = -1*$EARTH_RADIUS*$TwoPi*($DatumLat - $lat)/360;
+	$Result[0] = -1*$EARTH_RADIUS*cos(abs($lat))*$TwoPi*($DatumLong - $lng)/360;
+
+	return @Result;
+
+}
+
+sub XYToLatLong {
+
+	my($x,$y,$DatumLat,$DatumLong) = @_;
+
+	my @Result;
+
+	$Result[0] = 1*$y*360/($EARTH_RADIUS*$TwoPi) + $DatumLat;
+	$Result[1] = 1*$x*360/($EARTH_RADIUS*$TwoPi*cos(abs($Result[0]))) + $DatumLong;
+
+	return @Result;
+
+}
+
+print header;
+warningsToBrowser(1);
+
 my $Error;
 
 my $Data;
@@ -17,34 +52,90 @@ if(param("save") eq 'Save') {
 
 		$CurrentName = param("mapname") . ".wyp";
 
+		my ($DatumLat, $DatumLong);
+
 		open (FILE,">./maps/" . $CurrentName);
-		print FILE param("markerstext");
+
+		my @MarkersText = split(/\n/,param("markerstext"));
+		
+		foreach my $Line (@MarkersText) {
+
+			my @LineParts = split(/,/, $Line);
+
+			if($LineParts[0] eq 'D') { 
+				$DatumLat = $LineParts[1]; 
+				$DatumLong = $LineParts[2]; 
+				print FILE $Line . "\n";			
+			}
+			else { next; }
+
+		}
+
+		foreach my $Line (@MarkersText) {
+
+			my @LineParts = split(/,/, $Line);
+
+			if($LineParts[0] eq 'D') { next; }
+			else { 
+				my @Point = LatLongToXY($LineParts[1], $LineParts[2], $DatumLat, $DatumLong);
+				print FILE $LineParts[0] . "," . $Point[0] . "," . $Point[1] . "\n";
+			}
+
+		}
+
+
+
 		close FILE;
 
 	}
 
 	else { $Error = "Bad map name"; }
 
-	$Data = param("markerstext");
-
 }
 
-elsif(param("open") eq 'Open') {
+if(param("open") eq 'Open' || param("save") eq 'Save') {
 
-	my $Filename = param("openfilename");
+	if(param("open") eq 'Open') { $CurrentName = param("openfilename"); }
 
-	$CurrentName = param("openfilename");
-
-	open (FILE,"./maps/$Filename");
+	open (FILE,"./maps/$CurrentName");
 	my @lines = <FILE>;
-	$Data = join("",@lines);
+	
+	my ($DatumLat, $DatumLong);
+
+	foreach my $line (@lines) {
+
+		my @LineParts = split(/,/, $line);
+
+		if($LineParts[0] eq 'D') { 
+			$DatumLat = $LineParts[1]; 
+			$DatumLong = $LineParts[2]; 	
+		}
+		else { next; }
+
+	}
+
+	foreach my $line (@lines) {
+
+		$line =~ s/\n//g;
+		my @LineParts = split(/,/, $line);
+
+		if($LineParts[0] eq 'D') { $Data .= $line . "\n"; }
+		else { 
+			
+			my ($Lat, $Long) = XYToLatLong($LineParts[1],$LineParts[2],$DatumLat,$DatumLong);
+			$Data .= $LineParts[0] . "," . $Lat . "," . $Long . "\n";
+
+		}
+
+	}
+
+
 	close FILE;
 
 }
 
 
-print header;
-warningsToBrowser(1);
+
 
 print <<END;
 
@@ -75,6 +166,9 @@ var map;
 var markers = [];
 var fencemarkers = [];
 
+var offsetLat = 0;
+var offsetLong = 0;
+
 var greenCross = {url: 'cross.png'};
 var blueDot = {url: 'blue-dot.png'};
 
@@ -84,9 +178,11 @@ var currentLocationMarker;
 var datumMarker;
 
 function initialize() {
+
+	var defaultPos = new google.maps.LatLng(-31.980569, 115.817807);
         
 	var mapOptions = {
-		center: new google.maps.LatLng(-31.980569, 115.817807),
+		center: defaultPos,
 		zoom: 17,
 		mapTypeId: google.maps.MapTypeId.SATELLITE
         };
@@ -109,6 +205,9 @@ function initialize() {
 		map: map,
 		raiseOnDrag: false,
 	});
+
+	if(document.getElementById("markerstext").value != "") { updateMarkersFromText(); }
+	else { setDatumLocation(defaultPos); }
 
 }
 
@@ -172,26 +271,19 @@ function logFenceLocation(location) {
 function setDatumLocation(location) {
 
 	datumMarker.setPosition(location);
-	
-	\$.ajax({
-		type: "POST",
-		url: "sendcommand.cgi",
-		data: "command=SETDATUM," + location.lat() + "," + location.lng(),
-		success: function() { },
-		dataType: "text",
-		error: function() { alert("AJAX IPC send Error!"); }
-	});
+
+	updateMarkersText();
 
 }
 
 
 function updateMarkersText() {
 
-	var markersString = "";
+	var markersString = "D," + (datumMarker.getPosition().lat() - offsetLat) + "," + (datumMarker.getPosition().lng() - offsetLong) + "\\n";
 
 	for(i in markers) {
 
-		markersString += i + "," + markers[i].getPosition().lat() + "," + markers[i].getPosition().lng() + "\\n";
+		markersString += i + "," + (markers[i].getPosition().lat() - offsetLat) + "," + (markers[i].getPosition().lng() - offsetLong) + "\\n";
 
 		markers[i].setTitle(i.toString());
 
@@ -199,7 +291,7 @@ function updateMarkersText() {
 
 	for(i in fencemarkers) {
 
-		markersString += "F" + i + "," + fencemarkers[i].getCenter().lat() + "," + fencemarkers[i].getCenter().lng() + "\\n";
+		markersString += "F" + i + "," + (fencemarkers[i].getCenter().lat() - offsetLat) + "," + (fencemarkers[i].getCenter().lng() - offsetLong) + "\\n";
 
 	}
 
@@ -221,9 +313,10 @@ function updateMarkersFromText() {
 
 		var lineParts = lines[i].split(",");
 
-		var position = new google.maps.LatLng(lineParts[1],lineParts[2]);
+		var position = new google.maps.LatLng(parseFloat(lineParts[1]) + offsetLat,parseFloat(lineParts[2]) + offsetLong);
 
 		if(lineParts[0].substring(0,1) == "F") { logFenceLocation(position); }
+		else if(lineParts[0].substring(0,1) == "D") { setDatumLocation(position); }
 		else { logMarkerLocation(position); }
 
 	}
@@ -325,8 +418,18 @@ function setGPSOffset() {
 		error: function() { alert("AJAX IPC send Error!"); }
 	});
 
+}
+
+
+function setMapOffset() {
+
+	offsetLat = parseFloat(document.getElementById("maplatoffset").value);
+	offsetLong = parseFloat(document.getElementById("maplongoffset").value);
+
+	updateMarkersFromText();
 
 }
+
 
 function sendCommand(Command) {
 
@@ -347,12 +450,12 @@ function sendCommand(Command) {
   </head>
   <body>
 
-
+<form method="POST" action="waypoints.cgi">
 <table border="1" width="100%">
 <tr><td colspan="2" style="font-family: Arial; text-align: center; font-size: 18px">UWA Autonomous SAE Car Web Interface</td></tr>
 <tr><td>
 
-<form method="POST" action="waypoints.cgi">
+<div style="font-family: Arial; font-size: 16px">Mapping Tools: </div>
 
 Saved maps: <select id="openfilename" name="openfilename">
 
@@ -397,30 +500,40 @@ print <<END;
 
 <br />
 
-Save map as: <input type="text" size="20" name="mapname" value="$CurrentName" /> <br />
+Save map as: <input type="text" size="20" name="mapname" value="$CurrentName" />
 
 <input type="submit" name="save" value="Save" />
+<br /><br />
 
-</form>
+<input type="text" size="6" id="maplatoffset" name="maplatoffset" value="0.0" />
+<input type="text" size="6" id="maplongoffset" name="maplongoffset" value="0.0" />
+<input type="button" onclick="setMapOffset()" name="start" value="Set Map Offset" />
+
 
 </td>
 
-    <td height="600" width="75%" rowspan="2"><div id="map-canvas"></div></td></tr>
+    <td height="500" width="65%" rowspan="2"><div id="map-canvas"></div></td></tr>
 
 <tr><td>
-
+<div style="font-family: Arial; font-size: 16px">Car Commands: </div>
 <input type="button" onclick="sendCommand('AUTOSTART')" name="start" value="Start Auto" />
 <input type="button" onclick="sendCommand('AUTOSTOP')" name="stop" value="STOP Auto" />
 <input type="button" onclick="sendCommand('AUTOPAUSE')" name="pause" value="Pause Auto" />
-<input type="button" onclick="sendCommand('AUTOCONT')" name="cont" value="Continue Auto" />
+<input type="button" onclick="sendCommand('AUTOCONT')" name="cont" value="Continue Auto" /> <br /><br />
+
+<input type="button" onclick="sendCommand('TOGBIL')" name="cont" value="Toggle BrakeIL" /> 
 <input style="background-color : red;" type="button" onclick="sendCommand('ESTOP')" name="estop" value="ESTOP Car" />
-<br />
-<input type="text" id="latoffset" value="0.0" />
-<input type="text" id="longoffset" value="0.0" />
+<br /><br />
+<input type="text" size="6" id="latoffset" name="latoffset" value="0.0" />
+<input type="text" size="6" id="longoffset" name="longoffset" value="0.0" />
 <input type="button" onclick="setGPSOffset()" name="start" value="Set GPS Offset" />
+
+
 
 <tr><td colspan="2"><textarea rows="20" cols="60" id="logarea"></textarea><div style="float: left; height: 20em; width: 25em; overflow: auto; border: 1px solid black" id="paramarea"></div></td></tr>
 </table>
+
+</form>
 
 END
 

@@ -13,6 +13,7 @@
 #include <string>
 #include <ctime>
 #include <algorithm>
+#include <stdio.h>
 
 #include "Logger.h"
 
@@ -77,6 +78,19 @@ void Logger::ClearLog() {
 
 	LogFileStream.close();
 	LogFileStream.open(LogFile.c_str(), std::ios::trunc);
+
+}
+
+void Logger::WriteLock() {
+
+	std::ofstream LockFileStream;
+	LockFileStream.open((LogFile + "_LOCK").c_str());
+	LockFileStream.close();
+}
+
+void Logger::ClearLock() {
+	
+	remove((LogFile + "_LOCK").c_str());
 
 }
 
