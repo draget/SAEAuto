@@ -430,6 +430,11 @@ function setMapOffset() {
 
 }
 
+function addCurPos() {
+
+	logLocation(currentLocationMarker.getPosition());
+
+}
 
 function sendCommand(Command) {
 
@@ -488,6 +493,9 @@ Next Position: <input type="text" id="nextposn" size="4" value="0" />
 <input type="button" onclick="clearMap()" value="Clear" /> <input type="button" onclick="updateMarkersFromText()" value="Update Map" /> 
 <br />
 Type to place: <select id="markertype"><option selected="selected" value="0">Waypoint</option><option value="1">Fence Post</option><option value="3">Datum</option></select>
+
+<input type="button" value="Add current pos" onclick="addCurPos()" />
+
 <textarea name="markerstext" id="markerstext" rows="15" cols="45">
 END
 
