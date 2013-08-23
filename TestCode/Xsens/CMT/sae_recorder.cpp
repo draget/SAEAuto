@@ -11,7 +11,7 @@ Modifed from example_3s, T. Drage 2013.
 #include <stdio.h>
 #include <signal.h>
 #include <math.h>
-
+#include <sys/time.h>
 
 int quit = 0;
 
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 		EXIT_ERROR("set timeout");
 	printf("Measurement timeout set to %d ms\n", timeOut);
 	
-    CmtDeviceMode mode(CMT_OUTPUTMODE_ORIENT | CMT_OUTPUTMODE_CALIB, CMT_OUTPUTSETTINGS_TIMESTAMP_SAMPLECNT | CMT_OUTPUTSETTINGS_ORIENTMODE_EULER | CMT_OUTPUTSETTINGS_CALIBMODE_ACCGYR, 256);
+    CmtDeviceMode mode(CMT_OUTPUTMODE_ORIENT | CMT_OUTPUTMODE_CALIB, CMT_OUTPUTSETTINGS_TIMESTAMP_SAMPLECNT | CMT_OUTPUTSETTINGS_COORDINATES_NED | CMT_OUTPUTSETTINGS_ORIENTMODE_MATRIX | CMT_OUTPUTSETTINGS_CALIBMODE_ACCGYR, 100);
     if (serial.setDeviceMode(mode, false, CMT_DID_BROADCAST))
         EXIT_ERROR("set device mode");
     printf("Device modes set\n");
@@ -76,10 +76,15 @@ int main(int argc, char* argv[])
 
     long msgCount = 0;
 
-long int lasttime = getTimeOfDay();
+struct timeval lasttime, newtime;
+
+gettimeofday(&lasttime,NULL);
+gettimeofday(&newtime,NULL);
 
 double xpos = 0;
 double xvel = 0;
+
+CmtMatrix matrix_data;
 
     while (!quit)
     {
@@ -91,29 +96,42 @@ double xvel = 0;
 
         msgCount++;
 
-	long double cos_roll = cosl((long double)reply.getOriEuler().m_roll*2*M_PI/360);
-	long double cos_pitch = cosl((long double)reply.getOriEuler().m_pitch*2*M_PI/360);
-	long double sin_roll = sinl((long double)reply.getOriEuler().m_roll*2*M_PI/360);
-	long double sin_pitch = sinl((long double)reply.getOriEuler().m_pitch*2*M_PI/360);
+	matrix_data = reply.getOriMatrix();
+
+//	long double cos_roll = cosl((long double)reply.getOriEuler().m_roll*2*M_PI/360);
+//	long double cos_pitch = cosl((long double)reply.getOriEuler().m_pitch*2*M_PI/360);
+//	long double sin_roll = sinl((long double)reply.getOriEuler().m_roll*2*M_PI/360);
+//	long double sin_pitch = sinl((long double)reply.getOriEuler().m_pitch*2*M_PI/360);
 
 	long double xacc = (long double) reply.getCalData().m_acc.m_data[0];
 	long double yacc = (long double) reply.getCalData().m_acc.m_data[1];
 	long double zacc = (long double) reply.getCalData().m_acc.m_data[2];
 
-	long double xacc_comp = (long double) cos_pitch*xacc + sin_pitch*zacc;
-	long double yacc_comp = (long double) sin_pitch*sin_roll*xacc + cos_roll*yacc - sin_roll*cos_pitch*zacc;
-	long double zacc_comp = (long double) -cos_roll*sin_pitch*xacc + sin_roll*yacc + cos_roll*cos_pitch*zacc;
+	long double xacc_comp = (long double) matrix_data.m_data[0][0]*xacc + matrix_data.m_data[1][0]*yacc + matrix_data.m_data[2][0]*zacc;
+	long double yacc_comp = (long double) matrix_data.m_data[0][1]*xacc + matrix_data.m_data[1][1]*yacc + matrix_data.m_data[2][1]*zacc;
+	long double zacc_comp = (long double) matrix_data.m_data[0][2]*xacc + matrix_data.m_data[1][2]*yacc + matrix_data.m_data[2][2]*zacc;
+
+	long double yaw;
+
+	if(matrix_data.m_data[0][1] < 0 && matrix_data.m_data[1][1] < 0) { yaw = 360*asinl(matrix_data.m_data[1][0])/2/M_PI; }
+	else if(matrix_data.m_data[1][1] > 0) { yaw = 180 - 360*asinl(matrix_data.m_data[1][0])/2/M_PI; }
+	else { yaw = 360 + 360*asinl(matrix_data.m_data[1][0])/2/M_PI; }
+	
+
+//	long double xacc_comp = (long double) cos_pitch*xacc + sin_pitch*zacc;
+//	long double yacc_comp = (long double) sin_pitch*sin_roll*xacc + cos_roll*yacc - sin_roll*cos_pitch*zacc;
+//	long double zacc_comp = (long double) -cos_roll*sin_pitch*xacc + sin_roll*yacc + cos_roll*cos_pitch*zacc;
 
 
        // fprintf(fp,"%3ld,%hu,%llu,%u,%f,%f,%f,%f,%f,%f\n",
-	printf("%3ld \t %hu \t %lu \t %u \t Roll %f \t Pitch %f \t Yaw %f \t x %Lf \t y%Lf \t z %Lf \t x' %Lf \t y' %Lf \t z' %Lf %f \t %f\n",
+	printf("%3ld \t %hu \t %lu \t %u  \t %f %f Yaw %Lf \t x %Lf \t y%Lf \t z %Lf \t x' %Lf \t y' %Lf \t z' %Lf %f \t %f\n",
             	msgCount,
             	reply.getSampleCounter(),              // sample counter
             	reply.m_rtc,                           // Time Of Arrival / Real-Time Clock
             	getTimeOfDay(),                         // timestamp
-            	(double) reply.getOriEuler().m_roll,     // roll th
-            	(double) reply.getOriEuler().m_pitch,    // pitch ph
-            	(double) reply.getOriEuler().m_yaw ,      // yaw ps
+
+		matrix_data.m_data[1][1],matrix_data.m_data[0][1],
+            	yaw ,      // yaw ps
 	    	xacc ,
 	    	yacc   ,
 	    	zacc	,
@@ -128,10 +146,15 @@ double xvel = 0;
 
 
 
-xvel += xacc*3.90625/1000;
-xpos += xvel*3.90625/1000;
+xvel += xacc*10/1000;
+xpos += xvel*10/1000;
 
-lasttime = getTimeOfDay();
+//gettimeofday(&newtime,NULL);
+//printf("Time %f\n",(double)(newtime.tv_usec - lasttime.tv_usec)/1000);
+//lasttime = newtime;
+
+
+
 
 
 

@@ -10,6 +10,7 @@
 #include "IBEO.h"
 
 #include <boost/thread.hpp> 
+#include <boost/lexical_cast.hpp>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -17,6 +18,8 @@
 #include <stdlib.h>
 #include <iostream>
 
+#include "Logger.h"
+#include "Control.h"
 
 using namespace std;
 
@@ -44,7 +47,13 @@ bool verbose = false;
  * Inputs : None.
  * Outputs: None.
  */
-IBEO::IBEO() {
+IBEO::IBEO(Control* CarController, Logger* Logger) {
+
+	gettimeofday(&lastwrite,NULL);
+
+	CarControl = CarController;
+ 	Log = Logger;
+
     connection = new IBEONetwork();
     for (int i=0; i<MSG_BUFFERS; i++) {
         scan_data_header[i].scan_points = 0;
@@ -76,12 +85,13 @@ IBEO::~IBEO() {
  * Outputs: true if successful, false otherwise.
  */
 bool IBEO::Open(char * ip_addr, int port) {
-    if(verbose) { cout << "ibeo scanner: attempting to connect to " << ip_addr << ":" << port << "." << endl; }
+    Log->WriteLogLine("IBEO scanner - attempting to connect to " + boost::lexical_cast<std::string>(ip_addr) + ":" + boost::lexical_cast<std::string>(port) + ".");
     if (!connection->Connect(ip_addr, port)) {
+	Log->WriteLogLine("IBEO scanner - Connecting failed.");
         return false;
     }
     inUse = true;
-    if(verbose) { cout << "ibeo scanner: connected to scanner successfully." << endl; }
+    Log->WriteLogLine("IBEO scanner - connected to scanner successfully.");
 
     return true;
 }
@@ -155,29 +165,35 @@ IBEO_HEADER IBEO::FindHeader() {
  */
 void IBEO::ReadMessages() {
 
+
+
     IBEO_HEADER header;
+
+	gotObject = false;
+	gotScan = false;
     
     while(! (gotObject == true && gotScan == true)) {	// Scan until we have one of each set of data.
         try {
             header = this->FindHeader();
             switch (htons(header.data_type)) {
                 case 0x2202:
-                    if (verbose) cout << "ibeo scanner: found scan data." << endl;
+                    if (verbose) Log->WriteLogLine( "ibeo scanner: found scan data." );
                     if (!Read_Scan_Data()) return;
                     break;
                 case 0x2221:
-                    if (verbose) cout << "ibeo scanner: found object data." << endl;
+                    if (verbose) Log->WriteLogLine( "ibeo scanner: found object data.");
                     if (!Read_Object_Data()) return;
                     break;
                 case 0x2030:
-                    if (verbose) cout << "ibeo scanner: found error data." << endl;
+                    if (verbose) Log->WriteLogLine( "ibeo scanner: found error data.");
                     if (!Read_Errors()) return;
                     break;
                 default:
-                    if (verbose) cout << "ibeo scanner: received unknown message with id " << htons(header.data_type) << endl;
+                    if (verbose) Log->WriteLogLine("ibeo scanner: received unknown message with id " + htons(header.data_type));
             }
 
         } catch (int e) {
+		Log->WriteLogLine("IBEO - caught error!");
             return;
         }
     }
@@ -350,6 +366,42 @@ void IBEO::ProcessMessages() {
 
 	while(Run) {
 		ReadMessages();
+
+
+
+		timeval current;
+		gettimeofday(&current,NULL);
+
+		if((current.tv_sec + ((double)current.tv_usec)/1000000) > (lastwrite.tv_sec + ((double)lastwrite.tv_usec)/1000000) + 0.2) {
+
+			ofstream outfile_scan;
+
+			std::string FileName = CarControl->LogDir + "/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".lux";
+
+			outfile_scan.open(FileName.c_str(), ios::out);
+
+			for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
+				outfile_scan << (int)scan_data_points[curScanDataSource][i].layer_echo << "," << (int)scan_data_points[curScanDataSource][i].flags << "," << scan_data_points[curScanDataSource][i].horiz_angle << "," << scan_data_points[curScanDataSource][i].radial_dist << "," << scan_data_points[curScanDataSource][i].echo_pulse_width << "," << scan_data_points[curScanDataSource][i].res << "\n";
+			}
+		
+			outfile_scan.close();
+
+			ofstream outfile_obj;
+
+			FileName = CarControl->LogDir + "/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".luxobj";
+
+			outfile_obj.open(FileName.c_str(), ios::out);
+
+			for(int i = 0; i < object_data_header[curObjectDataSource].number_of_objects; i++) {
+				outfile_obj << (int)object_data[curObjectDataSource][i].object_id << "," << (int)object_data[curObjectDataSource][i].reference_point.x << "," << object_data[curObjectDataSource][i].reference_point.y << "," << (int)object_data[curObjectDataSource][i].closest_point.x << "," << object_data[curObjectDataSource][i].closest_point.y << "," << object_data[curObjectDataSource][i].classification << "\n";
+			}
+		
+			outfile_obj.close();
+
+		}
+
+
+	//	Log->WriteLogLine("IBEO next...");
 	}
 
 }

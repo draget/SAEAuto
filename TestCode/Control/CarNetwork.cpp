@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,12 +44,21 @@ CarNetwork::CarNetwork(Control* CarController, Logger* Logger) {
 	Log = Logger;
 
 	Run = false;
+	HasConnection = false;
 
     	if(-1 == SocketFD) {
       		perror("can not create socket");
       		exit(EXIT_FAILURE);
    	}
-	
+
+	int flag = 1;
+        int result = setsockopt(SocketFD, IPPROTO_TCP, TCP_NODELAY, (char *) &flag, sizeof(int));
+    	if(result < 0) {
+      		perror("Can't set socket options.");
+      		exit(EXIT_FAILURE);
+   	}	
+
+
 	StatusString = "Socket created";
 
 }
@@ -139,7 +149,9 @@ while(Run) {  // Wait for connections
 		StatusString = "Conn. accepted - waiting for first message";
 		Log->WriteLogLine("Car Network - waiting for messages");
  
-    		while(1) { // Wait for messages
+		HasConnection = true;
+
+    		while(Run) { // Wait for messages
 		
 			bool breakandclose = false;
 
@@ -148,7 +160,7 @@ while(Run) {  // Wait for connections
 			bzero(msgbuf,sizeof(msgbuf));
 
 			struct timeval timeoutlong;
-			timeoutlong.tv_sec = 10;
+			timeoutlong.tv_sec = 1;
 			timeoutlong.tv_usec = 0;
 	
 			FD_ZERO(&read_set);
@@ -162,6 +174,7 @@ while(Run) {  // Wait for connections
 				//printf("No message?!\n");
 				StatusString = "No message rxd";
 				Log->WriteLogLine("Car Network - No message rxd"); 
+				if(CarControl->BrakeILOn) { CarControl->Trip(6); }
 				break; 
 			}
 			
@@ -199,7 +212,7 @@ while(Run) {  // Wait for connections
 				msg_length++;
 			} 
 
-			if(breakandclose) { breakandclose = false; break; }
+			if(breakandclose) { breakandclose = false; if(CarControl->BrakeILOn) { CarControl->Trip(6); } break; }
 
 			//printf("Data: *%s* \n",msgbuf);
 
@@ -209,9 +222,10 @@ while(Run) {  // Wait for connections
 
 			if(Message.compare(0,3,"HBT") == 0) {
 
-		//	gettimeofday(&current,NULL);
-		//	Log->WriteLogLine(boost::lexical_cast<std::string>((current.tv_usec - last.tv_usec)/1000));
-		//	gettimeofday(&last,NULL);
+			gettimeofday(&current,NULL);
+			int ms_gap = (current.tv_usec - last.tv_usec)/1000 ;
+			if(ms_gap > 100) { Log->WriteLogLine("CarNetwork - Slow response on HB! " + boost::lexical_cast<std::string>(ms_gap) + " " +  Message.substr(4,1)); }
+			gettimeofday(&last,NULL);
 
 				if(Message.compare(4,1,"+") == 0) { 
 					//printf("Set state true \n"); 
@@ -240,6 +254,9 @@ while(Run) {  // Wait for connections
 			else if(Message.compare(0,3,"STR") == 0 && CarControl->ManualOn) {
 				CarControl->CurrentSteeringSetPosn = boost::lexical_cast<int>(Message.substr(4,std::string::npos));
 			}
+			else if(Message.compare(0,5,"ALM") == 0) {
+				CarControl->SendAlarm();
+			}
 			
 				
 
@@ -258,6 +275,7 @@ while(Run) {  // Wait for connections
 					//printf("Did it go away before write?\n");  
 					StatusString = "Problem writing";
 					Log->WriteLogLine("Car Network - Problem writing");
+					if(CarControl->BrakeILOn) { CarControl->Trip(6); } 
 					break; 
 				}
 
@@ -274,6 +292,7 @@ while(Run) {  // Wait for connections
     		}
 	// printf("Going to close connection...\n");
 	close(ConnectFD);
+	HasConnection = false;
 
 	}
 

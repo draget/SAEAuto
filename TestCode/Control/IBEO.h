@@ -21,6 +21,9 @@
 #define MAX_OBJECTS         20              // Maximum objects stored.
 #define MAX_CONTOUR_POINTS  100             // Maximum contour points per scan.
 
+class Control;
+class Logger;
+
 /**
  * Purpose: ibeo header structure.
  *
@@ -142,7 +145,7 @@ public:
     OBJECT_DATA         object_data[MSG_BUFFERS][MAX_OBJECTS];
     ERROR_DATA          error_data[MSG_BUFFERS];
 
-    IBEO();
+    IBEO(Control* CarController, Logger* Logger);
     IBEO(const IBEO& orig);
     virtual ~IBEO();
     bool Open(char *, int);
@@ -157,6 +160,10 @@ private:
 
     boost::thread m_Thread;
 
+	Control* CarControl;
+
+	Logger* Log;
+
     bool Read_Scan_Data();
     bool Read_Object_Data();
     bool Read_Errors();
@@ -164,6 +171,8 @@ private:
     bool Read_Size2D(SIZE_2D*);
 
     void ProcessMessages();
+	
+	timeval lastwrite;
 
     bool Run;
 };

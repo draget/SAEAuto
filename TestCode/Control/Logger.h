@@ -15,8 +15,12 @@ public:
     	virtual ~Logger();
 
 	void GetLogLines(std::string outputbuffer[], int NoLines);
+	void WriteLogLine(std::string LogLine, bool NoTime);
 	void WriteLogLine(std::string LogLine);
 	void CloseLog();
+	void ClearLog();
+	void WriteLock();
+	void ClearLock();
 
 private:
 
