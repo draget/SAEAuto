@@ -122,7 +122,7 @@ namespace AutoSAEBase
         private void Form1_Load(object sender, EventArgs e)
         {
 
-            OutputTimer.Interval = 50;
+            OutputTimer.Interval = 100;
             OutputTimer.Enabled = true;
 
         }
@@ -154,7 +154,7 @@ namespace AutoSAEBase
         {
 
             int[] xy = jsio.getXY();
-            if (xy[0] == -1) { JoystickTimer.Enabled = false; jsStatusPanel.BackColor = Color.Red; }
+            if (xy[0] == -1) { JoystickTimer.Enabled = false; jsStatusPanel.BackColor = Color.Red; SendEStop(); MessageBox.Show("Joystick error!!!"); }
             else
             {
                 XBar.Value = xy[0] - 32768;
@@ -195,22 +195,29 @@ namespace AutoSAEBase
 
             if (Buttons == null) { JoystickTimer.Enabled = false; jsStatusPanel.BackColor = Color.Red; }
 
-            if (Buttons[2])
+            try
             {
-                SendEStop();
-                EStopButton.BackColor = Color.Yellow;
-            }
-            else { EStopButton.BackColor = Color.Red; }
-
-            if (Buttons[6] || Buttons[7])
-            {
-                if ((Network != null) && Network.Connected)
+                if (Buttons[2])
                 {
-                    Network.Send("ALARM");
-                    AlarmPanel.BackColor = Color.Red;
+                    SendEStop();
+                    EStopButton.BackColor = Color.Yellow;
                 }
+                else { EStopButton.BackColor = Color.Red; }
+
+
+
+
+                if (Buttons[6] || Buttons[7])
+                {
+                    if ((Network != null) && Network.Connected)
+                    {
+                        Network.Send("ALM");
+                        AlarmPanel.BackColor = Color.Red;
+                    }
+                }
+                else { AlarmPanel.BackColor = Color.Gray; }
             }
-            else { AlarmPanel.BackColor = Color.Gray; }
+            catch { SendEStop(); MessageBox.Show("Joystick error!!!"); }
 
         }
 

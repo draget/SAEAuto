@@ -47,14 +47,14 @@ namespace AutoSAEBase
         private JoystickState getCurrentState()
         {
             JoystickState jss;
-            try { jss = joystick.GetCurrentState(); return jss; }
+            try { joystick.Poll(); jss = joystick.GetCurrentState(); return jss; }
             catch { return null; }
         }
 
         public int[] getXY()
         {
             JoystickState jss = getCurrentState();
-            if (jss != null) { return new int[2] { jss.Z, jss.Y }; }
+            if (jss != null) { return new int[2] { jss.X, jss.RotationZ }; }
             else return new int[2] { -1, -1 };
         }
 
