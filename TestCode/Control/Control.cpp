@@ -40,7 +40,10 @@ Control::Control(std::string LogDir) {
 
 	mode_t process_mask = umask(0);
 	mkdir(this->LogDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+	mkdir((LogDir + "/luxscan").c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
 	umask(process_mask);
+
+
 	
 	HeartbeatState = false;
 	TripState = 0;
@@ -224,7 +227,7 @@ void Control::WriteInfoFile() {
 	WebLogger->WriteLogLine("Offset Lat|" + boost::lexical_cast<std::string>(this->LatOffset), true);
 	WebLogger->WriteLogLine("Offset Long|" + boost::lexical_cast<std::string>(this->LongOffset), true);
 
-	WebLogger->WriteLogLine("IMU Heading|" + boost::lexical_cast<std::string>(this->IMU->Yaw), true);
+	WebLogger->WriteLogLine("IMU Heading|" + boost::lexical_cast<std::string>(this->IMU->Yaw) + ", " + boost::lexical_cast<std::string>(IMU->Yaw + (double)CurrentSteeringSetPosn*0.157), true);
 
 	WebLogger->WriteLogLine("Desired Bearing|" + boost::lexical_cast<std::string>(this->DesiredBearing), true);
 	WebLogger->WriteLogLine("NextWaypoint|" + boost::lexical_cast<std::string>(this->NextWaypoint), true);
@@ -408,8 +411,8 @@ void Control::AutoStart() {
 	SpeedController->setOutputLimits(-255,255);
 	SpeedController->setMode(AUTO_MODE);
 
-	SteerController = new PID(6.0,0.75,0,0.2);
-	SteerController->setInputLimits(-360, 360);
+	SteerController = new PID(3.0,0.1,0,0.2);
+	SteerController->setInputLimits(-360, 720);
 	SteerController->setOutputLimits(-127,127);
 	SteerController->setMode(AUTO_MODE);
 
@@ -460,7 +463,8 @@ void Control::AutoPosUpdate(MAPPOINT_2D CurPosn) {
 
 
 	// Sometimes we need to go backwards.
-	if(DesiredBearing > 180 + CurTrack && CurTrack < 180) { DesiredBearing = DesiredBearing - 360; }
+	if(DesiredBearing > (180 + CurTrack) && CurTrack < 180) { DesiredBearing = DesiredBearing - 360; }
+	if(DesiredBearing > (CurTrack - 180) && CurTrack > 180 && DesiredBearing < 180) { DesiredBearing = DesiredBearing + 360; }
 
 	SteerController->setSetPoint(DesiredBearing);
 

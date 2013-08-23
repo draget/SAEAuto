@@ -382,7 +382,7 @@ function updateLog() {
 
 				document.getElementById("logarea").innerHTML = json.log;
 				document.getElementById("paramarea").innerHTML = json.params;
-				var position = new google.maps.LatLng(json.gps.lat, json.gps.long);
+				var position = new google.maps.LatLng(parseFloat(json.gps.lat) - offsetLat, parseFloat(json.gps.long) - offsetLong);
 				currentLocationMarker.setPosition(position);
 
                             }

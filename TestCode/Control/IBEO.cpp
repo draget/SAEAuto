@@ -376,7 +376,7 @@ void IBEO::ProcessMessages() {
 
 			ofstream outfile_scan;
 
-			std::string FileName = CarControl->LogDir + "/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".lux";
+			std::string FileName = CarControl->LogDir + "/luxscan/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".lux";
 
 			outfile_scan.open(FileName.c_str(), ios::out);
 

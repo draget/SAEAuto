@@ -13,28 +13,22 @@ if(param('run')) { $Run = param('run'); }
 
 my $LuxFileNumber = 0;
 
-if(param('no')) { $LuxFileNumber = param('no'); }
+my @LuxFileName;
+
+if(param('no')) { $LuxFileNumber = param('no'); $LuxFileName = $LuxFileNumber . ".lux"; }
 else {
 
-opendir(LUXDIR, "../../TestCode/Control/RunFiles/$Run");
-foreach my $FileName (readdir(LUXDIR)) {
-
-	if($FileName !~ /\.lux$/i) { next; }
-	else {
-
-	$FileName =~ /^([0-9\.]+)\.lux$/i;
-
-	if($1 > $LuxFileNumber) { $LuxFileNumber = $1; }
-
-	}
-
-
-}
+opendir(LUXDIR, "../../TestCode/Control/RunFiles/$Run/luxscan/");
+my @LuxFiles = readdir(LUXDIR);
+@LuxFiles = sort(@LuxFiles);
 closedir(LUXDIR);
-
+$LuxFileName = $LuxFiles[${@LuxFiles} - 1];
 }
 
-open (LUXFILE, "../../TestCode/Control/RunFiles/$Run/$LuxFileNumber.lux");
+
+#print $LuxFileName . "\n";
+
+open (LUXFILE, "../../TestCode/Control/RunFiles/$Run/luxscan/$LuxFileName");
 @LuxLines = <LUXFILE>;
 close LUXFILE;
 
