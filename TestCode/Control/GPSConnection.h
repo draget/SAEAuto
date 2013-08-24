@@ -46,8 +46,7 @@ private:
 	double OldTime;
 
 	void ProcessMessages();
-	void NewPosition();
-	void NewSpeed();
+	void NewSpeedAndPosition();
 	void NewTrack();
 
 	void Monitor();

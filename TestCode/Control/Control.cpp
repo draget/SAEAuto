@@ -27,29 +27,41 @@
 #include "IBEO.h"
 #include "IPC.h"
 #include "Xsens.h"
+#include "Fusion.h"
 
 #include "PID.h"
 
 Control *SAECar;
 
-double TwoPi = 4*acos(0);
 
+
+
+/**
+ * Purpose: Creates a new instance of the Control object.
+ * Inputs : Name of directory logs are to be saved in.
+ * Outputs: None.
+ */
 Control::Control(std::string LogDir) {
+
+	TwoPi = 4*acos(0);
 
 	this->LogDir = LogDir;
 
+	// Create directories for logging.
 	mode_t process_mask = umask(0);
 	mkdir(this->LogDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
 	mkdir((LogDir + "/luxscan").c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+	mkdir((LogDir + "/luxobj").c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
 	umask(process_mask);
 
 
-	
+	// Initialise variables...
 	HeartbeatState = false;
 	TripState = 0;
 	ManualOn = false;
 	AutoOn = false;
 	BrakeILOn = true;
+	RecordActive = false;
 
 	DatumLat = -31.980569;
 	DatumLong = 115.817807;
@@ -60,6 +72,8 @@ Control::Control(std::string LogDir) {
 	CurrentSteeringSetPosn = 0;
 	CurrentThrottleBrakeSetPosn = 0;
 
+
+	// Create object instances...
 	Log = new Logger(LogDir + "/mainlog.txt");
 
 	CarNetworkConnection = new CarNetwork(this, Log);
@@ -76,6 +90,8 @@ Control::Control(std::string LogDir) {
 
 	WebIPC = new IPC(this,Log);
 
+	Fuser = new Fusion(this,Log);
+
 	WebLogger = new Logger("./ramdisk/weblog.txt");
 
 }
@@ -86,7 +102,11 @@ Control::Control(const Control& orig) {
 Control::~Control() {
 }
 
-
+/**
+ * Purpose: Runs set up routines on all sensors/interfaces.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::Setup() {
 
 	WebIPC->Open();
@@ -99,6 +119,11 @@ void Control::Setup() {
 
 }
 
+/**
+ * Purpose: Handles cleanly closing the program.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::Quit() {
 
 	Log->WriteLogLine("Caught SIGINT...bye!");
@@ -119,10 +144,17 @@ void Control::Quit() {
 
 }
 
+
+/**
+ * Purpose: Runs the main loop for Control class.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::Run() {
 
 	RunState = true;
 
+	// Start all sensors/interfaces.
 	WebIPC->Start();
 	CarNetworkConnection->StartProcessMessages();
 	SafetySerial->Start();
@@ -131,6 +163,7 @@ void Control::Run() {
 	Lux->Start();
 	IMU->Start();
 
+	// Loop through updating terminal and information output file.
 	while(RunState) {
 
 		UpdateTerminal();
@@ -142,6 +175,12 @@ void Control::Run() {
 
 }
 
+
+/**
+ * Purpose: Updates the terminal display.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::UpdateTerminal() {
 
 	mvprintw(1,0,"Manual State: %i \n", this->ManualOn);
@@ -194,7 +233,11 @@ void Control::UpdateTerminal() {
 
 }
 
-
+/**
+ * Purpose: Updates the weblog.txt info output file.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::WriteInfoFile() {
 
 	WebLogger->WriteLock();
@@ -227,10 +270,17 @@ void Control::WriteInfoFile() {
 	WebLogger->WriteLogLine("Offset Lat|" + boost::lexical_cast<std::string>(this->LatOffset), true);
 	WebLogger->WriteLogLine("Offset Long|" + boost::lexical_cast<std::string>(this->LongOffset), true);
 
-	WebLogger->WriteLogLine("IMU Heading|" + boost::lexical_cast<std::string>(this->IMU->Yaw) + ", " + boost::lexical_cast<std::string>(IMU->Yaw + (double)CurrentSteeringSetPosn*0.157), true);
+	WebLogger->WriteLogLine("IMU Heading|" + boost::lexical_cast<std::string>(this->IMU->Yaw), true);
 
 	WebLogger->WriteLogLine("Desired Bearing|" + boost::lexical_cast<std::string>(this->DesiredBearing), true);
 	WebLogger->WriteLogLine("NextWaypoint|" + boost::lexical_cast<std::string>(this->NextWaypoint), true);
+
+	WebLogger->WriteLogLine("Fused X Pos|" + boost::lexical_cast<std::string>(Fuser->CurrentPosition.x), true);
+	WebLogger->WriteLogLine("Fused Y Pos|" + boost::lexical_cast<std::string>(Fuser->CurrentPosition.y), true);
+	WebLogger->WriteLogLine("Fused X Vel|" + boost::lexical_cast<std::string>(Fuser->CurrentVelocity.x), true);
+	WebLogger->WriteLogLine("Fused X Vel|" + boost::lexical_cast<std::string>(Fuser->CurrentVelocity.y), true);
+	WebLogger->WriteLogLine("Fused Speed|" + boost::lexical_cast<std::string>(Fuser->CurrentSpeed), true);
+	WebLogger->WriteLogLine("Fused Heading|" + boost::lexical_cast<std::string>(Fuser->CurrentHeading), true);
 
 	WebLogger->WriteLogLine("IBEO State|" + boost::lexical_cast<std::string>(this->Lux->inUse), true);
 	WebLogger->WriteLogLine("IBEO N Objects|" + boost::lexical_cast<std::string>(this->Lux->object_data_header[this->Lux->curObjectDataSource].number_of_objects), true);
@@ -253,7 +303,11 @@ void Control::WriteInfoFile() {
 }
 
 
-
+/**
+ * Purpose: Actions trips.
+ * Inputs : The new trip state (type of trip).
+ * Outputs: None.
+ */
 void Control::Trip(int TripState) {
 
 	std::string TripReason;
@@ -291,6 +345,8 @@ void Control::Trip(int TripState) {
 		TripReason = "Low Level Error";
 	}
  
+
+	// Stop things from happening...
 	AutoOn = false;
 	AutoRun = false;
 
@@ -301,6 +357,11 @@ void Control::Trip(int TripState) {
 
 }
 
+/**
+ * Purpose: Toggle the safety mode (BrakeIL) from human driving to no driver and vice-versa...
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::ToggleBrakeIL() {
 
 	bool Success;
@@ -319,6 +380,12 @@ void Control::ToggleBrakeIL() {
 
 }
 
+
+/**
+ * Purpose: Loads a map file into the CurrentMap struct ready for execution.
+ * Inputs : Name of map.
+ * Outputs: None.
+ */
 void Control::LoadMap(std::string MapFilename) {
 
 	ClearMap();
@@ -330,7 +397,7 @@ void Control::LoadMap(std::string MapFilename) {
 		int f = 0;
 		int w = 0;
 
-		MAPPOINT_2D MapPoint;
+		VECTOR_2D MapPoint;
 
 		while ( infile.good() ) {
 			std::string line;
@@ -383,11 +450,11 @@ void Control::ClearMap() {
 
 void Control::DumpMap() {
 
-	BOOST_FOREACH( MAPPOINT_2D MapPoint, CurrentMap.Waypoints ) {
+	BOOST_FOREACH( VECTOR_2D MapPoint, CurrentMap.Waypoints ) {
    		Log->WriteLogLine("WP " + boost::lexical_cast<std::string>(MapPoint.x) + " " + boost::lexical_cast<std::string>(MapPoint.y));
 	}
 
-	BOOST_FOREACH( MAPPOINT_2D MapPoint, CurrentMap.Fenceposts ) {
+	BOOST_FOREACH( VECTOR_2D MapPoint, CurrentMap.Fenceposts ) {
    		Log->WriteLogLine("F " + boost::lexical_cast<std::string>(MapPoint.x) + " " + boost::lexical_cast<std::string>(MapPoint.y));
 	}
 	
@@ -406,10 +473,15 @@ void Control::AutoStart() {
 	AutoRun = true;
 	AutoSpeedTarget = 0;
 
-	SpeedController = new PID(10.0,1.0,0,0.2);
-	SpeedController->setInputLimits(0.0, 30);
-	SpeedController->setOutputLimits(-255,255);
-	SpeedController->setMode(AUTO_MODE);
+	ThrottleController = new PID(10.0,1.0,0,0.2);
+	ThrottleController->setInputLimits(0.0, 30);
+	ThrottleController->setOutputLimits(0,255);
+	ThrottleController->setMode(AUTO_MODE);
+
+	BrakeController = new PID(10.0,1.0,0,0.2);
+	BrakeController->setInputLimits(0.0, 30);
+	BrakeController->setOutputLimits(-255,0);
+	BrakeController->setMode(AUTO_MODE);
 
 	SteerController = new PID(3.0,0.1,0,0.2);
 	SteerController->setInputLimits(-360, 720);
@@ -417,13 +489,13 @@ void Control::AutoStart() {
 	SteerController->setMode(AUTO_MODE);
 
 	SteerController->setSetPoint(0);
-	SpeedController->setSetPoint(0);
+	ThrottleController->setSetPoint(0);
 }
 
-void Control::CheckFenceposts(MAPPOINT_2D CurPosn) {
+void Control::CheckFenceposts(VECTOR_2D CurPosn) {
 
-	BOOST_FOREACH( MAPPOINT_2D Fencepost, CurrentMap.Fenceposts ) {
-		MAPPOINT_2D DistanceVector = SubtractMapPoint(Fencepost,CurPosn);
+	BOOST_FOREACH( VECTOR_2D Fencepost, CurrentMap.Fenceposts ) {
+		VECTOR_2D DistanceVector = SubtractVector(Fencepost,CurPosn);
 		if(sqrt(pow(DistanceVector.x,2) + pow(DistanceVector.y,2)) < 2) {
 			Log->WriteLogLine("Control - Near fence post!");
 			Control::AutoStop();
@@ -434,17 +506,17 @@ void Control::CheckFenceposts(MAPPOINT_2D CurPosn) {
 }
 
 
-void Control::AutoPosUpdate(MAPPOINT_2D CurPosn) {
+void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 
-	MAPPOINT_2D DistanceVector = SubtractMapPoint(CurrentMap.Waypoints[NextWaypoint],CurPosn);
-	if(sqrt(pow(DistanceVector.x,2) + pow(DistanceVector.y,2)) < 3.5) {
+	VECTOR_2D DistanceVector = SubtractVector(CurrentMap.Waypoints[NextWaypoint],CurPosn);
+	if(VectorMagnitude(DistanceVector) < MAPPOINT_RADIUS) {
 		Log->WriteLogLine("Control - Reached waypoint " + boost::lexical_cast<std::string>(NextWaypoint));
 		NextWaypoint++;
 		if(NextWaypoint >= CurrentMap.Waypoints.size()) { Log->WriteLogLine("Control - Reached end of map."); Control::AutoStop(); }
 	}
 
 
-	MAPPOINT_2D VectorToNextWp = SubtractMapPoint(CurrentMap.Waypoints[NextWaypoint], CurPosn);
+	VECTOR_2D VectorToNextWp = SubtractVector(CurrentMap.Waypoints[NextWaypoint], CurPosn);
 
 	//Log->WriteLogLine("Current xy " + boost::lexical_cast<std::string>(CurPosn.x) + " " +  boost::lexical_cast<std::string>(CurPosn.y));
 	//Log->WriteLogLine("Current vec " + boost::lexical_cast<std::string>(VectorToNextWp.x) + " " +  boost::lexical_cast<std::string>(VectorToNextWp.y));
@@ -455,61 +527,50 @@ void Control::AutoPosUpdate(MAPPOINT_2D CurPosn) {
 	//Log->WriteLogLine("pre flip: " + boost::lexical_cast<std::string>(DesiredBearing));
 
 	
-
-	double CurTrack = 0;
-	if(GPS->Speed < 10) { CurTrack = IMU->Yaw + (double)CurrentSteeringSetPosn*0.157; }
-	else { CurTrack = GPS->TrackAngle; }
-	if(CurTrack < 0) { CurTrack = 360 + CurTrack; }
-
-
 	// Sometimes we need to go backwards.
-	if(DesiredBearing > (180 + CurTrack) && CurTrack < 180) { DesiredBearing = DesiredBearing - 360; }
-	if(DesiredBearing > (CurTrack - 180) && CurTrack > 180 && DesiredBearing < 180) { DesiredBearing = DesiredBearing + 360; }
+	if(DesiredBearing > (180 + Fuser->CurrentHeading) && Fuser->CurrentHeading < 180) { DesiredBearing = DesiredBearing - 360; } // Turning from NE to NW quadrant.
+	if(DesiredBearing < (Fuser->CurrentHeading - 180) && Fuser->CurrentHeading > 180) { DesiredBearing = DesiredBearing + 360; } // Turning from NW to NE quadrant.
 
 	SteerController->setSetPoint(DesiredBearing);
 
 	
-	if(CurrentSteeringSetPosn > 60) { SpeedController->setSetPoint(1.5); }
-	else { SpeedController->setSetPoint(2.5); }
+	if(CurrentSteeringSetPosn > 60) { ThrottleController->setSetPoint(0.8); BrakeController->setSetPoint(0.8); }
+	else { ThrottleController->setSetPoint(1.5); BrakeController->setSetPoint(1.5); }
 
 
 }
 
 void Control::AutoSpeedUpdate(double CurSpeed) {
 
-	if(CurSpeed < 0.2) { CurSpeed = 0; } // Going slower than GPS noise.
+	ThrottleController->setProcessValue(CurSpeed);
 
-	SpeedController->setProcessValue(CurSpeed);
+	double SpeedIncrement = ThrottleController->compute();
+	double BrakeValue = BrakeController->compute();
 
-	double SpeedIncrement = SpeedController->compute();
-	
-	if(TripState == 0) { 
+	if(BrakeValue < 0) { CurrentThrottleBrakeSetPosn = BrakeValue; }
 
-		if((CurrentThrottleBrakeSetPosn + SpeedIncrement) > 255) {
-			CurrentThrottleBrakeSetPosn = 255;
+	else {
+
+		if(TripState == 0) { 
+
+			if((CurrentThrottleBrakeSetPosn + SpeedIncrement) > 255) {
+				CurrentThrottleBrakeSetPosn = 255;
+			}
+			else if ((CurrentThrottleBrakeSetPosn + SpeedIncrement) < 0) {
+				CurrentThrottleBrakeSetPosn = 0;
+			}
+			else {
+				CurrentThrottleBrakeSetPosn = CurrentThrottleBrakeSetPosn + SpeedIncrement; 
+			}
+
 		}
-		else if ((CurrentThrottleBrakeSetPosn + SpeedIncrement) < -255) {
-			CurrentThrottleBrakeSetPosn = -255;
-		}
-		else {
-			CurrentThrottleBrakeSetPosn = CurrentThrottleBrakeSetPosn + SpeedIncrement; 
-		}
-
+		else { CurrentThrottleBrakeSetPosn = 0; }
 	}
-	else { CurrentThrottleBrakeSetPosn = 0; }
-
-	if(CurrentThrottleBrakeSetPosn < 0 && CurSpeed == 0) { 
-		boost::thread brake_Thread = boost::thread(&Control::TimedBrake, this);
-		brake_Thread.detach(); 
-	} // If we are almost stopped, we don't need to keep braking.
-
+		
 }
 
 
 void Control::AutoTrackUpdate(double CurTrack) {
-
-	if(GPS->Speed < 10) { CurTrack = IMU->Yaw + (double)CurrentSteeringSetPosn*0.157; }
-	if(CurTrack < 0) { CurTrack = 360 + CurTrack; }
 
 	SteerController->setProcessValue(CurTrack);
 	CurrentSteeringSetPosn = SteerController->compute();
@@ -548,6 +609,53 @@ void Control::AutoStop() {
 
 }
 
+void Control::StartMapRecord() {
+
+	StartMapRecord(boost::lexical_cast<std::string>(TimeStamp()));
+	MapRecordCounter = 0;
+
+	DatumLat = GPS->Latitude;
+	DatumLong = GPS->Longitude;
+
+	MapRecordLogger->WriteLogLine("D," + boost::lexical_cast<std::string>(DatumLat) + "," + boost::lexical_cast<std::string>(DatumLong));
+
+}
+
+void Control::StartMapRecord(std::string MapName) {
+
+	RecordActive = true;
+
+	MapRecordLogger = new Logger("../../FrontEnd/Maps/maps/" + MapName + ".wyp");
+
+	Log->WriteLogLine("Control - Recording map points...");
+
+}
+
+void Control::MapRecordPosUpdate(VECTOR_2D CurPosn) {
+
+	if(VectorMagnitude(SubtractVector(CurPosn,LastRecordedPoint)) > MAPPOINT_RADIUS) {
+
+		MapRecordLogger->WriteLogLine(boost::lexical_cast<std::string>(MapRecordCounter) + "," + boost::lexical_cast<std::string>(CurPosn.x) + "," + boost::lexical_cast<std::string>(CurPosn.y));
+
+		MapRecordCounter++;
+	
+	}
+
+}
+
+
+void Control::StopMapRecord() {
+
+	RecordActive = false;
+
+	MapRecordLogger->CloseLog();
+
+	
+	Log->WriteLogLine("Control - Finished recording " + boost::lexical_cast<std::string>(MapRecordCounter-1) + " map points.");
+
+}
+
+
 void Control::TimedBrake() {
 
 	Log->WriteLogLine("Control - Braking for 2s.");
@@ -564,6 +672,8 @@ void Control::SendAlarm() {
 
 }
 
+// Utility functions below.
+
 double Control::TimeStamp() {
 
 	timeval current;
@@ -573,9 +683,9 @@ double Control::TimeStamp() {
 
 }
 
-MAPPOINT_2D Control::LatLongToXY(double lat, double lng) {
+VECTOR_2D Control::LatLongToXY(double lat, double lng) {
 
-	MAPPOINT_2D MapPoint;
+	VECTOR_2D MapPoint;
 
 	MapPoint.y = -1*EARTH_RADIUS*TwoPi*(DatumLat - lat)/360;
 	MapPoint.x = -1*EARTH_RADIUS*cos(abs(lat))*TwoPi*(DatumLong - lng)/360;
@@ -584,14 +694,20 @@ MAPPOINT_2D Control::LatLongToXY(double lat, double lng) {
 
 }
 
-MAPPOINT_2D Control::SubtractMapPoint(MAPPOINT_2D Point1, MAPPOINT_2D Point2) {
+VECTOR_2D Control::SubtractVector(VECTOR_2D Point1, VECTOR_2D Point2) {
 
-	MAPPOINT_2D Result;
+	VECTOR_2D Result;
 
 	Result.x = Point1.x - Point2.x;
 	Result.y = Point1.y - Point2.y;
 
 	return Result;
+
+}
+
+double Control::VectorMagnitude(VECTOR_2D MapPoint) {
+
+	return sqrt(pow(MapPoint.x,2) + pow(MapPoint.y,2));
 
 }
 
@@ -603,7 +719,10 @@ void HandleExit(int param) {
 
 }
 
-
+/*
+* Entry point to the program.
+* Argument to executable is the name of the folder to save logs in for this run. Default folder name is '0'.
+*/
 int main(int argc, char *argv[]) {
 
 	std::string LogDir;
@@ -613,6 +732,8 @@ int main(int argc, char *argv[]) {
 	}
 	else { system("rm -rf ./RunFiles/0"); LogDir = "./RunFiles/0"; }
 
+
+	// Set up the ncurses terminal display.
 	initscr();
 	noecho();
 	nodelay(stdscr, 1);
@@ -624,7 +745,7 @@ int main(int argc, char *argv[]) {
 
 	SAECar->Setup();
 
-	SAECar->Run();
+	SAECar->Run(); // Execution happens in this function.
 
 	cout << "Close.\n";
 

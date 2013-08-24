@@ -15,28 +15,19 @@ if(param('run')) { $Run = param('run'); }
 
 my $LuxFileNumber = 0;
 
-if(param('no')) { $LuxFileNumber = param('no'); }
+my @LuxFileName;
+
+if(param('no')) { $LuxFileNumber = param('no'); $LuxFileName = $LuxFileNumber . ".luxobj"; }
 else {
 
-	opendir(LUXDIR, "../../TestCode/Control/RunFiles/$Run");
-	foreach my $FileName (readdir(LUXDIR)) {
-
-		if($FileName !~ /\.luxobj$/i) { next; }
-		else {
-
-		$FileName =~ /^([0-9\.]+)\.luxobj$/i;
-
-		if($1 > $LuxFileNumber) { $LuxFileNumber = $1; }
-
-		}
-
-
-	}
-	closedir(LUXDIR);
-
+opendir(LUXDIR, "../../TestCode/Control/RunFiles/$Run/luxobj/");
+my @LuxFiles = readdir(LUXDIR);
+@LuxFiles = sort(@LuxFiles);
+closedir(LUXDIR);
+$LuxFileName = $LuxFiles[${@LuxFiles} - 1];
 }
 
-open (LUXFILE, "../../TestCode/Control/RunFiles/$Run/$LuxFileNumber.luxobj");
+open (LUXFILE, "../../TestCode/Control/RunFiles/$Run/$LuxFileName");
 my @LogLines = <LUXFILE>;
 close LUXFILE;
 
@@ -46,7 +37,7 @@ my $PlotInfo;
 
 foreach my $LogLine (@LogLines) {
 	
-	my ($LineType, $LineContents) = split(/|/,$LogLine);
+	#my ($LineType, $LineContents) = split(/|/,$LogLine);
 
 
 	push(@{$PlotInfo->{"objdata"}}, $LogLine);

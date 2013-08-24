@@ -21,6 +21,7 @@
 #include "GPSConnection.h"
 #include "Logger.h"
 #include "Control.h"
+#include "Fusion.h"
 
 using namespace std;
 
@@ -108,19 +109,15 @@ void GPSConnection::ProcessMessages() {
 			if (NewData->set & TIME_SET) {
 				Time = NewData->fix.time;
 			}
-			if(NewData->set & LATLON_SET) {
-				Latitude = NewData->fix.latitude - CarControl->LatOffset;
-				Longitude = NewData->fix.longitude - CarControl->LongOffset;
-				NewPosition();
-
-			}
-			if(NewData->set & SPEED_SET) { 
-				Speed = NewData->fix.speed;
-				NewSpeed();
-			}
 			if(NewData->set & TRACK_SET) {
 				TrackAngle = NewData->fix.track;
 				NewTrack();
+			}
+			if((NewData->set & LATLON_SET) && (NewData->set & SPEED_SET)) {
+				Latitude = NewData->fix.latitude - CarControl->LatOffset;
+				Longitude = NewData->fix.longitude - CarControl->LongOffset;
+				Speed = NewData->fix.speed;
+				NewSpeedAndPosition();
 			}
 			
 		}
@@ -136,29 +133,20 @@ void GPSConnection::Stop() {
 
 }
 
-void GPSConnection::NewPosition() {
+void GPSConnection::NewSpeedAndPosition() {
 
-	MAPPOINT_2D Position = CarControl->LatLongToXY(Latitude, Longitude);
+	VECTOR_2D Position = CarControl->LatLongToXY(Latitude, Longitude);
 
 	GPSLog->WriteLogLine("P," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Latitude) + "," + boost::lexical_cast<std::string>(Longitude) + "," + boost::lexical_cast<std::string>(Position.x) + "," + boost::lexical_cast<std::string>(Position.y), true);
-	if(CarControl->AutoRun) { CarControl->AutoPosUpdate(Position); }
-	CarControl->CheckFenceposts(Position);
-
-}
-
-void GPSConnection::NewSpeed() {
-
-
 	GPSLog->WriteLogLine("S," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Speed), true);
-	if(CarControl->AutoRun) { CarControl->AutoSpeedUpdate(Speed); }
+	
+	CarControl->Fuser->GPSUpdate(Position, Speed);
 
 }
 
 void GPSConnection::NewTrack() {
 
-
 	GPSLog->WriteLogLine("T," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(TrackAngle), true);
-	if(CarControl->AutoRun) { CarControl->AutoTrackUpdate(TrackAngle); }
 
 }
 

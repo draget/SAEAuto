@@ -388,7 +388,7 @@ void IBEO::ProcessMessages() {
 
 			ofstream outfile_obj;
 
-			FileName = CarControl->LogDir + "/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".luxobj";
+			FileName = CarControl->LogDir + "/luxobj/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".luxobj";
 
 			outfile_obj.open(FileName.c_str(), ios::out);
 

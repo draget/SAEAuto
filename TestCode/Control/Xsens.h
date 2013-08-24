@@ -8,9 +8,11 @@
 
 #include "xsens/cmt3.h"
 
+#include "Control.h"
+
 #define IMU_PORT "/dev/ttyUSB1"
 
-class Control;
+
 class Logger;
 
 using namespace xsens;
@@ -24,8 +26,11 @@ public:
 
 	bool Open();
 	void Start();
+	VECTOR_2D GetAverageAccel(int n);
 
 	double Yaw;
+	
+	std::vector<VECTOR_2D> Accelerations;
 
 	bool IMUState;
 

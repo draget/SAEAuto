@@ -2,6 +2,7 @@
 #define	_CONTROL_H
 
 #define EARTH_RADIUS 6371000
+#define MAPPOINT_RADIUS 2.5
 
 #include <vector>
 #include <string>
@@ -16,11 +17,12 @@ class GPSConnection;
 class IBEO;
 class IPC;
 class Xsens;
+class Fusion;
 
 
 
 
-struct MAPPOINT_2D {
+struct VECTOR_2D {
     double x;
     double y;
 };
@@ -28,13 +30,15 @@ struct MAPPOINT_2D {
 
 struct MAP {
 
-	std::vector<MAPPOINT_2D> Fenceposts;
-	std::vector<MAPPOINT_2D> Waypoints;
+	std::vector<VECTOR_2D> Fenceposts;
+	std::vector<VECTOR_2D> Waypoints;
 
 };
 
 class Control {
 public:
+
+	double TwoPi;
 
 	Control(std::string LogDir);
     	Control(const Control& orig);
@@ -55,6 +59,7 @@ public:
 	bool ManualOn;
 	bool AutoOn;
 	bool AutoRun;
+	bool RecordActive;
 	bool BrakeILOn; // If this is off we don't require a heartbeat or network connection for auto!
 
 	double DatumLat;
@@ -63,13 +68,17 @@ public:
 	double AutoSpeedTarget;
 
 	void AutoStart();
-	void AutoPosUpdate(MAPPOINT_2D CurPosn);
+	void AutoPosUpdate(VECTOR_2D CurPosn);
 	void AutoSpeedUpdate(double CurSpeed);
 	void AutoTrackUpdate(double CurTrack);
 	void AutoPause();
 	void AutoContinue();
 	void AutoStop();
-	void CheckFenceposts(MAPPOINT_2D CurPosn);
+	void CheckFenceposts(VECTOR_2D CurPosn);
+	void StartMapRecord(std::string MapName);
+	void StartMapRecord();
+	void MapRecordPosUpdate(VECTOR_2D CurPosn);
+	void StopMapRecord();
 	
 	void ClearMap();
 
@@ -85,9 +94,14 @@ public:
  
 	static double TimeStamp();
 
-	MAPPOINT_2D LatLongToXY(double lat, double lng);
+	VECTOR_2D LatLongToXY(double lat, double lng);
+	
+	static double VectorMagnitude(VECTOR_2D MapPoint);
+	static VECTOR_2D SubtractVector(VECTOR_2D Point1, VECTOR_2D Point2);
 
-	static MAPPOINT_2D SubtractMapPoint(MAPPOINT_2D Point1, MAPPOINT_2D Point2);
+	Xsens* IMU;
+	GPSConnection* GPS;
+	Fusion* Fuser;
 
 private:
 
@@ -99,20 +113,26 @@ private:
 	void TimedBrake();
 
 	double DesiredBearing;
+	
+	VECTOR_2D LastRecordedPoint;
+	int MapRecordCounter;
 
-	PID *SpeedController;
+	PID *ThrottleController;
+	PID *BrakeController;
 	PID *SteerController;
 
 	MAP CurrentMap;
 
-	GPSConnection* GPS;
+	
 	CarNetwork* CarNetworkConnection;
 	Logger* Log;
 	SafetySerialOut* SafetySerial;
 	LowLevelSerialOut* LowLevelSerial;
 	IBEO* Lux;
 	IPC* WebIPC;
-	Xsens* IMU;
+
+	
+	Logger* MapRecordLogger;
 
 	Logger* WebLogger;
 

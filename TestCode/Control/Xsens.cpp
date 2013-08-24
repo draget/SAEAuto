@@ -31,6 +31,14 @@ Xsens::Xsens(Control* CarController, Logger* Logger) {
 
 	reply = new Packet(1,0); /* 1 item, not xbus */
 
+	Yaw = 0;
+
+	VECTOR_2D ZeroVec;
+	ZeroVec.x = 0.0;
+	ZeroVec.y = 0.0;
+
+	Accelerations.resize(20,ZeroVec);
+
 	CarControl = CarController;
  	Log = Logger;	
 
@@ -111,6 +119,9 @@ void Xsens::ProcessMessages() {
 	long double yacc_comp;
 	long double zacc_comp;
 
+	VECTOR_2D CurrentAccel;
+
+
     while (Run)
     {
         if (serial->waitForDataMessage(reply) != XRV_OK)
@@ -131,9 +142,14 @@ void Xsens::ProcessMessages() {
 
 	xacc_comp = (long double) matrix_data.m_data[0][0]*xacc + matrix_data.m_data[1][0]*yacc + matrix_data.m_data[2][0]*zacc;
 	yacc_comp = (long double) matrix_data.m_data[0][1]*xacc + matrix_data.m_data[1][1]*yacc + matrix_data.m_data[2][1]*zacc;
-	zacc_comp = (long double) matrix_data.m_data[0][2]*xacc + matrix_data.m_data[1][2]*yacc + matrix_data.m_data[2][2]*zacc;
+	//zacc_comp = (long double) matrix_data.m_data[0][2]*xacc + matrix_data.m_data[1][2]*yacc + matrix_data.m_data[2][2]*zacc;
 
+	CurrentAccel.x = xacc_comp;
+	CurrentAccel.y = yacc_comp;
 
+	Accelerations.erase(Accelerations.begin());
+
+	Accelerations.push_back(CurrentAccel);
 
 	//long double xacc_comp = (long double) cos_pitch*xacc + sin_pitch*zacc;
 	//long double yacc_comp = (long double) sin_pitch*sin_roll*xacc + cos_roll*yacc - sin_roll*cos_pitch*zacc;
@@ -154,3 +170,21 @@ void Xsens::ProcessMessages() {
 
 }
 
+VECTOR_2D Xsens::GetAverageAccel(int n) {
+
+	VECTOR_2D Result;
+	Result.x = 0.0;
+	Result.y = 0.0;
+
+
+	for(int i = Accelerations.size()-1-n; i < Accelerations.size(); i++) {
+
+		Result.x += Accelerations[i].x;
+		Result.y += Accelerations[i].y;
+
+	}
+
+	Result.x = Result.x / n;
+	Result.y = Result.y / n;
+
+}

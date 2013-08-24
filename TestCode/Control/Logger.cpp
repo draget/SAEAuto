@@ -36,15 +36,15 @@ Logger::Logger(std::string LogFileArg) {
 }
 
 /**
- * Purpose: Creates a new instance of the Network object.
- * Inputs : An Network object.
+ * Purpose: Creates a new instance of the Logger object.
+ * Inputs : An Logger object.
  * Outputs: None.
  */
 Logger::Logger(const Logger& orig) {
 }
 
 /**
- * Purpose: Destroys the instance of the Network object.
+ * Purpose: Destroys the instance of the Logger object.
  * Inputs : None.
  * Outputs: None.
  */
