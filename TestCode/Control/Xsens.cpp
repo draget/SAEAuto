@@ -176,15 +176,14 @@ VECTOR_2D Xsens::GetAverageAccel(int n) {
 	Result.x = 0.0;
 	Result.y = 0.0;
 
-
-	for(int i = Accelerations.size()-1-n; i < Accelerations.size(); i++) {
-
+	for(unsigned int i = Accelerations.size()-n; i < Accelerations.size(); i++) {
 		Result.x += Accelerations[i].x;
 		Result.y += Accelerations[i].y;
-
 	}
 
-	Result.x = Result.x / n;
-	Result.y = Result.y / n;
+	Result.x = Result.x / (double)n;
+	Result.y = Result.y / (double)n;
+
+	return Result;
 
 }

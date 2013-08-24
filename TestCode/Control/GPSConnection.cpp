@@ -146,6 +146,8 @@ void GPSConnection::NewSpeedAndPosition() {
 
 void GPSConnection::NewTrack() {
 
+	CarControl->Fuser->GPSTrackAngleUpdate(TrackAngle);
+
 	GPSLog->WriteLogLine("T," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(TrackAngle), true);
 
 }

@@ -278,7 +278,7 @@ void Control::WriteInfoFile() {
 	WebLogger->WriteLogLine("Fused X Pos|" + boost::lexical_cast<std::string>(Fuser->CurrentPosition.x), true);
 	WebLogger->WriteLogLine("Fused Y Pos|" + boost::lexical_cast<std::string>(Fuser->CurrentPosition.y), true);
 	WebLogger->WriteLogLine("Fused X Vel|" + boost::lexical_cast<std::string>(Fuser->CurrentVelocity.x), true);
-	WebLogger->WriteLogLine("Fused X Vel|" + boost::lexical_cast<std::string>(Fuser->CurrentVelocity.y), true);
+	WebLogger->WriteLogLine("Fused Y Vel|" + boost::lexical_cast<std::string>(Fuser->CurrentVelocity.y), true);
 	WebLogger->WriteLogLine("Fused Speed|" + boost::lexical_cast<std::string>(Fuser->CurrentSpeed), true);
 	WebLogger->WriteLogLine("Fused Heading|" + boost::lexical_cast<std::string>(Fuser->CurrentHeading), true);
 

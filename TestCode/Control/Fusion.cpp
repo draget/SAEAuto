@@ -89,6 +89,7 @@ void Fusion::GPSUpdate(VECTOR_2D GPSPosition, double GPSSpeed) {
 	GPSVelocity.x = sin(CarControl->TwoPi*CurrentHeading/360)*GPSSpeed;
 	GPSVelocity.y = cos(CarControl->TwoPi*CurrentHeading/360)*GPSSpeed;
 
+
 	VECTOR_2D Acceleration = CarControl->IMU->GetAverageAccel(20);
 
 	VAKlmX->SetMeasurements(0,GPSVelocity.x, Acceleration.x);
@@ -102,8 +103,8 @@ void Fusion::GPSUpdate(VECTOR_2D GPSPosition, double GPSSpeed) {
 	
 	CurrentSpeed = CarControl->VectorMagnitude(CurrentVelocity);
 
-	PVKlmX->SetMeasurements(0,GPSPosition.x, CurrentVelocity.x);
-	PVKlmY->SetMeasurements(0,GPSPosition.y, CurrentVelocity.y);
+	PVKlmX->SetMeasurements(GPSPosition.x, CurrentVelocity.x,0);
+	PVKlmY->SetMeasurements(GPSPosition.y, CurrentVelocity.y,0);
 
 	PVKlmX->Update();
 	PVKlmY->Update();

@@ -530,6 +530,7 @@ Save map as: <input type="text" size="20" name="mapname" value="$CurrentName" />
 <input type="button" onclick="sendCommand('AUTOCONT')" name="cont" value="Continue Auto" /> <br /><br />
 
 <input type="button" onclick="sendCommand('TOGBIL')" name="cont" value="Toggle BrakeIL" /> 
+<input type="button" onclick="sendCommand('SETDATUM,' + (datumMarker.getPosition().lat() - offsetLat) + ',' + (datumMarker.getPosition().lng() - offsetLong))" name="cont" value="Set Datum" /> 
 <input style="background-color : red;" type="button" onclick="sendCommand('ESTOP')" name="estop" value="ESTOP Car" />
 <br /><br />
 <input type="text" size="6" id="latoffset" name="latoffset" value="0.0" />

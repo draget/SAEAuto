@@ -116,7 +116,7 @@ void IPC::ProcessMessages() {
 			CarControl->Trip(9);
 		}
 		else if(MessageParts[0].compare(0,8,"SETDATUM") == 0) { 
-			Log->WriteLogLine("IPC - Setting new datum " + MessageParts[1] + " " + MessageParts[2]);
+			Log->WriteLogLine("IPC - Setting new datum " + MessageParts[1] + MessageParts[2]);
 			if(! CarControl->AutoOn)	{
 				CarControl->ClearMap();		
 				CarControl->DatumLat = boost::lexical_cast<double>(MessageParts[1]); 
