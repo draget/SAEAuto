@@ -12,10 +12,12 @@ my $i = 0;
 while(-e "../../TestCode/Control/ramdisk/weblog.txt_LOCK") { if($i > 1000) { last; } usleep(1000); $i++; }
 
 open (LOGFILE, "../../TestCode/Control/ramdisk/weblog.txt");
-@LogLines = <LOGFILE>;
+my @LogLines = <LOGFILE>;
 close LOGFILE;
 
 my $PlotInfo;
+
+my $i = 0;
 
 foreach my $LogLine (@LogLines) {
 	
@@ -28,9 +30,33 @@ foreach my $LogLine (@LogLines) {
 
 		if($LineType eq 'GPS Latitude') { $PlotInfo->{"gps"}->{"lat"} = $LineContents; }
 		elsif($LineType eq 'GPS Longitude') { $PlotInfo->{"gps"}->{"long"} = $LineContents; }
-		$PlotInfo->{"params"} .= "<b>$LineType: </b>$LineContents<br />";
-
+		$PlotInfo->{"params"}->{$LineType}->{"content"} = $LineContents;
+		$PlotInfo->{"params"}->{$LineType}->{"order"} = $i;
+		$i++;
 	}
+
+}
+
+open (MAPFILE, "../../TestCode/Control/ramdisk/runningmap.txt");
+my @MapLines = <MAPFILE>;
+close MAPFILE;
+
+push(@{$PlotInfo->{"mapdata"}},[$PlotInfo->{"params"}->{"Fused X Pos"}->{"content"}*1.0, $PlotInfo->{"params"}->{"Fused Y Pos"}->{"content"}*1.0, "blue"]);
+
+foreach my $MapLine (@MapLines) {
+
+	$MapLine =~ s/\n//;
+	my ($LineType, @LineContents) = split(/,/,$MapLine);
+
+	my $Colour;
+
+	if($LineType eq 'D') { next; }
+	elsif($LineType =~ /^[0-9]+$/) { 
+		if($LineType < $PlotInfo->{"params"}->{"NextWaypoint"}->{"content"}) { $Colour = "green"; }
+		else { $Colour = "red"; }
+	}
+
+	push(@{$PlotInfo->{"mapdata"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, $Colour]);
 
 }
 

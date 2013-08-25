@@ -357,6 +357,200 @@
 
 
 
+ /**
+    * Returns an appropriate scale. The return value is actualy anm object consiosting of:
+    *  scale.max
+    *  scale.min
+    *  scale.scale
+    * 
+    * @param  obj object  The graph object
+    * @param  prop object An object consisting of configuration properties
+    * @return     object  An object containg scale information
+    */
+    RGraph.getScale3 = function (obj, opt)  // Modified to actually handle negatives....
+    {
+        var RG   = RGraph;
+        var ca   = obj.canvas;
+        var co   = obj.context;
+        var prop = obj.properties;
+        
+        var numlabels    = typeof(opt['ylabels.count']) == 'number' ? opt['ylabels.count'] : 5;
+        var units_pre    = typeof(opt['units.pre']) == 'string' ? opt['units.pre'] : '';
+        var units_post   = typeof(opt['units.post']) == 'string' ? opt['units.post'] : '';
+        var max          = Number(opt['max']);
+        var min          = typeof(opt['min']) == 'number' ? opt['min'] : 0;
+        var strict       = opt['strict'];
+        var decimals     = Number(opt['scale.decimals']); // Sometimes the default is null
+        var point        = opt['scale.point']; // Default is a string in all chart libraries so no need to cast it
+        var thousand     = opt['scale.thousand']; // Default is a string in all chart libraries so no need to cast it
+        var original_max = max;
+        var round        = opt['scale.round'];
+        var scale        = {'max':1,'labels':[]};
+
+
+
+        /**
+        * Special case for 0
+        * 
+        * ** Must be first **
+        */
+        if (!max) {
+
+            var max   = 1;
+
+            var scale = {max:1,min:0,labels:[]};
+
+            for (var i=0; i<numlabels; ++i) {
+                var label = ((((max - min) / numlabels) + min) * (i + 1)).toFixed(decimals);
+                scale.labels.push(units_pre + label + units_post);
+            }
+
+        /**
+        * Manually do decimals
+        */
+        } else if (max <= 1 && !strict) {
+
+            if (max > 0.5) {
+
+                max  = 1;
+                min  = min;
+                scale.min = min;
+
+                for (var i=0; i<numlabels; ++i) {
+                    var label = ((((max - min) / numlabels) * (i + 1)) + min).toFixed(decimals);
+
+                    scale.labels.push(units_pre + label + units_post);
+                }
+
+            } else if (max >= 0.1) {
+                
+                max   = 0.5;
+                min   = min;
+                scale = {'max': 0.5, 'min':min,'labels':[]}
+
+                for (var i=0; i<numlabels; ++i) {
+                    var label = ((((max - min) / numlabels) + min) * (i + 1)).toFixed(decimals);
+                    scale.labels.push(units_pre + label + units_post);
+                }
+
+            } else {
+
+                scale = {'min':min,'labels':[]}
+                var max_str = String(max);
+                
+                if (max_str.indexOf('e') > 0) {
+                    var numdecimals = Math.abs(max_str.substring(max_str.indexOf('e') + 1));
+                } else {
+                    var numdecimals = String(max).length - 2;
+                }
+
+                var max = 1  / Math.pow(10,numdecimals - 1);
+
+                for (var i=0; i<numlabels; ++i) {
+                    var label = ((((max - min) / numlabels) + min) * (i + 1));
+                        label = label.toExponential();
+                        label = label.split(/e/);
+                        label[0] = Math.round(label[0]);
+                        label = label.join('e');
+                    scale.labels.push(label);
+                }
+
+                //This makes the top scale value of the format 10e-2 instead of 1e-1
+                tmp = scale.labels[scale.labels.length - 1].split(/e/);
+                tmp[0] += 0;
+                tmp[1] = Number(tmp[1]) - 1;
+                tmp = tmp[0] + 'e' + tmp[1];
+                scale.labels[scale.labels.length - 1] = tmp;
+                
+                // Add the units
+                for (var i=0; i<scale.labels.length ; ++i) {
+                    scale.labels[i] = units_pre + scale.labels[i] + units_post;
+                }
+                
+                scale.max = Number(max);
+            }
+
+
+        } else if (!strict) {
+
+
+            /**
+            * Now comes the scale handling for integer values
+            */
+
+
+            // This accomodates decimals by rounding the max up to the next integer
+            max = Math.ceil(max);
+		min = Math.floor(min);
+
+            var interval = Math.pow(10, Math.max(1, Number(String(Number(max) - Number(min)).length - 1)) );
+
+            var topValue = interval;
+
+            while (topValue < max) {
+                topValue += (interval / 2);
+            }
+    
+            // Handles cases where the max is (for example) 50.5
+            if (Number(original_max) > Number(topValue)) {
+                topValue += (interval / 2);
+            }
+
+            // Custom if the max is greater than 5 and less than 10
+            if (max <= 10) {
+                topValue = (Number(original_max) <= 5 ? 5 : 10);
+            }
+    
+    
+            // Added 02/11/2010 to create "nicer" scales
+            if (obj && typeof(round) == 'boolean' && round) {
+                topValue = 10 * interval;
+            }
+
+            scale.max = topValue;
+
+            // Now generate the scale. Temporarily set the objects chart.scale.decimal and chart.scale.point to those
+            //that we've been given as the number_format functuion looks at those instead of using argumrnts.
+            var tmp_point    = prop['chart.scale.point'];
+            var tmp_thousand = prop['chart.scale.thousand'];
+
+            obj.Set('chart.scale.thousand', thousand);
+            obj.Set('chart.scale.point', point);
+
+
+            for (var i=0; i<numlabels; ++i) {
+                scale.labels.push( RG.number_format(obj, ((((i+1) / numlabels) * (topValue - min)) + min).toFixed(decimals), units_pre, units_post) );
+            }
+
+            obj.Set('chart.scale.thousand', tmp_thousand);
+            obj.Set('chart.scale.point', tmp_point);
+        
+        } else if (typeof(max) == 'number' && strict) {
+
+            /**
+            * ymax is set and also strict
+            */
+            for (var i=0; i<numlabels; ++i) {
+                scale.labels.push( RG.number_format(obj, ((((i+1) / numlabels) * (max - min)) + min).toFixed(decimals), units_pre, units_post) );
+            }
+            
+            // ???
+            scale.max = max;
+        }
+
+        
+        scale.units_pre  = units_pre;
+        scale.units_post = units_post;
+        scale.point      = point;
+        scale.decimals   = decimals;
+        scale.thousand   = thousand;
+        scale.numlabels  = numlabels;
+        scale.round      = Boolean(round);
+        scale.min        = min;
+
+
+        return scale;
+    }
 
 
 

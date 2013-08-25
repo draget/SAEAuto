@@ -60,7 +60,7 @@ Control::Control(std::string LogDir) {
 	TripState = 0;
 	ManualOn = false;
 	AutoOn = false;
-	BrakeILOn = true;
+	BrakeILOn = false;
 	RecordActive = false;
 
 	DatumLat = -31.980569;
@@ -168,6 +168,7 @@ void Control::Run() {
 
 		UpdateTerminal();
 		WriteInfoFile();
+		if(AutoOn || RecordActive) { DumpMap(); }
 
 		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
@@ -450,15 +451,32 @@ void Control::ClearMap() {
 
 void Control::DumpMap() {
 
+	DumpMap("./ramdisk/runningmap.txt");
+
+}
+
+void Control::DumpMap(std::string MapName) {
+
+	Logger* DumpLog = new Logger(MapName);
+
+	DumpLog->ClearLog();
+
+	DumpLog->WriteLogLine("D," + boost::lexical_cast<std::string>(DatumLat) + "," + boost::lexical_cast<std::string>(DatumLong), true);
+
+	int i = 0;
 	BOOST_FOREACH( VECTOR_2D MapPoint, CurrentMap.Waypoints ) {
-   		Log->WriteLogLine("WP " + boost::lexical_cast<std::string>(MapPoint.x) + " " + boost::lexical_cast<std::string>(MapPoint.y));
+   		DumpLog->WriteLogLine(boost::lexical_cast<std::string>(i) + "," + boost::lexical_cast<std::string>(MapPoint.x) + "," + boost::lexical_cast<std::string>(MapPoint.y), true);
+		i++;
 	}
 
+	i = 0;
 	BOOST_FOREACH( VECTOR_2D MapPoint, CurrentMap.Fenceposts ) {
-   		Log->WriteLogLine("F " + boost::lexical_cast<std::string>(MapPoint.x) + " " + boost::lexical_cast<std::string>(MapPoint.y));
+   		DumpLog->WriteLogLine("F" + boost::lexical_cast<std::string>(i) + "," + boost::lexical_cast<std::string>(MapPoint.x) + "," + boost::lexical_cast<std::string>(MapPoint.y), true);
+		i++;
 	}
-	
 
+	DumpLog->CloseLog();
+	
 }
 
 void Control::AutoStart() {
@@ -609,23 +627,16 @@ void Control::AutoStop() {
 
 }
 
+
 void Control::StartMapRecord() {
 
-	StartMapRecord(boost::lexical_cast<std::string>(TimeStamp()));
-	MapRecordCounter = 0;
+	ClearMap();
+
+	RecordActive = true;
 
 	DatumLat = GPS->Latitude;
 	DatumLong = GPS->Longitude;
 
-	MapRecordLogger->WriteLogLine("D," + boost::lexical_cast<std::string>(DatumLat) + "," + boost::lexical_cast<std::string>(DatumLong));
-
-}
-
-void Control::StartMapRecord(std::string MapName) {
-
-	RecordActive = true;
-
-	MapRecordLogger = new Logger("../../FrontEnd/Maps/maps/" + MapName + ".wyp");
 
 	Log->WriteLogLine("Control - Recording map points...");
 
@@ -634,24 +645,26 @@ void Control::StartMapRecord(std::string MapName) {
 void Control::MapRecordPosUpdate(VECTOR_2D CurPosn) {
 
 	if(VectorMagnitude(SubtractVector(CurPosn,LastRecordedPoint)) > MAPPOINT_RADIUS) {
-
-		MapRecordLogger->WriteLogLine(boost::lexical_cast<std::string>(MapRecordCounter) + "," + boost::lexical_cast<std::string>(CurPosn.x) + "," + boost::lexical_cast<std::string>(CurPosn.y));
-
-		MapRecordCounter++;
-	
+		CurrentMap.Waypoints.push_back(CurPosn);
 	}
 
 }
 
-
 void Control::StopMapRecord() {
+
+	StopMapRecord(boost::lexical_cast<std::string>(TimeStamp()));
+
+}
+
+void Control::StopMapRecord(std::string MapName) {
 
 	RecordActive = false;
 
 	MapRecordLogger->CloseLog();
 
+	DumpMap("../../FrontEnd/Maps/maps/" + MapName + ".wyp");
 	
-	Log->WriteLogLine("Control - Finished recording " + boost::lexical_cast<std::string>(MapRecordCounter-1) + " map points.");
+	Log->WriteLogLine("Control - Finished recording " + boost::lexical_cast<std::string>(CurrentMap.Waypoints.size()) + " map points.");
 
 }
 

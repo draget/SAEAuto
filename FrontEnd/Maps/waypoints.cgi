@@ -153,6 +153,10 @@ print <<END;
     </script>	
 <script type="text/javascript" src="jquery-2.0.3.js">
   	</script>
+    <script src="RGraph/libraries/RGraph.common.core.js" ></script>
+    <script src="RGraph/libraries/RGraph.scatter_improved.js" ></script>
+    <script src="RGraph/libraries/RGraph.common.dynamic.js" ></script>
+    <script src="RGraph/libraries/RGraph.common.tooltips.js" ></script>
     <script type="text/javascript">
 
 window.onload = function ()
@@ -381,9 +385,24 @@ function updateLog() {
 		,success: function(json){
 
 				document.getElementById("logarea").innerHTML = json.log;
-				document.getElementById("paramarea").innerHTML = json.params;
+
+				document.getElementById("paramarea").innerHTML = "";
+
+				var msgstrings = new Array(35).join('0').split('');
+
+        			for(var key in json.params) {
+         				var attrName = key;
+            				var attrValue = json.params[key].content;
+					msgstrings[json.params[key].order] = "<b>" + attrName + "</b>: " + attrValue + "<br />";
+					
+        			}
+
+				document.getElementById("paramarea").innerHTML = msgstrings.join('');				
+
 				var position = new google.maps.LatLng(parseFloat(json.gps.lat) - offsetLat, parseFloat(json.gps.long) - offsetLong);
 				currentLocationMarker.setPosition(position);
+
+				drawXYGraph(json.mapdata);
 
                             }
 		,error: function() { alert("AJAX Error!"); }
@@ -449,6 +468,21 @@ function sendCommand(Command) {
 
 
 }
+
+
+function drawXYGraph(json)
+        {
+
+		RGraph.Reset(document.getElementById('cvs'));
+
+            var scatter = new RGraph.Scatter('cvs', json)
+		.Set('scale.decimals', 1)
+		.Set('xscale.decimals', 1)
+                .Set('xscale', true)
+		.Set('chart.gutter.left', 60)
+                .Draw();
+
+        }
 
 
     </script>
@@ -543,6 +577,9 @@ Save map as: <input type="text" size="20" name="mapname" value="$CurrentName" />
 </table>
 
 </form>
+
+
+    <canvas id="cvs" width="600" height="600">[No canvas support]</canvas>
 
 END
 

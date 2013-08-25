@@ -53,6 +53,8 @@ public:
 
 	void LoadMap(std::string MapFilename);
 	void DumpMap();
+	void DumpMap(std::string MapName);
+	void ClearMap();
 
 	bool HeartbeatState;
 	int TripState;
@@ -75,12 +77,13 @@ public:
 	void AutoContinue();
 	void AutoStop();
 	void CheckFenceposts(VECTOR_2D CurPosn);
-	void StartMapRecord(std::string MapName);
+	void StopMapRecord(std::string MapName);
+	void StopMapRecord();	
 	void StartMapRecord();
 	void MapRecordPosUpdate(VECTOR_2D CurPosn);
-	void StopMapRecord();
+
 	
-	void ClearMap();
+	
 
 	double LatOffset;
 	double LongOffset;
