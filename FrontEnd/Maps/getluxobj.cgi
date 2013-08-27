@@ -24,10 +24,10 @@ opendir(LUXDIR, "../../TestCode/Control/RunFiles/$Run/luxobj/");
 my @LuxFiles = readdir(LUXDIR);
 @LuxFiles = sort(@LuxFiles);
 closedir(LUXDIR);
-$LuxFileName = $LuxFiles[${@LuxFiles} - 1];
+$LuxFileName = $LuxFiles[${@LuxFiles} - 2];
 }
 
-open (LUXFILE, "../../TestCode/Control/RunFiles/$Run/$LuxFileName");
+open (LUXFILE, "../../TestCode/Control/RunFiles/$Run/luxobj/$LuxFileName");
 my @LogLines = <LUXFILE>;
 close LUXFILE;
 

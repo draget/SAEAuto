@@ -24,7 +24,7 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
         window.onload = function ()
         {
         	updateLuxPlot();
-		setTimeout(updateList,200);
+		setTimeout(updateList,1000);
 		
         }
 
@@ -34,9 +34,9 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 
 		if(document.getElementById("plotnos").selectedIndex >= 0) { arg = document.getElementById("plotnos").options[document.getElementById("plotnos").selectedIndex].innerHTML; }
 
-		RGraph.AJAX.getJSON("getlux.cgi?no=" + arg, drawLuxGraph);
+		RGraph.AJAX.getJSON("getlux.cgi?no=" + arg + "&run=" + document.getElementById("run").value, drawLuxGraph);
 
-		setTimeout(updateLuxPlot,200);
+		setTimeout(updateLuxPlot,500);
 
 	}
 
@@ -48,7 +48,7 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 
 		.Set('labels.axes', 'new')
 		.Set('labels.count', 3)
-
+		.Set('ymax', 8)
                 .Draw();
 
 	centerx = ((rscatter.canvas.width - rscatter.Get("chart.gutter.left") - rscatter.Get("chart.gutter.right")) / 2) + rscatter.Get("chart.gutter.left");
@@ -70,7 +70,7 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 
 	$.ajax({
 		type: "GET"
-		,url: "getluxobj.cgi?no=" + arg
+		,url: "getluxobj.cgi?no=" + arg + "&run=" + document.getElementById("run").value
 		,dataType: "json"
 		,cache: false
 		,success: function(json){
@@ -108,7 +108,7 @@ function updateList() {
 
 	$.ajax({
 		type: "GET"
-		,url: "getluxlist.cgi"
+		,url: "getluxlist.cgi" + "?run=" + document.getElementById("run").value
 		,dataType: "json"
 		,cache: false
 		,success: function(json){
@@ -137,13 +137,17 @@ function updateList() {
 
     <canvas id="cvs" width="1000" height="500">[No canvas support]</canvas> <br />
     
+<table>
 
-<select size="10" id="plotnos"></select>
+<tr><td>Run ID:</td><td><input type="text" value="0" id="run" size="15" /></td>
+<tr><td>Specific Plot:</td><td>Object Data</td></tr>
+<tr><td>
+<select size="15" id="plotnos"></select>
+</td>
 
+<td><textarea rows="15" cols="75" id="logarea"></textarea></td></tr>
 
-
-
-<textarea rows="15" cols="75" id="logarea"></textarea>
+</table>
 
    
 </body>

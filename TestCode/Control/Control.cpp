@@ -60,7 +60,7 @@ Control::Control(std::string LogDir) {
 	TripState = 0;
 	ManualOn = false;
 	AutoOn = false;
-	BrakeILOn = false;
+	BrakeILOn = true;
 	RecordActive = false;
 
 	DatumLat = -31.980569;
@@ -659,8 +659,6 @@ void Control::StopMapRecord() {
 void Control::StopMapRecord(std::string MapName) {
 
 	RecordActive = false;
-
-	MapRecordLogger->CloseLog();
 
 	DumpMap("../../FrontEnd/Maps/maps/" + MapName + ".wyp");
 	

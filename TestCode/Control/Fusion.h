@@ -31,6 +31,9 @@ public:
 
 private:
 
+	void TrackAngleActions();
+	void InterpolateTrackAngle(double IMUHeading);
+
 	Control* CarControl;
 
 	Logger* Log;

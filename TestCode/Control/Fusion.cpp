@@ -71,10 +71,37 @@ Fusion::~Fusion() {
 
 void Fusion::GPSTrackAngleUpdate(double GPSTrackAngle) {
 
-	if(CarControl->VectorMagnitude(CurrentVelocity) > 5) { CurrentHeading = GPSTrackAngle; }
-	else { CurrentHeading = CarControl->IMU->Yaw + (double)CarControl->CurrentSteeringSetPosn*STEERING_CONSTANT; }
+	double CurVel = CarControl->VectorMagnitude(CurrentVelocity);
+	double IMUHeading = CarControl->IMU->Yaw + (double)CarControl->CurrentSteeringSetPosn*STEERING_CONSTANT;
 
-	if(CurrentHeading < 0) { CurrentHeading = 360 + CurrentHeading; }
+	if(IMUHeading < 0) { IMUHeading = 360 + IMUHeading; }
+
+	if(CurVel > 5) { CurrentHeading = GPSTrackAngle; }
+	else if(CurVel > 2)  { CurrentHeading = (IMUHeading)*(5.0/3.0 - CurVel/3.0) + GPSTrackAngle*(-2.0/3.0 + CurVel/3.0); }
+	else { CurrentHeading = IMUHeading; }
+
+	TrackAngleActions();
+
+	boost::thread interpol_Thread = boost::thread(&Fusion::InterpolateTrackAngle, this, IMUHeading);
+	interpol_Thread.detach();
+
+}
+
+void Fusion::InterpolateTrackAngle(double IMUHeading) {
+
+	double Error = CurrentHeading - IMUHeading;
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+
+	double NewIMUHeading = CarControl->IMU->Yaw + (double)CarControl->CurrentSteeringSetPosn*STEERING_CONSTANT;
+
+	CurrentHeading = NewIMUHeading + Error;
+
+	TrackAngleActions();
+
+}
+
+void Fusion::TrackAngleActions() {
 
 	if(CarControl->AutoRun) { CarControl->AutoTrackUpdate(CurrentHeading); }
 
