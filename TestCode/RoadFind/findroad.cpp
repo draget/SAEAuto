@@ -60,9 +60,13 @@ int main() {
 	}
 
 	int FoundStart = 0;
+	int InitialSearchDirn = 0;
 	double Max_r = 0.0;
-	double Peak_i = 0;
+	double Peak_i = 0.0;
+	int LBoundaryPriorToRSearch = 0;
 
+	double Slope = 0;
+	double Intercept = 0;
 
 	std::vector<double>::iterator xfirst;
 	std::vector<double>::iterator xlast;
@@ -75,7 +79,7 @@ int main() {
 	int i = xvalues.size() / 2;
 	while(i > 0 && i < xvalues.size()) {
 
-		if(! FoundStart) { 
+		if((! FoundStart) && InitialSearchDirn == 0) { // Initial search left
 
 			xfirst = xvalues.begin() + i;
 			xlast = xvalues.begin() + i-GroupSize;
@@ -89,18 +93,46 @@ int main() {
 
 			if(fabs(fit.getSlope()) < 0.5) {
 
-				if(i == xvalues.size() / 2) { FoundStart = 1; }
-				else { FoundStart = 2; }
+				// Points were found directly to the left so we need to increase the fit right
+				// otherwise we want to increase the fit left
+				if(i == (xvalues.size() / 2)) { FoundStart = 1; LBoundaryPriorToRSearch = i; } 
+				else { FoundStart = 2; i = i - GroupSize - 1; }
 	
-				i = i - GroupSize - 1;
 			}
-			else { i--; }
+			else { i--; InitialSearchDirn = 1; } // Interleave left and right searching
 
 		}
-		else if(FoundStart == 1) {
+		else if((! FoundStart) && InitialSearchDirn == 1) { // Initial search right
+
+			int j = xvalues.size() - i; // j and i are symmetric about the centre
+
+			xfirst = xvalues.begin() + j + GroupSize;
+			xlast = xvalues.begin() + j;
+			yfirst = yvalues.begin() + j + GroupSize;
+			ylast = yvalues.begin() + j;
+
+			std::vector<double> groupx(xlast,xfirst);
+			std::vector<double> groupy(ylast,yfirst);
+
+			Maths::Regression::Linear fit(GroupSize,groupx.data(), groupy.data());
+
+			if(fabs(fit.getSlope()) < 0.5) {
+
+				// If the points lie directly to the right of the centre then we go straight to increasing the fit right
+				// Otherwise we do so starting in the right spot.
+				if(j == (xvalues.size() / 2)) { FoundStart = 1; }
+				else { FoundStart = 1; i = j + GroupSize + 1; }
+	
+				LBoundaryPriorToRSearch = j; // Save this so that we can go back and increase the fit left later.
+
+			}
+			else { InitialSearchDirn = 0; } // Go back to looking left
+
+		}
+		else if(FoundStart == 1) { // Increase fit right
 
 			xfirst = xvalues.begin() + i;
-			yfirst = yvalues.begin() + i;	
+			yfirst = yvalues.begin() + i;
 
 			std::vector<double> groupx(xlast,xfirst);
 			std::vector<double> groupy(ylast,yfirst);
@@ -109,12 +141,27 @@ int main() {
 
 			double r = pow(fit.getCoefficient(),2);
 
-			if(r > Max_r) { Max_r = r; Peak_i = i; }
 
-			i--;
+			if(r > Max_r) { Max_r = r; Peak_i = i; };
+
+			i++;
+
+			if(i == xvalues.size()) { // We've reached the RHS edge
+				i = LBoundaryPriorToRSearch; // Restore i
+				if(Max_r > 0.4) { 	// We found something, set the LHS bracket.
+					xfirst = xvalues.begin() + Peak_i;
+					yfirst = yvalues.begin() + Peak_i;
+				}
+				else {			// We didn't...
+					xfirst = xvalues.begin() + i;
+					yfirst = yvalues.begin() + i;
+				}
+				FoundStart = 2;		// Increase fit left next
+				Max_r = 0; Peak_i = 0;
+			}
 
 		}
-		else if(FoundStart == 2) {
+		else if(FoundStart == 2) { // Increase fit left
 
 			xlast = xvalues.begin() + i;
 			ylast = yvalues.begin() + i;	
@@ -126,16 +173,21 @@ int main() {
 
 			double r = pow(fit.getCoefficient(),2);
 
-			if(r > Max_r) { Max_r = r; Peak_i = i; }
+			if(r > Max_r) { 
+				Max_r = r; 
+				Peak_i = i; 			
+				Slope = fit.getSlope();
+				Intercept = fit.getIntercept(); 
+			}
 
-			i--;
+			i--; // Decrement (until we hit the LHS edge and break the while loop)
 
 		}
 		
 
 	}
 
-	if(Max_r > 0.4) { std::cout << "Edges are: " << *(xlast + Peak_i-1) << " " << *(xfirst-1) << '\n'; }
+	if(Max_r > 0.4) { std::cout << "Edges are: " << *(xlast + Peak_i-1) << " " << *(xfirst-1) << " Slope: " << Slope << " Intercept: " << Intercept << '\n'; }
 
 
 	return 0;
