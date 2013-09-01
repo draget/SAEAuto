@@ -475,6 +475,12 @@ void Control::DumpMap(std::string MapName) {
 		i++;
 	}
 
+	i = 0;
+	BOOST_FOREACH( VECTOR_2D MapPoint, CurrentMap.DetectedFenceposts ) {
+   		DumpLog->WriteLogLine("I" + boost::lexical_cast<std::string>(i) + "," + boost::lexical_cast<std::string>(MapPoint.x) + "," + boost::lexical_cast<std::string>(MapPoint.y), true);
+		i++;
+	}
+
 	DumpLog->CloseLog();
 	
 }

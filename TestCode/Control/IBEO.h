@@ -164,6 +164,8 @@ private:
 
 	Logger* Log;
 
+
+
     bool Read_Scan_Data();
     bool Read_Object_Data();
     bool Read_Errors();
@@ -171,6 +173,7 @@ private:
     bool Read_Size2D(SIZE_2D*);
 
     void ProcessMessages();
+	void WriteFiles(timeval current);
 	
 	timeval lastwrite;
 

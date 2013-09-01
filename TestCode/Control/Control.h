@@ -32,6 +32,7 @@ struct MAP {
 
 	std::vector<VECTOR_2D> Fenceposts;
 	std::vector<VECTOR_2D> Waypoints;
+	std::vector<VECTOR_2D> DetectedFenceposts;
 
 };
 
@@ -106,6 +107,8 @@ public:
 	GPSConnection* GPS;
 	Fusion* Fuser;
 
+	MAP CurrentMap;
+
 private:
 
 	bool RunState;
@@ -124,7 +127,7 @@ private:
 	PID *BrakeController;
 	PID *SteerController;
 
-	MAP CurrentMap;
+
 
 	
 	CarNetwork* CarNetworkConnection;

@@ -52,9 +52,11 @@ foreach my $MapLine (@MapLines) {
 
 	if($LineType eq 'D') { next; }
 	elsif($LineType =~ /^[0-9]+$/) { 
-		if($LineType < $PlotInfo->{"params"}->{"NextWaypoint"}->{"content"}) { $Colour = "green"; }
-		else { $Colour = "red"; }
+		if($LineType < $PlotInfo->{"params"}->{"NextWaypoint"}->{"content"}) { $Colour = "yellowgreen"; }
+		else { $Colour = "green"; }
 	}
+	elsif($LineType eq 'F') { $Colour = 'red'; }
+	elsif($LineType eq 'I') { $Colour = 'brown'; }
 
 	push(@{$PlotInfo->{"mapdata"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, $Colour]);
 

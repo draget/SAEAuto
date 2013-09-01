@@ -11,6 +11,7 @@
 
 #include <boost/thread.hpp> 
 #include <boost/lexical_cast.hpp>
+#include <boost/foreach.hpp>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -20,6 +21,7 @@
 
 #include "Logger.h"
 #include "Control.h"
+#include "Fusion.h"
 
 using namespace std;
 
@@ -364,45 +366,75 @@ void IBEO::Start() {
 
 void IBEO::ProcessMessages() {
 
-	while(Run) {
-		ReadMessages();
+	VECTOR_2D Object;
+	VECTOR_2D TransformedObject;
 
+	while(Run) {
+
+		ReadMessages();
 
 
 		timeval current;
 		gettimeofday(&current,NULL);
-
-		if((current.tv_sec + ((double)current.tv_usec)/1000000) > (lastwrite.tv_sec + ((double)lastwrite.tv_usec)/1000000) + 0.2) {
-
-			ofstream outfile_scan;
-
-			std::string FileName = CarControl->LogDir + "/luxscan/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".lux";
-
-			outfile_scan.open(FileName.c_str(), ios::out);
-
-			for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
-				outfile_scan << (int)scan_data_points[curScanDataSource][i].layer_echo << "," << (int)scan_data_points[curScanDataSource][i].flags << "," << scan_data_points[curScanDataSource][i].horiz_angle << "," << scan_data_points[curScanDataSource][i].radial_dist << "," << scan_data_points[curScanDataSource][i].echo_pulse_width << "," << scan_data_points[curScanDataSource][i].res << "\n";
-			}
 		
-			outfile_scan.close();
+		if((current.tv_sec + ((double)current.tv_usec)/1000000) > (lastwrite.tv_sec + ((double)lastwrite.tv_usec)/1000000) + 0.2) { 
 
-			ofstream outfile_obj;
-
-			FileName = CarControl->LogDir + "/luxobj/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".luxobj";
-
-			outfile_obj.open(FileName.c_str(), ios::out);
-
+			WriteFiles(current); 
+	
 			for(int i = 0; i < object_data_header[curObjectDataSource].number_of_objects; i++) {
-				outfile_obj << (int)object_data[curObjectDataSource][i].object_id << "," << (int)object_data[curObjectDataSource][i].reference_point.x << "," << object_data[curObjectDataSource][i].reference_point.y << "," << (int)object_data[curObjectDataSource][i].closest_point.x << "," << object_data[curObjectDataSource][i].closest_point.y << "," << object_data[curObjectDataSource][i].classification << "\n";
+			
+				Object.x = (double)object_data[curObjectDataSource][i].reference_point.x; 
+				Object.y = (double)object_data[curObjectDataSource][i].reference_point.y;
+			
+				TransformedObject.x = cos(-1*CarControl->Fuser->CurrentHeading) * Object.x - sin(-1*CarControl->Fuser->CurrentHeading) * Object.y + CarControl->Fuser->CurrentPosition.x;
+				TransformedObject.y = sin(-1*CarControl->Fuser->CurrentHeading) * Object.x + cos(-1*CarControl->Fuser->CurrentHeading) * Object.y + CarControl->Fuser->CurrentPosition.y;
+
+				bool Found = false;
+
+				BOOST_FOREACH( VECTOR_2D MapPoint, CarControl->CurrentMap.DetectedFenceposts ) {
+					if(CarControl->VectorMagnitude(CarControl->SubtractVector(MapPoint,TransformedObject)) < 2) { Found = true; break; }
+				}
+
+				if(! Found) { CarControl->CurrentMap.DetectedFenceposts.push_back(TransformedObject); }
+
 			}
 		
-			outfile_obj.close();
+
 
 		}
+		
 
-
-	//	Log->WriteLogLine("IBEO next...");
 	}
 
 }
 
+
+void IBEO::WriteFiles(timeval current) {
+
+
+		ofstream outfile_scan;
+
+		std::string FileName = CarControl->LogDir + "/luxscan/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".lux";
+
+		outfile_scan.open(FileName.c_str(), ios::out);
+
+		for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
+			outfile_scan << (int)scan_data_points[curScanDataSource][i].layer_echo << "," << (int)scan_data_points[curScanDataSource][i].flags << "," << scan_data_points[curScanDataSource][i].horiz_angle << "," << scan_data_points[curScanDataSource][i].radial_dist << "," << scan_data_points[curScanDataSource][i].echo_pulse_width << "," << scan_data_points[curScanDataSource][i].res << "\n";
+		}
+		
+		outfile_scan.close();
+
+		ofstream outfile_obj;
+
+		FileName = CarControl->LogDir + "/luxobj/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".luxobj";
+
+		outfile_obj.open(FileName.c_str(), ios::out);
+
+		for(int i = 0; i < object_data_header[curObjectDataSource].number_of_objects; i++) {
+			outfile_obj << (int)object_data[curObjectDataSource][i].object_id << "," << (int)object_data[curObjectDataSource][i].reference_point.x << "," << object_data[curObjectDataSource][i].reference_point.y << "," << (int)object_data[curObjectDataSource][i].closest_point.x << "," << object_data[curObjectDataSource][i].closest_point.y << "," << object_data[curObjectDataSource][i].classification << "\n";
+		}
+		
+		outfile_obj.close();
+
+
+}
