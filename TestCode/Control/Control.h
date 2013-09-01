@@ -137,9 +137,6 @@ private:
 	IBEO* Lux;
 	IPC* WebIPC;
 
-	
-	Logger* MapRecordLogger;
-
 	Logger* WebLogger;
 
 };

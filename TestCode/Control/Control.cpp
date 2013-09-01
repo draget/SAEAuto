@@ -60,7 +60,7 @@ Control::Control(std::string LogDir) {
 	TripState = 0;
 	ManualOn = false;
 	AutoOn = false;
-	BrakeILOn = false;
+	BrakeILOn = true;
 	RecordActive = false;
 
 	DatumLat = -31.980569;
@@ -497,17 +497,17 @@ void Control::AutoStart() {
 	AutoRun = true;
 	AutoSpeedTarget = 0;
 
-	ThrottleController = new PID(10.0,1.0,0,0.2);
+	ThrottleController = new PID(10.0,1.0,0,0.1);
 	ThrottleController->setInputLimits(0.0, 30);
 	ThrottleController->setOutputLimits(0,255);
 	ThrottleController->setMode(AUTO_MODE);
 
-	BrakeController = new PID(10.0,1.0,0,0.2);
+	BrakeController = new PID(10.0,1.0,0,0.1);
 	BrakeController->setInputLimits(0.0, 30);
 	BrakeController->setOutputLimits(-255,0);
 	BrakeController->setMode(AUTO_MODE);
 
-	SteerController = new PID(3.0,0.1,0,0.2);
+	SteerController = new PID(3.0,0.1,0,0.1);
 	SteerController->setInputLimits(-360, 720);
 	SteerController->setOutputLimits(-127,127);
 	SteerController->setMode(AUTO_MODE);
@@ -638,10 +638,12 @@ void Control::StartMapRecord() {
 
 	ClearMap();
 
-	RecordActive = true;
+//	DatumLat = GPS->Latitude;
+//	DatumLong = GPS->Longitude;
 
-	DatumLat = GPS->Latitude;
-	DatumLong = GPS->Longitude;
+//	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
+
+	RecordActive = true;
 
 
 	Log->WriteLogLine("Control - Recording map points...");
@@ -652,6 +654,7 @@ void Control::MapRecordPosUpdate(VECTOR_2D CurPosn) {
 
 	if(VectorMagnitude(SubtractVector(CurPosn,LastRecordedPoint)) > MAPPOINT_RADIUS) {
 		CurrentMap.Waypoints.push_back(CurPosn);
+		LastRecordedPoint = CurPosn;
 	}
 
 }
@@ -665,8 +668,6 @@ void Control::StopMapRecord() {
 void Control::StopMapRecord(std::string MapName) {
 
 	RecordActive = false;
-
-	MapRecordLogger->CloseLog();
 
 	DumpMap("../../FrontEnd/Maps/maps/" + MapName + ".wyp");
 	

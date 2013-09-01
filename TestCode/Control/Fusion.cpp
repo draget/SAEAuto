@@ -71,10 +71,37 @@ Fusion::~Fusion() {
 
 void Fusion::GPSTrackAngleUpdate(double GPSTrackAngle) {
 
-	if(CarControl->VectorMagnitude(CurrentVelocity) > 5) { CurrentHeading = GPSTrackAngle; }
-	else { CurrentHeading = CarControl->IMU->Yaw + (double)CarControl->CurrentSteeringSetPosn*STEERING_CONSTANT; }
+	double CurVel = CarControl->VectorMagnitude(CurrentVelocity);
+	double IMUHeading = CarControl->IMU->Yaw + (double)CarControl->CurrentSteeringSetPosn*STEERING_CONSTANT;
 
-	if(CurrentHeading < 0) { CurrentHeading = 360 + CurrentHeading; }
+	if(IMUHeading < 0) { IMUHeading = 360 + IMUHeading; }
+
+	if(CurVel > 5) { CurrentHeading = GPSTrackAngle; }
+	else if(CurVel > 2)  { CurrentHeading = (IMUHeading)*(5.0/3.0 - CurVel/3.0) + GPSTrackAngle*(-2.0/3.0 + CurVel/3.0); }
+	else { CurrentHeading = IMUHeading; }
+
+	TrackAngleActions();
+
+	boost::thread interpol_Thread = boost::thread(&Fusion::InterpolateTrackAngle, this, IMUHeading);
+	interpol_Thread.detach();
+
+}
+
+void Fusion::InterpolateTrackAngle(double IMUHeading) {
+
+	double Error = CurrentHeading - IMUHeading;
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+
+	double NewIMUHeading = CarControl->IMU->Yaw + (double)CarControl->CurrentSteeringSetPosn*STEERING_CONSTANT;
+
+	CurrentHeading = NewIMUHeading + Error;
+
+	TrackAngleActions();
+
+}
+
+void Fusion::TrackAngleActions() {
 
 	if(CarControl->AutoRun) { CarControl->AutoTrackUpdate(CurrentHeading); }
 
@@ -89,6 +116,8 @@ void Fusion::GPSUpdate(VECTOR_2D GPSPosition, double GPSSpeed) {
 	GPSVelocity.x = sin(CarControl->TwoPi*CurrentHeading/360)*GPSSpeed;
 	GPSVelocity.y = cos(CarControl->TwoPi*CurrentHeading/360)*GPSSpeed;
 
+	FusionLog->WriteLogLine("UP," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(GPSPosition.x) + "," + boost::lexical_cast<std::string>(GPSPosition.y), true);
+	FusionLog->WriteLogLine("UV," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(GPSVelocity.x) + "," + boost::lexical_cast<std::string>(GPSVelocity.y), true);
 
 	VECTOR_2D Acceleration = CarControl->IMU->GetAverageAccel(20);
 
@@ -112,6 +141,37 @@ void Fusion::GPSUpdate(VECTOR_2D GPSPosition, double GPSSpeed) {
 	CurrentPosition.x = PVKlmX->GetPositionEstimate();
 	CurrentPosition.y = PVKlmY->GetPositionEstimate();
 
+	PVActions();
+
+	boost::thread interpol_Thread = boost::thread(&Fusion::InterpolatePV, this);
+	interpol_Thread.detach();
+
+}
+
+
+void Fusion::InterpolatePV() {
+
+	VECTOR_2D LastVelocity = CurrentVelocity;
+	VECTOR_2D LastPosition = CurrentPosition;
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+
+	VECTOR_2D Acceleration = CarControl->IMU->GetAverageAccel(10);
+
+	//Log->WriteLogLine(boost::lexical_cast<std::string>(Acceleration.y));
+
+	CurrentVelocity.x = LastVelocity.x + 0.1*Acceleration.x;
+	CurrentVelocity.y = LastVelocity.y + 0.1*Acceleration.y;
+
+	CurrentPosition.x = LastPosition.x + 0.1*CurrentVelocity.x;
+	CurrentPosition.y = LastPosition.y + 0.1*CurrentVelocity.y;
+
+	PVActions();
+
+}
+
+void Fusion::PVActions() {
+
 	if(CarControl->AutoRun) { 
 		CarControl->AutoPosUpdate(CurrentPosition); 
 		CarControl->AutoSpeedUpdate(CurrentSpeed);
@@ -121,6 +181,5 @@ void Fusion::GPSUpdate(VECTOR_2D GPSPosition, double GPSSpeed) {
 
 	FusionLog->WriteLogLine("P," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(CurrentPosition.x) + "," + boost::lexical_cast<std::string>(CurrentPosition.y), true);
 	FusionLog->WriteLogLine("V," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(CurrentVelocity.x) + "," + boost::lexical_cast<std::string>(CurrentVelocity.y), true);
-	
 
 }

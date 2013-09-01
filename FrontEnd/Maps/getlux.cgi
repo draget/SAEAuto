@@ -22,7 +22,7 @@ opendir(LUXDIR, "../../TestCode/Control/RunFiles/$Run/luxscan/");
 my @LuxFiles = readdir(LUXDIR);
 @LuxFiles = sort(@LuxFiles);
 closedir(LUXDIR);
-$LuxFileName = $LuxFiles[${@LuxFiles} - 1];
+$LuxFileName = $LuxFiles[${@LuxFiles} - 2];
 }
 
 
@@ -47,7 +47,7 @@ foreach my $LuxLine (@LuxLines) {
 	else { next; }
 	
 
-	push(@{$PlotInfo->{"data"}},[$LuxLineParts[2]*360/11520,$LuxLineParts[3]*1.0, $Colour]);
+	push(@{$PlotInfo->{"data"}},[$LuxLineParts[2]*360/11520,$LuxLineParts[3]/100.0, $Colour]);
 
 }
 

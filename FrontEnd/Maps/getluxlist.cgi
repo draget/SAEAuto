@@ -16,7 +16,7 @@ my $LuxFileNumber = 0;
 
 my $PlotInfo;
 
-opendir(LUXDIR, "../../TestCode/Control/RunFiles/$Run");
+opendir(LUXDIR, "../../TestCode/Control/RunFiles/$Run/luxscan/");
 foreach my $FileName (readdir(LUXDIR)) {
 
 	if($FileName !~ /\.lux$/i) { next; }
