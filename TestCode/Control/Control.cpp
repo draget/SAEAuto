@@ -168,7 +168,7 @@ void Control::Run() {
 
 		UpdateTerminal();
 		WriteInfoFile();
-		if(AutoOn || RecordActive) { DumpMap(); }
+		if(CurrentMap.Waypoints.size() > 0 || CurrentMap.DetectedFenceposts.size() > 0) { DumpMap(); }
 
 		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 

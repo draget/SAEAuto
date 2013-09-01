@@ -477,37 +477,62 @@
                 var decimals = prop['chart.scale.decimals'];
     
             } else {
+
+		var xmin = this.data[0][0][0];
+		var xmax = this.data[0][0][0];
+		var ymin = this.data[0][0][1];
+		var ymax = this.data[0][0][1];
+
     
                 var i = 0;
                 var j = 0;
     
-		//Modified to look for both x and y max.
+		//Modified to have 1-1 aspect ratio and handle negatives.
+
 
                 for (i=0; i<this.data.length; ++i) {
                     for (j=0; j<this.data[i].length; ++j) {
                         if (this.data[i][j][1] != null) {
-                            this.max = Math.max(this.max, typeof(this.data[i][j][1]) == 'object' ? RG.array_max(this.data[i][j][1]) : this.data[i][j][1], typeof(this.data[i][j][0]) == 'object' ? RG.array_max(this.data[i][j][0]) : this.data[i][j][0]);
+                            ymax = Math.max(ymax, typeof(this.data[i][j][1]) == 'object' ? RG.array_max(this.data[i][j][1]) : this.data[i][j][1]);
                         }
                     }
                 }
-    
-			//Modified: Check the ymin!
 
-		if(prop['chart.ymin']) { this.min = prop['chart.ymin']; }
-		else { 
 
-			var i = 0;
-                	var j = 0;
+              	for (i=0; i<this.data.length; ++i) {
+                  	for (j=0; j<this.data[i].length; ++j) {
+				if (this.data[i][j][1] != null) {
+					ymin = Math.min(ymin, typeof(this.data[i][j][1]) == 'object' ? RG.array_max(this.data[i][j][1]) : this.data[i][j][1]);
+                      	 	 }
+                    	}
+                }
 
-              		for (i=0; i<this.data.length; ++i) {
-                  		for (j=0; j<this.data[i].length; ++j) {
-					if (this.data[i][j][1] != null) {
-						this.min = Math.min(this.min, typeof(this.data[i][j][1]) == 'object' ? RG.array_max(this.data[i][j][1]) : this.data[i][j][1], typeof(this.data[i][j][0]) == 'object' ? RG.array_max(this.data[i][j][0]) : this.data[i][j][0]);
-                      	 		 }
-                    		}
-                	}
+		 
+                  for (var ds=0; ds<this.data.length; ++ds) {
+                        for (var point=0; point<this.data[ds].length; ++point) {
+                            xmin = Math.min(xmin, this.data[ds][point][0]);
+                        }
+                    }
 
-		}
+                  for (var ds=0; ds<this.data.length; ++ds) {
+                        for (var point=0; point<this.data[ds].length; ++point) {
+                            xmax = Math.max(xmax, this.data[ds][point][0]);
+                        }
+                    }
+
+		var xspan = xmax - xmin;
+		var yspan = ymax - ymin;
+
+		var scalespan = 0;
+		if(yspan > xspan) { scalespan = yspan; }
+		else { scalespan = xspan; }
+
+		this.min = ymin - Math.abs(scalespan)*0.1;
+		this.max = ymin + scalespan + Math.abs(scalespan)*0.1;
+
+		prop['chart.xmin'] = xmin - Math.abs(scalespan)*0.1;
+		prop['chart.xmax'] = xmin + scalespan + Math.abs(scalespan)*0.1;
+
 
 
                 this.scale2 = RG.getScale3(this, {
@@ -1188,32 +1213,10 @@
                 var point        = prop['chart.xscale.point'];
                 var thousand     = prop['chart.xscale.thousand'];
 
-		var xmin;
 
-		if(prop['chart.xmin']) { xmin = prop['chart.xmin']; }
-		else { 
 
-			xmin = this.min;
 
-		}
-
-		prop['chart.xmin'] = xmin;
-    
-                if (!prop['chart.xmax']) {
-                    
-                    var xmax = 0;
-                    
-                    
-                    for (var ds=0; ds<this.data.length; ++ds) {
-                        for (var point=0; point<this.data[ds].length; ++point) {
-                            xmax = Math.max(xmax, this.data[ds][point][0]);
-                        }
-                    }
-                } else {
-                    xmax = prop['chart.xmax'];
-                }
-
-                this.xscale2 = RG.getScale3(this, {'max':xmax, 'min' : xmin, 
+                this.xscale2 = RG.getScale3(this, {'max':prop['chart.xmax'], 'min' : prop['chart.xmin'], 
                                                        'scale.decimals': decimals,
                                                        'scale.point': point,
                                                        'scale.thousand': thousand,
@@ -1222,13 +1225,14 @@
                                                        'ylabels.count': numXLabels,
                                                        'strict': true
                                                       });
+
     
                 this.Set('chart.xmax', this.xscale2.max);
                 var interval = (ca.width - this.gutterLeft - this.gutterRight) / this.xscale2.labels.length;
     
                 for (var i=0; i<this.xscale2.labels.length; ++i) {
                 
-                    var num  = ( (prop['chart.xmax'] - prop['chart.xmin']) * ((i+1) / numXLabels)) + (xmin || 0);
+                    var num  = ( (prop['chart.xmax'] - prop['chart.xmin']) * ((i+1) / numXLabels)) + ( prop['chart.xmin'] || 0);
 
                     var x    = this.gutterLeft + ((i+1) * interval);
     
