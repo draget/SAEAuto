@@ -33,6 +33,8 @@ private:
 
 	void TrackAngleActions();
 	void InterpolateTrackAngle(double IMUHeading);
+	void PVActions();
+	void InterpolatePV();
 
 	Control* CarControl;
 
