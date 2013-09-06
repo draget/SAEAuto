@@ -425,6 +425,7 @@ void Control::LoadMap(std::string MapFilename) {
 				f++;
 				CurrentMap.Fenceposts.push_back(MapPoint);
 			}
+			else if(LineParts[0].compare(0,1,"I") == 0) { continue; }
 			else {
 				w++;
 				CurrentMap.Waypoints.push_back(MapPoint);
@@ -446,6 +447,7 @@ void Control::ClearMap() {
 
 	CurrentMap.Fenceposts.clear();
 	CurrentMap.Waypoints.clear();
+	CurrentMap.DetectedFenceposts.clear();
 
 }
 
@@ -459,6 +461,7 @@ void Control::DumpMap(std::string MapName) {
 
 	Logger* DumpLog = new Logger(MapName);
 
+	DumpLog->WriteLock();
 	DumpLog->ClearLog();
 
 	DumpLog->WriteLogLine("D," + boost::lexical_cast<std::string>(DatumLat) + "," + boost::lexical_cast<std::string>(DatumLong), true);
@@ -482,7 +485,7 @@ void Control::DumpMap(std::string MapName) {
 	}
 
 	DumpLog->CloseLog();
-	
+	DumpLog->ClearLock();	
 }
 
 void Control::AutoStart() {
