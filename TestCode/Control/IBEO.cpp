@@ -383,16 +383,18 @@ void IBEO::ProcessMessages() {
 	
 			for(int i = 0; i < object_data_header[curObjectDataSource].number_of_objects; i++) {
 			
-				Object.x = (double)object_data[curObjectDataSource][i].reference_point.x; 
-				Object.y = (double)object_data[curObjectDataSource][i].reference_point.y;
+				Object.x = (double)object_data[curObjectDataSource][i].reference_point.x/100.0; 
+				Object.y = (double)object_data[curObjectDataSource][i].reference_point.y/100.0;
+
+				if(CarControl->VectorMagnitude(Object) > 8) { continue; }
 			
-				TransformedObject.x = cos(-1*CarControl->Fuser->CurrentHeading) * Object.x - sin(-1*CarControl->Fuser->CurrentHeading) * Object.y + CarControl->Fuser->CurrentPosition.x;
-				TransformedObject.y = sin(-1*CarControl->Fuser->CurrentHeading) * Object.x + cos(-1*CarControl->Fuser->CurrentHeading) * Object.y + CarControl->Fuser->CurrentPosition.y;
+				TransformedObject.x = -cos(-1*CarControl->Fuser->CurrentHeading) * Object.y + sin(-1*CarControl->Fuser->CurrentHeading) * Object.x + CarControl->Fuser->CurrentPosition.x;
+				TransformedObject.y = sin(-1*CarControl->Fuser->CurrentHeading) * Object.y + cos(-1*CarControl->Fuser->CurrentHeading) * Object.x + CarControl->Fuser->CurrentPosition.y;
 
 				bool Found = false;
 
 				BOOST_FOREACH( VECTOR_2D MapPoint, CarControl->CurrentMap.DetectedFenceposts ) {
-					if(CarControl->VectorMagnitude(CarControl->SubtractVector(MapPoint,TransformedObject)) < 2) { Found = true; break; }
+					if(CarControl->VectorMagnitude(CarControl->SubtractVector(MapPoint,TransformedObject)) < 0.2) { Found = true; break; }
 				}
 
 				if(! Found) { CarControl->CurrentMap.DetectedFenceposts.push_back(TransformedObject); }

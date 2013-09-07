@@ -24,7 +24,7 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
         window.onload = function ()
         {
         	updateLuxPlot();
-		setTimeout(updateList,1000);
+		setTimeout(updateList,2000);
 		
         }
 
@@ -48,7 +48,7 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 
 		.Set('labels.axes', 'new')
 		.Set('labels.count', 3)
-		.Set('ymax', 8)
+		.Set('ymax', 20)
                 .Draw();
 
 	centerx = ((rscatter.canvas.width - rscatter.Get("chart.gutter.left") - rscatter.Get("chart.gutter.right")) / 2) + rscatter.Get("chart.gutter.left");
@@ -81,8 +81,8 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 
 					var parts = value.split(",");
 
-					var x = (centerx - parseInt(parts[2],10)*scale);
-					var y = (centery - parseInt(parts[1],10)*scale);
+					var x = (centerx - parseInt(parts[2],10)/100.0*scale);
+					var y = (centery - parseInt(parts[1],10)/100.0*scale);
 
 					var circle = new RGraph.Drawing.Circle('cvs',x,y, 5)
             				.Set('chart.strokestyle', 'black')

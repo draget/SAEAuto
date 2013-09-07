@@ -37,6 +37,9 @@ foreach my $LogLine (@LogLines) {
 
 }
 
+$i = 0;
+while(-e "../../TestCode/Control/ramdisk/runningmap.txt_LOCK") { if($i > 1000) { last; } usleep(1000); $i++; }
+
 open (MAPFILE, "../../TestCode/Control/ramdisk/runningmap.txt");
 my @MapLines = <MAPFILE>;
 close MAPFILE;
