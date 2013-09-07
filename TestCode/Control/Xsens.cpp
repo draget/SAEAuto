@@ -145,7 +145,7 @@ void Xsens::ProcessMessages() {
 	//zacc_comp = (long double) matrix_data.m_data[0][2]*xacc + matrix_data.m_data[1][2]*yacc + matrix_data.m_data[2][2]*zacc;
 
 	// IMU axes are the wrong way about
-	CurrentAccel.x = yacc_comp;
+	CurrentAccel.x = -yacc_comp;
 	CurrentAccel.y = xacc_comp;
 
 	Accelerations.erase(Accelerations.begin());
