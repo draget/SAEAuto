@@ -374,6 +374,11 @@
         }
 
 
+	this.GetScale = function ()
+        {
+            return ca.height/(this.max-this.min);
+        }
+
 
 
         /**
@@ -1407,8 +1412,7 @@
                 var yCoord = data_point[j][1];
                 var color  = data_point[j][2] ? data_point[j][2] : default_color;
                 var tooltip = (data_point[j] && data_point[j][3]) ? data_point[j][3] : null;
-    
-                
+                    
                 this.DrawMark(
                               i,
                               xCoord,
@@ -1523,7 +1527,8 @@
             co.beginPath();
             
             // Color
-            co.strokeStyle = color;
+            if(color == "clear") { tickmarks = null; }
+		else { co.strokeStyle = color; }
     
     
     
@@ -1682,7 +1687,7 @@
         */
         this.DrawLine = function (i)
         {
-            if (typeof(prop['chart.line.visible']) == 'boolean' && prop['chart.line.visible'] == false) {
+            if (i == 0) {
                 return;
             }
     

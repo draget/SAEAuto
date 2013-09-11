@@ -181,6 +181,8 @@ var redCross = {url: 'redcross.png'};
 var currentLocationMarker;
 var datumMarker;
 
+
+
 function initialize() {
 
 	var defaultPos = new google.maps.LatLng(-31.980569, 115.817807);
@@ -375,6 +377,9 @@ function removeFenceMarker(marker) {
 
 google.maps.event.addDomListener(window, 'load', initialize);
 
+
+var xyscale = 1;
+
 function updateLog() {
 
 	\$.ajax({
@@ -402,7 +407,7 @@ function updateLog() {
 				var position = new google.maps.LatLng(parseFloat(json.gps.lat) - offsetLat, parseFloat(json.gps.long) - offsetLong);
 				currentLocationMarker.setPosition(position);
 
-				drawXYGraph(json.mapdata);
+				drawXYGraph(json);
 
                             }
 		,error: function() { alert("AJAX Error!"); }
@@ -475,14 +480,23 @@ function drawXYGraph(json)
 
 		RGraph.Reset(document.getElementById('cvs'));
 
-            var scatter = new RGraph.Scatter('cvs', json)
+	var HeadingVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[2*Math.sin(2*Math.PI*parseFloat(json.params["Fused Heading"].content,10)/360.0),2*Math.cos(2*Math.PI*parseFloat(json.params["Fused Heading"].content,10)/360.0),"clear"]];
+	var DesiredHeadingVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[2*Math.sin(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),2*Math.cos(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),"clear"]];
+
+            var scatter = new RGraph.Scatter('cvs', json.mapdata, HeadingVector,DesiredHeadingVector)
 		.Set('scale.decimals', 1)
 		.Set('xscale.decimals', 1)
                 .Set('xscale', true)
 		.Set('chart.gutter.left', 60)
+		.Set('chart.line', true)
+		.Set('chart.line.linewidth', 1.5)
+		.Set('chart.line.colors', [null,"blue","red"])
                 .Draw();
 
+	xyscale = scatter.GetScale();
+
         }
+
 
 
     </script>

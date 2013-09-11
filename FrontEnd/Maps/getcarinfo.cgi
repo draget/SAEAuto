@@ -58,7 +58,7 @@ foreach my $MapLine (@MapLines) {
 		if($LineType < $PlotInfo->{"params"}->{"NextWaypoint"}->{"content"}) { $Colour = "yellowgreen"; }
 		else { $Colour = "green"; }
 	}
-	elsif($LineType eq 'F') { $Colour = 'red'; }
+	elsif($LineType eq 'F') { $Colour = 'orange'; }
 	elsif($LineType eq 'I') { $Colour = 'brown'; }
 
 	push(@{$PlotInfo->{"mapdata"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, $Colour]);
