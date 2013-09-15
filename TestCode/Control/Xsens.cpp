@@ -161,7 +161,9 @@ void Xsens::ProcessMessages() {
 	else if(matrix_data.m_data[1][1] > 0) { Yaw = 180 - 360*asinl(matrix_data.m_data[1][0])/2/M_PI; }
 	else { Yaw = 360 + 360*asinl(matrix_data.m_data[1][0])/2/M_PI; }
 
-	IMULog->WriteLogLine(boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Yaw) + "," + boost::lexical_cast<std::string>(xacc_comp) + "," + boost::lexical_cast<std::string>(yacc_comp), true);
+	if(CarControl->ExtLogging) {
+		IMULog->WriteLogLine(boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Yaw) + "," + boost::lexical_cast<std::string>(xacc_comp) + "," + boost::lexical_cast<std::string>(yacc_comp), true);
+	}
 
 //	if(reply->getOriEuler().m_yaw < 0) { Yaw = 360 + reply->getOriEuler().m_yaw ; }
 //	else { Yaw = reply->getOriEuler().m_yaw; }

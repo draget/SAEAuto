@@ -146,8 +146,12 @@ print <<END;
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <style type="text/css">
-      #map-canvas { height: 100% }
+      #map-canvas { height: 100%; }
     </style>
+
+  <link rel="stylesheet" type="text/css" href="waypoints.css"/>
+
+
     <script type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUx74Zh1SWTbx4wxEjyWCxjJg4MaA8FUI&amp;sensor=true">
     </script>	
@@ -157,11 +161,17 @@ print <<END;
     <script src="RGraph/libraries/RGraph.scatter_improved.js" ></script>
     <script src="RGraph/libraries/RGraph.common.dynamic.js" ></script>
     <script src="RGraph/libraries/RGraph.common.tooltips.js" ></script>
+	<script src="jquery.tools.min.js"></script>
     <script type="text/javascript">
+
+\$(function() {
+    // setup ul.tabs to work as tabs for each div directly under div.panes
+    \$("ul.tabs").tabs("div.panes > div");
+});
 
 window.onload = function ()
         {
-        	setTimeout(updateLog,1000);
+        	setTimeout(updateLog,1000);	
 		
         }
 
@@ -214,6 +224,7 @@ function initialize() {
 
 	if(document.getElementById("markerstext").value != "") { updateMarkersFromText(); }
 	else { setDatumLocation(defaultPos); }
+
 
 }
 
@@ -480,24 +491,30 @@ function drawXYGraph(json)
 
 		RGraph.Reset(document.getElementById('cvs'));
 
-	var HeadingVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[2*Math.sin(2*Math.PI*parseFloat(json.params["Fused Heading"].content,10)/360.0),2*Math.cos(2*Math.PI*parseFloat(json.params["Fused Heading"].content,10)/360.0),"clear"]];
-	var DesiredHeadingVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[2*Math.sin(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),2*Math.cos(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),"clear"]];
-
-            var scatter = new RGraph.Scatter('cvs', json.mapdata, HeadingVector,DesiredHeadingVector)
+	var HeadingVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[3*Math.sin(2*Math.PI*parseFloat(json.params["Fused Heading"].content,10)/360.0),3*Math.cos(2*Math.PI*parseFloat(json.params["Fused Heading"].content,10)/360.0),"clear"]];
+	var NextWPVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[json.nextwp.x,json.nextwp.y,"clear"]];
+	var DesiredHeadingVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[3*Math.sin(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),3*Math.cos(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),"clear"]];
+            
+	var scatter = new RGraph.Scatter('cvs', json.mapdata, HeadingVector,DesiredHeadingVector,NextWPVector)
 		.Set('scale.decimals', 1)
 		.Set('xscale.decimals', 1)
                 .Set('xscale', true)
 		.Set('chart.gutter.left', 60)
 		.Set('chart.line', true)
 		.Set('chart.line.linewidth', 1.5)
-		.Set('chart.line.colors', [null,"blue","red"])
+		.Set('chart.line.colors', [null,"blue","red","orange"])
                 .Draw();
 
 	xyscale = scatter.GetScale();
 
         }
 
+function resizeMap() {
 
+if(document.getElementById("map-canvas").style.display == "none") { setTimeout(resizeMap,50); }
+else { google.maps.event.trigger(map, 'resize'); }
+
+}
 
     </script>
   </head>
@@ -568,7 +585,26 @@ Save map as: <input type="text" size="20" name="mapname" value="$CurrentName" />
 
 </td>
 
-    <td height="500" width="65%" rowspan="2"><div id="map-canvas"></div></td></tr>
+    <td height="500" width="65%" rowspan="2">
+
+
+
+<ul class="tabs" style="display: inline-block; ">
+	<li><a href="#" onclick="resizeMap()">Google Maps Input</a></li>
+	<li><a href="#">Control Output</a></li>
+
+</ul>
+<span style="display: inline-block; float:left;" class="tabs"><a href="luxplot4.htm" target="_blank">IBEO Data</a></span>
+
+<!-- tab "panes" -->
+<div class="panes">
+	<div style="display: block; height : 600px; width : 700px;" id="map-canvas"></div>
+	<div><canvas id="cvs" width="600" height="600">[No canvas support]</canvas></div>
+</div>
+
+
+
+</td></tr>
 
 <tr><td>
 <div style="font-family: Arial; font-size: 16px">Car Commands: </div>
@@ -582,7 +618,7 @@ Save map as: <input type="text" size="20" name="mapname" value="$CurrentName" />
 Map Name: <input type="text" size="6" id="mapname" name="mapname" value="" />
 <input type="button" onclick="sendCommand('STOPREC,' + document.getElementById('mapname').value)" name="cont" value="Finish Recording" /> <br /><br />
 
-
+<input type="button" onclick="sendCommand('UNTRIP')" name="cont" value="Reset Trip" /> 
 <input type="button" onclick="sendCommand('TOGBIL')" name="cont" value="Toggle BrakeIL" /> 
 <input type="button" onclick="sendCommand('SETDATUM,' + (datumMarker.getPosition().lat() - offsetLat) + ',' + (datumMarker.getPosition().lng() - offsetLong))" name="cont" value="Set Datum" /> 
 <input style="background-color : red;" type="button" onclick="sendCommand('ESTOP')" name="estop" value="ESTOP Car" />
@@ -593,13 +629,13 @@ Map Name: <input type="text" size="6" id="mapname" name="mapname" value="" />
 
 
 
-<tr><td colspan="2"><textarea rows="20" cols="60" id="logarea"></textarea><div style="float: left; height: 20em; width: 25em; overflow: auto; border: 1px solid black" id="paramarea"></div></td></tr>
+<tr><td colspan="2"><textarea rows="20" cols="60" id="logarea"></textarea><div style="float: left; height: 20em; width: 25em; overflow: auto; border: 1px solid black" id="paramarea"></div>  	</td></tr>
 </table>
 
 </form>
 
 
-    <canvas id="cvs" width="600" height="600">[No canvas support]</canvas>
+    
 
 END
 

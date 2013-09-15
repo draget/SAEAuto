@@ -386,7 +386,8 @@ void IBEO::ProcessMessages() {
 				Object.x = (double)object_data[curObjectDataSource][i].reference_point.x/100.0; 
 				Object.y = (double)object_data[curObjectDataSource][i].reference_point.y/100.0;
 
-				if(CarControl->VectorMagnitude(Object) > 8) { continue; }
+				// Ignore objects that make up the road.
+				if(CarControl->VectorMagnitude(Object) > OBJECT_THRESHOLD) { continue; }
 			
 				TransformedObject.x = -cos(-1*CarControl->Fuser->CurrentHeading) * Object.y + sin(-1*CarControl->Fuser->CurrentHeading) * Object.x + CarControl->Fuser->CurrentPosition.x;
 				TransformedObject.y = sin(-1*CarControl->Fuser->CurrentHeading) * Object.y + cos(-1*CarControl->Fuser->CurrentHeading) * Object.x + CarControl->Fuser->CurrentPosition.y;
@@ -413,12 +414,17 @@ void IBEO::ProcessMessages() {
 
 void IBEO::WriteFiles(timeval current) {
 
+		if(CarControl->ExtLogging) {
+			rename("./ramdisk/current.lux", (CarControl->LogDir + "/lux/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".lux").c_str());
+			rename("./ramdisk/current.luxobj", (CarControl->LogDir + "/luxobj/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".luxobj").c_str());
+		}
+
 
 		ofstream outfile_scan;
 
-		std::string FileName = CarControl->LogDir + "/luxscan/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".lux";
+		std::string FileName = "./ramdisk/current.lux";
 
-		outfile_scan.open(FileName.c_str(), ios::out);
+		outfile_scan.open(FileName.c_str(), ios::trunc);
 
 		for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
 			outfile_scan << (int)scan_data_points[curScanDataSource][i].layer_echo << "," << (int)scan_data_points[curScanDataSource][i].flags << "," << scan_data_points[curScanDataSource][i].horiz_angle << "," << scan_data_points[curScanDataSource][i].radial_dist << "," << scan_data_points[curScanDataSource][i].echo_pulse_width << "," << scan_data_points[curScanDataSource][i].res << "\n";
@@ -428,15 +434,14 @@ void IBEO::WriteFiles(timeval current) {
 
 		ofstream outfile_obj;
 
-		FileName = CarControl->LogDir + "/luxobj/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".luxobj";
+		FileName = "./ramdisk/current.luxobj";
 
-		outfile_obj.open(FileName.c_str(), ios::out);
+		outfile_obj.open(FileName.c_str(), ios::trunc);
 
 		for(int i = 0; i < object_data_header[curObjectDataSource].number_of_objects; i++) {
 			outfile_obj << (int)object_data[curObjectDataSource][i].object_id << "," << (int)object_data[curObjectDataSource][i].reference_point.x << "," << object_data[curObjectDataSource][i].reference_point.y << "," << (int)object_data[curObjectDataSource][i].closest_point.x << "," << object_data[curObjectDataSource][i].closest_point.y << "," << object_data[curObjectDataSource][i].classification << "\n";
 		}
 		
 		outfile_obj.close();
-
 
 }

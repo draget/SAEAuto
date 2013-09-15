@@ -41,11 +41,12 @@ Control *SAECar;
  * Inputs : Name of directory logs are to be saved in.
  * Outputs: None.
  */
-Control::Control(std::string LogDir) {
+Control::Control(std::string LogDir, bool ExtLog) {
 
 	TwoPi = 4*acos(0);
 
 	this->LogDir = LogDir;
+	this->ExtLogging = ExtLog;
 
 	// Create directories for logging.
 	mode_t process_mask = umask(0);
@@ -170,7 +171,7 @@ void Control::Run() {
 		WriteInfoFile();
 		if(CurrentMap.Waypoints.size() > 0 || CurrentMap.DetectedFenceposts.size() > 0) { DumpMap(); }
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(250));
 
 	}
 
@@ -359,6 +360,20 @@ void Control::Trip(int TripState) {
 }
 
 /**
+ * Purpose: Sets the trip state back to zero and turns off the E-brake. Does not reset hardware supervisor.
+ * Inputs : None.
+ * Outputs: None.
+ */
+void Control::Untrip() {
+
+	TripState = 0;
+	CurrentThrottleBrakeSetPosn = 0;
+
+	Log->WriteLogLine("Control - trip state returned to zero.");
+
+}
+
+/**
  * Purpose: Toggle the safety mode (BrakeIL) from human driving to no driver and vice-versa...
  * Inputs : None.
  * Outputs: None.
@@ -441,6 +456,11 @@ void Control::LoadMap(std::string MapFilename) {
 
 }
 
+/**
+ * Purpose: Empties the loaded map.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::ClearMap() {
 
 	NextWaypoint = 0;
@@ -451,21 +471,35 @@ void Control::ClearMap() {
 
 }
 
+/**
+ * Purpose: Calls DumpMap with default path.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::DumpMap() {
 
 	DumpMap("./ramdisk/runningmap.txt");
 
 }
 
+
+/**
+ * Purpose: Saves current map to a wpy file.
+ * Inputs : Path to save map.
+ * Outputs: None.
+ */
 void Control::DumpMap(std::string MapName) {
 
+	// Create a new logger, set a lock and empty the file if it exists.
 	Logger* DumpLog = new Logger(MapName);
 
 	DumpLog->WriteLock();
 	DumpLog->ClearLog();
 
+	// Write Datum line.
 	DumpLog->WriteLogLine("D," + boost::lexical_cast<std::string>(DatumLat) + "," + boost::lexical_cast<std::string>(DatumLong), true);
 
+	// Dump the waypoints, fence posts and detected points.
 	int i = 0;
 	BOOST_FOREACH( VECTOR_2D MapPoint, CurrentMap.Waypoints ) {
    		DumpLog->WriteLogLine(boost::lexical_cast<std::string>(i) + "," + boost::lexical_cast<std::string>(MapPoint.x) + "," + boost::lexical_cast<std::string>(MapPoint.y), true);
@@ -488,6 +522,12 @@ void Control::DumpMap(std::string MapName) {
 	DumpLog->ClearLock();	
 }
 
+
+/**
+ * Purpose: Starts Autonomous driving.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::AutoStart() {
 
 	if(CurrentMap.Waypoints.size() == 0) { Log->WriteLogLine("Control - No map loaded, can't start auto."); return; }
@@ -499,6 +539,8 @@ void Control::AutoStart() {
 	AutoOn = true;
 	AutoRun = true;
 	AutoSpeedTarget = 0;
+
+	//Initialise the three PID controllers.
 
 	ThrottleController = new PID(10.0,1.0,0,0.1);
 	ThrottleController->setInputLimits(0.0, 30);
@@ -519,6 +561,12 @@ void Control::AutoStart() {
 	ThrottleController->setSetPoint(0);
 }
 
+
+/**
+ * Purpose: Check that the current position isn't dangerously close to a fencepost.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::CheckFenceposts(VECTOR_2D CurPosn) {
 
 	BOOST_FOREACH( VECTOR_2D Fencepost, CurrentMap.Fenceposts ) {
@@ -750,8 +798,12 @@ int main(int argc, char *argv[]) {
 
 	std::string LogDir;
 
+	bool ExtLogging = true;
+
 	if(argc > 1) {
-		LogDir = "./RunFiles/" + boost::lexical_cast<std::string>(argv[1]);
+		std::string Arg = boost::lexical_cast<std::string>(argv[1]);
+		if(Arg.compare(0,4,"null") == 0) { ExtLogging = false; }
+		else { LogDir = "./RunFiles/" + Arg; }
 	}
 	else { system("rm -rf ./RunFiles/0"); LogDir = "./RunFiles/0"; }
 
@@ -762,7 +814,7 @@ int main(int argc, char *argv[]) {
 	nodelay(stdscr, 1);
 	keypad(stdscr, 1);
 
-	SAECar = new Control(LogDir);
+	SAECar = new Control(LogDir,ExtLogging);
 
 	std::signal(SIGINT, HandleExit);
 

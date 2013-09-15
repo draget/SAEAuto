@@ -41,7 +41,7 @@ public:
 
 	double TwoPi;
 
-	Control(std::string LogDir);
+	Control(std::string LogDir, bool ExtLog);
     	Control(const Control& orig);
     	virtual ~Control();
 
@@ -49,6 +49,7 @@ public:
 	void Run();
 	void Quit();
 	void Trip(int TripState);
+	void Untrip();
 	void ToggleBrakeIL();
 	void SendAlarm();
 
@@ -92,6 +93,7 @@ public:
 	unsigned int NextWaypoint;
 
 	std::string LogDir;
+	bool ExtLogging;
 
 	int CurrentSteeringSetPosn;
 	int CurrentThrottleBrakeSetPosn;

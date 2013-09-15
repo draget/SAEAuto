@@ -168,7 +168,12 @@ void IPC::ProcessMessages() {
 				CarControl->LongOffset = boost::lexical_cast<double>(MessageParts[2]);
 			}
 			else { Log->WriteLogLine("IPC - Can't change offset during auto!!!!"); }
+		}	
+		else if(MessageParts[0].compare(0,6,"UNTRIP") == 0) {
+			Log->WriteLogLine("IPC - calling untrip");
+			CarControl->Untrip();
 		}
+
 
 	}
 

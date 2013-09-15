@@ -55,6 +55,7 @@ foreach my $MapLine (@MapLines) {
 
 	if($LineType eq 'D') { next; }
 	elsif($LineType =~ /^[0-9]+$/) { 
+		if($LineType == $PlotInfo->{"params"}->{"NextWaypoint"}->{"content"}) { $PlotInfo->{"nextwp"}->{"x"} = $LineContents[0]*1.0;  $PlotInfo->{"nextwp"}->{"y"} = $LineContents[1]*1.0; } 
 		if($LineType < $PlotInfo->{"params"}->{"NextWaypoint"}->{"content"}) { $Colour = "yellowgreen"; }
 		else { $Colour = "green"; }
 	}

@@ -21,6 +21,8 @@
 #define MAX_OBJECTS         20              // Maximum objects stored.
 #define MAX_CONTOUR_POINTS  100             // Maximum contour points per scan.
 
+#define OBJECT_THRESHOLD	15	// Distance outside which all points are considered road.
+
 class Control;
 class Logger;
 
