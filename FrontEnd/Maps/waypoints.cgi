@@ -495,7 +495,7 @@ function drawXYGraph(json)
 	var NextWPVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[json.nextwp.x,json.nextwp.y,"clear"]];
 	var DesiredHeadingVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[3*Math.sin(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),3*Math.cos(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),"clear"]];
             
-	var scatter = new RGraph.Scatter('cvs', json.mapdata, HeadingVector,DesiredHeadingVector,NextWPVector)
+	var scatter = new RGraph.Scatter2('cvs', json.mapdata, HeadingVector,DesiredHeadingVector,NextWPVector)
 		.Set('scale.decimals', 1)
 		.Set('xscale.decimals', 1)
                 .Set('xscale', true)

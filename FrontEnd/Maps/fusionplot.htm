@@ -1,0 +1,94 @@
+<!DOCTYPE html >
+<html>
+<head>
+
+    
+    <script src="RGraph/libraries/RGraph.common.core.js" ></script>
+    <script src="RGraph/libraries/RGraph.common.dynamic.js" ></script>
+    <script src="RGraph/libraries/RGraph.common.tooltips.js" ></script>
+    <script src="RGraph/libraries/RGraph.scatter_improved.js" ></script>
+
+
+    
+    <title>Fusion Plots</title>
+
+<script type="text/javascript" src="jquery-2.0.3.js">
+  	</script>
+
+ <script>
+
+        window.onload = function ()
+        {
+        	updatePlots();
+
+		
+        }
+
+	function updatePlots() {
+
+
+		RGraph.AJAX.getJSON("getfusion.cgi?run=" + document.getElementById("run").value, drawPlots);
+
+
+	}
+
+        function drawPlots(json)
+        {
+
+		RGraph.Reset(document.getElementById('poscvs'));
+
+		var posscatter = new RGraph.Scatter2('poscvs', json.posdata)
+		.Set('scale.decimals', 1)
+		.Set('xscale.decimals', 1)
+                .Set('xscale', true)
+		.Set('chart.gutter.left', 60)
+                .Draw();
+
+		var headingscatter = new RGraph.Scatter2('headingcvs', json.headingdata)
+		.Set('scale.decimals', 1)
+		.Set('xscale.decimals', 1)
+                .Set('xscale', true)
+		.Set('square', false)
+		.Set('chart.gutter.left', 60)
+                .Draw();
+
+		var velscatter = new RGraph.Scatter2('velcvs', json.veldata)
+		.Set('scale.decimals', 1)
+		.Set('xscale.decimals', 1)
+                .Set('xscale', true)
+		.Set('square', false)
+		.Set('chart.gutter.left', 60)
+                .Draw();
+
+		var speedscatter = new RGraph.Scatter2('speedcvs', json.speeddata)
+		.Set('scale.decimals', 1)
+		.Set('xscale.decimals', 1)
+                .Set('xscale', true)
+		.Set('square', false)
+		.Set('chart.gutter.left', 60)
+                .Draw();
+
+        }
+
+
+
+
+
+
+
+    </script>
+
+
+</head>
+<body>
+
+    <canvas id="poscvs" width="1000" height="500">[No canvas support]</canvas> <br />
+    <canvas id="headingcvs" width="1000" height="500">[No canvas support]</canvas> <br />
+    <canvas id="velcvs" width="1000" height="500">[No canvas support]</canvas> <br />
+    <canvas id="speedcvs" width="1000" height="500">[No canvas support]</canvas> <br /> 
+
+Run: <input type="text" id="run" value="0" />
+
+   
+</body>
+</html>

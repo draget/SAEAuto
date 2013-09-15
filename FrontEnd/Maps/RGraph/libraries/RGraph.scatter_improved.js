@@ -20,7 +20,7 @@
     * @param object canvas The cxanvas object
     * @param array  data   The chart data
     */
-    RGraph.Scatter = function (id, data)
+    RGraph.Scatter2 = function (id, data)
     {
         // Get the canvas and context objects
         this.id                = id;
@@ -206,7 +206,8 @@
             'chart.events.mousemove':       null,
             'chart.events.click':           null,
             'chart.highlight.stroke':       'rgba(0,0,0,0)',
-            'chart.highlight.fill':         'rgba(255,255,255,0.7)'
+            'chart.highlight.fill':         'rgba(255,255,255,0.7)',
+		'chart.square' : 		true	// Modified
         }
 
         // Handle multiple datasets being given as one argument
@@ -529,14 +530,33 @@
 		var yspan = ymax - ymin;
 
 		var scalespan = 0;
-		if(yspan > xspan) { scalespan = yspan; }
-		else { scalespan = xspan; }
+	
+		if(prop['chart.square']) {	
 
-		this.min = ymin - Math.abs(scalespan)*0.1;
-		this.max = ymin + scalespan + Math.abs(scalespan)*0.1;
+			if(yspan > xspan) { scalespan = yspan; }
+			else { scalespan = xspan; }
 
-		prop['chart.xmin'] = xmin - Math.abs(scalespan)*0.1;
-		prop['chart.xmax'] = xmin + scalespan + Math.abs(scalespan)*0.1;
+			this.min = ymin - Math.abs(scalespan)*0.1;
+			this.max = ymin + scalespan + Math.abs(scalespan)*0.1;
+
+			prop['chart.xmin'] = xmin - Math.abs(scalespan)*0.1;
+			prop['chart.xmax'] = xmin + scalespan + Math.abs(scalespan)*0.1;
+
+		}
+
+		else {
+
+			scalespan = yspan;
+
+			this.min = ymin - Math.abs(scalespan)*0.1;
+			this.max = ymin + scalespan + Math.abs(scalespan)*0.1;
+
+			prop['chart.xmin'] = xmin;
+			prop['chart.xmax'] = xmax;
+
+		}
+
+		
 
 
 
@@ -2344,7 +2364,7 @@
         /**
         * A helper class that helps facilitatesbubble charts
         */
-        RG.Scatter.Bubble = function (scatter, min, max, width, data)
+        RG.Scatter2.Bubble = function (scatter, min, max, width, data)
         {
             this.scatter = scatter;
             this.min     = min;

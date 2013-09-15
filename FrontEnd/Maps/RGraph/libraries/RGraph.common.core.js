@@ -410,7 +410,7 @@
         */
         } else if (max <= 1 && !strict) {
 
-            if (max > 0.5) {
+            if (max > 0.5 || 1) {  // This labelling method seems to work better, just use it! Modified.
 
                 max  = 1;
                 min  = min;
