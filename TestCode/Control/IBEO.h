@@ -136,6 +136,12 @@ struct ERROR_DATA {
     char res[8];
 };
 
+struct SCAN_XY_DATA {
+
+	std::vector<double> xvalues, yvalues;
+
+};
+
 class IBEO {
 public:
     int curScanDataSource;
@@ -157,6 +163,12 @@ public:
     void ReadMessages();
     IBEO_HEADER FindHeader();
     bool inUse;
+
+	double LHEdge;
+	double RHEdge;
+	double RoadSlope;
+	double RoadIntercept;
+
 private:
     IBEONetwork *connection;
 
@@ -166,7 +178,7 @@ private:
 
 	Logger* Log;
 
-
+	SCAN_XY_DATA CurrentXYScan;
 
     bool Read_Scan_Data();
     bool Read_Object_Data();
@@ -176,6 +188,7 @@ private:
 
     void ProcessMessages();
 	void WriteFiles(timeval current);
+	void FindRoad();
 	
 	timeval lastwrite;
 

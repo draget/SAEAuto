@@ -37,18 +37,29 @@
 
 		RGraph.Reset(document.getElementById('poscvs'));
 
-		var posscatter = new RGraph.Scatter2('poscvs', json.posdata)
+		var posscatter = new RGraph.Scatter2('poscvs', json.gpsposdata, json.posdata)
 		.Set('scale.decimals', 1)
 		.Set('xscale.decimals', 1)
                 .Set('xscale', true)
+		.Set('crosshairs', true)
+                .Set('crosshairs.snap', true)
+		.Set('chart.tickmarks','square')
+		.Set('chart.ticksize',2)
 		.Set('chart.gutter.left', 60)
                 .Draw();
+
+		posscatter.oncrosshairs = function (obj)
+            	{
+                	document.getElementById("point").value =  obj.canvas.__crosshairs_snap_point__;
+            	}
 
 		var headingscatter = new RGraph.Scatter2('headingcvs', json.headingdata)
 		.Set('scale.decimals', 1)
 		.Set('xscale.decimals', 1)
                 .Set('xscale', true)
 		.Set('square', false)
+		.Set('chart.tickmarks','square')
+		.Set('chart.ticksize',2)
 		.Set('chart.gutter.left', 60)
                 .Draw();
 
@@ -57,6 +68,8 @@
 		.Set('xscale.decimals', 1)
                 .Set('xscale', true)
 		.Set('square', false)
+		.Set('chart.tickmarks','square')
+		.Set('chart.ticksize',2)
 		.Set('chart.gutter.left', 60)
                 .Draw();
 
@@ -65,6 +78,8 @@
 		.Set('xscale.decimals', 1)
                 .Set('xscale', true)
 		.Set('square', false)
+		.Set('chart.tickmarks','square')
+		.Set('chart.ticksize',2)
 		.Set('chart.gutter.left', 60)
                 .Draw();
 
@@ -82,12 +97,25 @@
 </head>
 <body>
 
-    <canvas id="poscvs" width="1000" height="500">[No canvas support]</canvas> <br />
-    <canvas id="headingcvs" width="1000" height="500">[No canvas support]</canvas> <br />
-    <canvas id="velcvs" width="1000" height="500">[No canvas support]</canvas> <br />
-    <canvas id="speedcvs" width="1000" height="500">[No canvas support]</canvas> <br /> 
 
-Run: <input type="text" id="run" value="0" />
+
+<table border=1><tr><td><h2>Car Diagnostic Display</h2> Run: <input type="text" id="run" value="0" /></td></tr>
+
+	<tr><td><canvas id="poscvs" width="1000" height="750">[No canvas support]</canvas> <br />
+	Position XY: <font color="blue">Fused</font> <font color="green">Predicted</font> <font color="red">GPS</font>    Point:<input id="point" type="text" />
+	</td></tr>
+	<tr><td><canvas id="headingcvs" width="1000" height="500">[No canvas support]</canvas><br />
+	Heading vs. Time: <font color="blue">Fused</font> <font color="red">GPS</font> <font color="green">IMU</font>
+	</td></tr>
+	<tr><td><canvas id="velcvs" width="1000" height="500">[No canvas support]</canvas> <br />
+	Velocity vs. Time: <font color="blue">Fused X</font> <font color="green">GPS X</font> <font color="orange">Fused Y</font> <font color="red">GPS Y</font>
+	</td></tr>
+	<tr><td><canvas id="speedcvs" width="1000" height="500">[No canvas support]</canvas> <br />
+	Speed vs. Time: <font color="blue">Fused</font> <font color="red">GPS</font>
+
+	</td></tr>
+
+</table>
 
    
 </body>

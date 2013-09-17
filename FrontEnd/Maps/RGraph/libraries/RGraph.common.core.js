@@ -412,9 +412,10 @@
 
             if (max > 0.5 || 1) {  // This labelling method seems to work better, just use it! Modified.
 
-                max  = 1;
+                max  = max;
                 min  = min;
                 scale.min = min;
+		scale.max = max;
 
                 for (var i=0; i<numlabels; ++i) {
                     var label = ((((max - min) / numlabels) * (i + 1)) + min).toFixed(decimals);

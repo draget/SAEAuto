@@ -540,7 +540,7 @@
 			this.max = ymin + scalespan + Math.abs(scalespan)*0.1;
 
 			prop['chart.xmin'] = xmin - Math.abs(scalespan)*0.1;
-			prop['chart.xmax'] = xmin + scalespan + Math.abs(scalespan)*0.1;
+			prop['chart.xmax'] = xmin + scalespan*(ca.width-this.gutterLeft-this.gutterRight)/(ca.height-this.gutterTop-this.gutterBottom) + Math.abs(scalespan)*0.1;
 
 		}
 
@@ -555,8 +555,6 @@
 			prop['chart.xmax'] = xmax;
 
 		}
-
-		
 
 
 
@@ -574,6 +572,8 @@
 
                 this.max = this.scale2.max;
                 this.min = this.scale2.min;
+
+
             }
 
 
@@ -1620,7 +1620,9 @@
                     co.lineTo(x + halfTickSize, yCoord);
                     co.stroke();
                 
-                } else if (tickmarks == 'square') {
+                }
+
+		 else if (tickmarks == 'square') {
                     co.strokeStyle = color;
                     co.fillStyle = color;
                     co.fillRect(

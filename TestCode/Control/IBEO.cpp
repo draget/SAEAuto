@@ -23,6 +23,8 @@
 #include "Control.h"
 #include "Fusion.h"
 
+#include "linear.h"
+
 using namespace std;
 
 static char ibeo_magic_word[] = {(char)0xAF, (char)0xFE, (char)0xC0, (char)0xC2};   // The magic word to look for for beginning of message.
@@ -379,6 +381,21 @@ void IBEO::ProcessMessages() {
 		
 		if((current.tv_sec + ((double)current.tv_usec)/1000000) > (lastwrite.tv_sec + ((double)lastwrite.tv_usec)/1000000) + 0.2) { 
 
+			CurrentXYScan.xvalues.clear();
+			CurrentXYScan.yvalues.clear();
+
+			double angle;
+			double dist;
+
+			for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
+				angle = (scan_data_points[curScanDataSource][i].horiz_angle+2880)*CarControl->TwoPi/11520;
+				dist = scan_data_points[curScanDataSource][i].radial_dist/100.0;
+				CurrentXYScan.xvalues.push_back(cos(angle)*dist);
+				CurrentXYScan.yvalues.push_back(sin(angle)*dist);
+			}
+
+			FindRoad();
+
 			WriteFiles(current); 
 	
 			for(int i = 0; i < object_data_header[curObjectDataSource].number_of_objects; i++) {
@@ -401,7 +418,8 @@ void IBEO::ProcessMessages() {
 				if(! Found) { CarControl->CurrentMap.DetectedFenceposts.push_back(TransformedObject); }
 
 			}
-		
+
+
 
 
 		}
@@ -429,6 +447,8 @@ void IBEO::WriteFiles(timeval current) {
 		for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
 			outfile_scan << (int)scan_data_points[curScanDataSource][i].layer_echo << "," << (int)scan_data_points[curScanDataSource][i].flags << "," << scan_data_points[curScanDataSource][i].horiz_angle << "," << scan_data_points[curScanDataSource][i].radial_dist << "," << scan_data_points[curScanDataSource][i].echo_pulse_width << "," << scan_data_points[curScanDataSource][i].res << "\n";
 		}
+
+		outfile_scan << "R," << LHEdge << "," << RHEdge << "," << RoadSlope << "," << RoadIntercept;
 		
 		outfile_scan.close();
 
@@ -443,5 +463,152 @@ void IBEO::WriteFiles(timeval current) {
 		}
 		
 		outfile_obj.close();
+
+}
+
+
+void IBEO::FindRoad() {
+
+	int FoundStart = 0;
+	int InitialSearchDirn = 0;
+	double Max_r = 0.0;
+	double Peak_i = 0.0;
+	int LBoundaryPriorToRSearch = 0;
+
+	double Slope = 0;
+	double Intercept = 0;
+
+	std::vector<double>::iterator xfirst;
+	std::vector<double>::iterator xlast;
+	std::vector<double>::iterator yfirst;
+	std::vector<double>::iterator ylast;
+
+
+	int GroupSize = 8;
+
+	unsigned int i = CurrentXYScan.xvalues.size() / 2;
+	while(i > 0 && i < CurrentXYScan.xvalues.size()) {
+
+		if((! FoundStart) && InitialSearchDirn == 0) { // Initial search left
+
+			xfirst = CurrentXYScan.xvalues.begin() + i;
+			xlast = CurrentXYScan.xvalues.begin() + i-GroupSize;
+			yfirst = CurrentXYScan.yvalues.begin() + i;
+			ylast = CurrentXYScan.yvalues.begin() + i-GroupSize;
+
+			std::vector<double> groupx(xlast,xfirst);
+			std::vector<double> groupy(ylast,yfirst);
+
+			Maths::Regression::Linear fit(GroupSize,groupx.data(), groupy.data());
+
+			if(fabs(fit.getSlope()) < 0.5) {
+
+				// Points were found directly to the left so we need to increase the fit right
+				// otherwise we want to increase the fit left
+				if(i == (CurrentXYScan.xvalues.size() / 2)) { FoundStart = 1; LBoundaryPriorToRSearch = i; } 
+				else { FoundStart = 2; i = i - GroupSize - 1; }
+	
+			}
+			else { i--; InitialSearchDirn = 1; } // Interleave left and right searching
+
+		}
+		else if((! FoundStart) && InitialSearchDirn == 1) { // Initial search right
+
+			unsigned int j = CurrentXYScan.xvalues.size() - i; // j and i are symmetric about the centre
+
+			xfirst = CurrentXYScan.xvalues.begin() + j + GroupSize;
+			xlast = CurrentXYScan.xvalues.begin() + j;
+			yfirst = CurrentXYScan.yvalues.begin() + j + GroupSize;
+			ylast = CurrentXYScan.yvalues.begin() + j;
+
+			std::vector<double> groupx(xlast,xfirst);
+			std::vector<double> groupy(ylast,yfirst);
+
+			Maths::Regression::Linear fit(GroupSize,groupx.data(), groupy.data());
+
+			if(fabs(fit.getSlope()) < 0.5) {
+
+				// If the points lie directly to the right of the centre then we go straight to increasing the fit right
+				// Otherwise we do so starting in the right spot.
+				if(j == (CurrentXYScan.xvalues.size() / 2)) { FoundStart = 1; }
+				else { FoundStart = 1; i = j + GroupSize + 1; }
+	
+				LBoundaryPriorToRSearch = j; // Save this so that we can go back and increase the fit left later.
+
+			}
+			else { InitialSearchDirn = 0; } // Go back to looking left
+
+		}
+		else if(FoundStart == 1) { // Increase fit right
+
+			xfirst = CurrentXYScan.xvalues.begin() + i;
+			yfirst = CurrentXYScan.yvalues.begin() + i;
+
+			std::vector<double> groupx(xlast,xfirst);
+			std::vector<double> groupy(ylast,yfirst);
+
+			Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
+
+			double r = pow(fit.getCoefficient(),2);
+
+
+			if(r > Max_r) { Max_r = r; Peak_i = i; };
+
+			i++;
+
+			if(i == CurrentXYScan.xvalues.size()) { // We've reached the RHS edge
+				i = LBoundaryPriorToRSearch; // Restore i
+				if(Max_r > 0.4) { 	// We found something, set the LHS bracket.
+					xfirst = CurrentXYScan.xvalues.begin() + Peak_i;
+					yfirst = CurrentXYScan.yvalues.begin() + Peak_i;
+				}
+				else {			// We didn't...
+					xfirst = CurrentXYScan.xvalues.begin() + i;
+					yfirst = CurrentXYScan.yvalues.begin() + i;
+				}
+				FoundStart = 2;		// Increase fit left next
+				Max_r = 0; Peak_i = 0;
+			}
+
+		}
+		else if(FoundStart == 2) { // Increase fit left
+
+			xlast = CurrentXYScan.xvalues.begin() + i;
+			ylast = CurrentXYScan.yvalues.begin() + i;	
+
+			std::vector<double> groupx(xlast,xfirst);
+			std::vector<double> groupy(ylast,yfirst);
+
+			Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
+
+			double r = pow(fit.getCoefficient(),2);
+
+			if(r > Max_r) { 
+				Max_r = r; 
+				Peak_i = i; 			
+				Slope = fit.getSlope();
+				Intercept = fit.getIntercept(); 
+			}
+
+			i--; // Decrement (until we hit the LHS edge and break the while loop)
+
+		}
+		
+
+	}
+
+	if(Max_r > 0.4) {  
+		LHEdge =  *(xlast + Peak_i-1); 
+		RHEdge = *(xfirst-1); 
+		RoadSlope = Slope; 
+		RoadIntercept = Intercept; 
+	}
+	else {
+		LHEdge =  0; 
+		RHEdge = 0; 
+		RoadSlope = 0; 
+		RoadIntercept = 0; 
+	}
+
 
 }

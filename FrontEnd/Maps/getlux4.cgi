@@ -11,6 +11,10 @@ my $Run = "0";
 
 if(param('run')) { $Run = param('run'); }
 
+my $Layers = "All";
+
+if(param('layer') ne '') { $Layers = param('layer'); }
+
 my $LuxFileNumber = 0;
 
 my @LuxFileName;
@@ -31,16 +35,15 @@ foreach my $LuxLine (@LuxLines) {
 	
 	my @LuxLineParts = split(/,/,$LuxLine);
 
-	my $Colour;
-
-	if($LuxLineParts[0] == 0) { $Colour = 'red'; }
-	elsif($LuxLineParts[0] == 1) { $Colour = 'orange'; }
-	elsif($LuxLineParts[0] == 2) { $Colour = 'yellow'; }
-	elsif($LuxLineParts[0] == 3) { $Colour = 'green'; }
+	if($LuxLineParts[0] eq "R") { 
+		push(@{$PlotInfo->{"roadedge"}},[$LuxLineParts[1],$LuxLineParts[1]*$LuxLineParts[3] + $LuxLineParts[4], 'brown']); 
+		push(@{$PlotInfo->{"roadedge"}},[$LuxLineParts[2],$LuxLineParts[2]*$LuxLineParts[3] + $LuxLineParts[4], 'brown']); 	
+	}	
+	elsif($LuxLineParts[0] == 0 && ($Layers eq '0' || $Layers eq 'All')) { 	push(@{$PlotInfo->{"data"}},[$LuxLineParts[2]*360/11520,$LuxLineParts[3]/100.0, 'red']); }
+	elsif($LuxLineParts[0] == 1 && ($Layers eq '1' || $Layers eq 'All')) { 	push(@{$PlotInfo->{"data"}},[$LuxLineParts[2]*360/11520,$LuxLineParts[3]/100.0, 'orange']); }
+	elsif($LuxLineParts[0] == 2 && ($Layers eq '2' || $Layers eq 'All')) { 	push(@{$PlotInfo->{"data"}},[$LuxLineParts[2]*360/11520,$LuxLineParts[3]/100.0, 'yellow']); }
+	elsif($LuxLineParts[0] == 3 && ($Layers eq '3' || $Layers eq 'All')) { 	push(@{$PlotInfo->{"data"}},[$LuxLineParts[2]*360/11520,$LuxLineParts[3]/100.0, 'green']); }
 	else { next; }
-	
-
-	push(@{$PlotInfo->{"data"}},[$LuxLineParts[2]*360/11520,$LuxLineParts[3]/100.0, $Colour]);
 
 }
 
@@ -56,6 +59,8 @@ close LUXFILE;
 
 foreach my $LogLine (@LogLines) {
 	
+	$LogLine =~ s/\n//;
+
 	#my ($LineType, $LineContents) = split(/|/,$LogLine);
 	push(@{$PlotInfo->{"objdata"}}, $LogLine);
 

@@ -8,6 +8,7 @@
     <script src="RGraph/libraries/RGraph.common.tooltips.js" ></script>
     <script src="RGraph/libraries/RGraph.rscatter_half.js" ></script>
 	<script src="RGraph/libraries/RGraph.drawing.circle.js" ></script>
+	<script src="RGraph/libraries/RGraph.drawing.poly.js" ></script>
     
     <title>Live IBEO</title>
 
@@ -34,7 +35,7 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 
 		if(document.getElementById("plotnos").selectedIndex >= 0) { arg = document.getElementById("plotnos").options[document.getElementById("plotnos").selectedIndex].innerHTML; }
 
-		RGraph.AJAX.getJSON("getlux4.cgi?no=" + arg + "&run=" + document.getElementById("run").value, drawLuxGraph);
+		RGraph.AJAX.getJSON("getlux4.cgi?no=" + arg + "&run=" + document.getElementById("run").value + "&layer=" + document.getElementById("layers").options[document.getElementById("layers").selectedIndex].text, drawLuxGraph);
 
 		setTimeout(updateLuxPlot,500);
 
@@ -55,7 +56,7 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 		centery = (rscatter.canvas.height - rscatter.Get("chart.gutter.top") - rscatter.Get("chart.gutter.bottom")) + rscatter.Get("chart.gutter.top");
 		scale = rscatter.GetScale();
 
-		document.getElementById("logarea").innerHTML = json.objdata;
+		document.getElementById("logarea").innerHTML = json.objdata.join("\n");
 
 		$.each(json.objdata,function(index, value){ 
 
@@ -73,8 +74,18 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
  		});
 
 
-        }
+		var x_l = (centerx - parseInt(json.roadedge[0][0],10)*scale);
+		var y_l = (centery - parseInt(json.roadedge[0][1],10)*scale);
 
+		var x_r = (centerx - parseInt(json.roadedge[1][0],10)*scale);
+		var y_r = (centery - parseInt(json.roadedge[1][1],10)*scale);
+
+		var poly = new RGraph.Drawing.Poly('cvs', [[x_l,y_l],[x_r,y_r]])
+		.Set("strokestyle","brown")
+            	.Draw();
+
+
+        }
 
 
 
@@ -110,15 +121,17 @@ function updateList() {
 
 </head>
 <body>
-
-    <canvas id="cvs" width="1000" height="500">[No canvas support]</canvas> <br />
+<h2>LIDAR Display</h2>
+    <canvas style="background-color : grey;" id="cvs" width="1000" height="500">[No canvas support]</canvas> <br />
     
-<b> Layers: <font color="red">1 (bottom)</font> <font color="orange">2</font> <font color="yellow">3</font> <font color="green">4 (top)</font></b>
+
 
 <table>
+<tr><td>Layers:</td><td style="background-color : grey"> <b> <font color="red">0 (bottom)</font> <font color="orange">1</font> <font color="yellow">2</font> <font color="green">3 (top)</font> <font color="brown">Road</font></b></td></tr>
 <tr><td>Scale Max:</td><td><input type="text" value="20" id="scale" size="4" /></td></tr>
 <tr><td>Run ID:</td><td><input type="text" value="0" id="run" size="15" /></td></tr>
-<tr><td>Specific Plot:</td><td>Object Data</td></tr>
+<tr><td>Layers:</td><td><select id="layers"><option>All</option><option>0</option><option>1</option><option>2</option><option>3</option></td></tr>
+<tr><td>Specific Plot:</td><td>Object Data: (id, ref x, ref y, closest x, closest y)</td></tr>
 <tr><td>
 <select size="15" id="plotnos"></select>
 </td>
