@@ -445,7 +445,12 @@ void IBEO::WriteFiles(timeval current) {
 		outfile_scan.open(FileName.c_str(), ios::trunc);
 
 		for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
-			outfile_scan << (int)scan_data_points[curScanDataSource][i].layer_echo << "," << (int)scan_data_points[curScanDataSource][i].flags << "," << scan_data_points[curScanDataSource][i].horiz_angle << "," << scan_data_points[curScanDataSource][i].radial_dist << "," << scan_data_points[curScanDataSource][i].echo_pulse_width << "," << scan_data_points[curScanDataSource][i].res << "\n";
+			outfile_scan << (int)scan_data_points[curScanDataSource][i].layer_echo << "," 
+				<< (int)scan_data_points[curScanDataSource][i].flags << "," 
+				<< scan_data_points[curScanDataSource][i].horiz_angle << "," 
+				<< scan_data_points[curScanDataSource][i].radial_dist << "," 
+				<< scan_data_points[curScanDataSource][i].echo_pulse_width << "," 
+				<< scan_data_points[curScanDataSource][i].res << "\n";
 		}
 
 		outfile_scan << "R," << LHEdge << "," << RHEdge << "," << RoadSlope << "," << RoadIntercept;
@@ -459,7 +464,17 @@ void IBEO::WriteFiles(timeval current) {
 		outfile_obj.open(FileName.c_str(), ios::trunc);
 
 		for(int i = 0; i < object_data_header[curObjectDataSource].number_of_objects; i++) {
-			outfile_obj << (int)object_data[curObjectDataSource][i].object_id << "," << (int)object_data[curObjectDataSource][i].reference_point.x << "," << object_data[curObjectDataSource][i].reference_point.y << "," << (int)object_data[curObjectDataSource][i].closest_point.x << "," << object_data[curObjectDataSource][i].closest_point.y << "," << object_data[curObjectDataSource][i].classification << "\n";
+			outfile_obj << (int)object_data[curObjectDataSource][i].object_id << "," 
+				<< (int)object_data[curObjectDataSource][i].reference_point.x << "," 
+				<< object_data[curObjectDataSource][i].reference_point.y << "," 
+				<< (int)object_data[curObjectDataSource][i].closest_point.x << "," 
+				<< object_data[curObjectDataSource][i].closest_point.y << "," 
+				<< object_data[curObjectDataSource][i].classification << "," 
+				<< object_data[curObjectDataSource][i].bounding_box_center.x << "," 
+				<< object_data[curObjectDataSource][i].bounding_box_center.y << "," 
+				<< object_data[curObjectDataSource][i].bounding_box_width << "," 
+				<< object_data[curObjectDataSource][i].bounding_box_height << ","
+				<< object_data[curObjectDataSource][i].object_age << "\n";
 		}
 		
 		outfile_obj.close();

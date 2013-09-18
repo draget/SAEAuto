@@ -62,14 +62,43 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 
 			var parts = value.split(",");
 
+			// Plot axes are opposite of IBEO axes.
+
 			var x = (centerx - parseInt(parts[2],10)/100.0*scale);
 			var y = (centery - parseInt(parts[1],10)/100.0*scale);
+
+			var boundingbox = new Array(4);
+			boundingbox[0] = new Array(2);
+			boundingbox[1] = new Array(2);
+			boundingbox[2] = new Array(2);
+			boundingbox[3] = new Array(2);
+
+			boxwidth = parseInt(parts[8],10)/100.0;
+			boxheight = parseInt(parts[9],10)/100.0;
+			
+			box_center_x = parseInt(parts[7],10)/100.0;
+			box_center_y = parseInt(parts[6],10)/100.0;
+
+			boundingbox[0][0] = (centerx - (box_center_x - boxwidth/2)*scale);
+			boundingbox[0][1] = (centery - (box_center_y - boxheight/2)*scale);
+			boundingbox[1][0] = (centerx - (box_center_x - boxwidth/2)*scale);
+			boundingbox[1][1] = (centery - (box_center_y + boxheight/2)*scale);
+			boundingbox[2][0] = (centerx - (box_center_x + boxwidth/2)*scale);
+			boundingbox[2][1] = (centery - (box_center_y - boxheight/2)*scale);
+			boundingbox[3][0] = (centerx - (box_center_x + boxwidth/2)*scale);
+			boundingbox[3][1] = (centery - (box_center_y + boxheight/2)*scale);
 
 			var circle = new RGraph.Drawing.Circle('cvs',x,y, 5)
             				.Set('chart.strokestyle', 'black')
            				.Set('chart.fillstyle', 'rgba(255,0,0,0.7)')
             				.Set('chart.tooltips', ["ID: " + parts[0] + "<br /> Type: " + objtypes[parseInt(parts[5],10)]])
             				.Draw();
+
+			var poly = new RGraph.Drawing.Poly('cvs', [[boundingbox[0][0],boundingbox[0][1]],[boundingbox[2][0],boundingbox[2][1]],[boundingbox[3][0],boundingbox[3][1]],[boundingbox[1][0],boundingbox[1][1]]])
+			.Set("strokestyle","black")
+			.Set("fillstyle","rgba(255,0,0,0.1)")
+			.Set("linewidth",1)
+            		.Draw();
 					
  		});
 
@@ -131,7 +160,7 @@ function updateList() {
 <tr><td>Scale Max:</td><td><input type="text" value="20" id="scale" size="4" /></td></tr>
 <tr><td>Run ID:</td><td><input type="text" value="0" id="run" size="15" /></td></tr>
 <tr><td>Layers:</td><td><select id="layers"><option>All</option><option>0</option><option>1</option><option>2</option><option>3</option></td></tr>
-<tr><td>Specific Plot:</td><td>Object Data: (id, ref x, ref y, closest x, closest y)</td></tr>
+<tr><td>Specific Plot:</td><td>Object Data: (id, ref x, ref y, closest x, closest y, class,box centre x, box center y, box width, box height, object act)</td></tr>
 <tr><td>
 <select size="15" id="plotnos"></select>
 </td>
