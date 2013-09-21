@@ -19,7 +19,9 @@ double TwoPi = 4*acos(0);
 
 int main() {
 
-	std::ifstream infile("./409.lux");
+	std::ifstream infile("./lookingthroughpolestograss/1379664747.3909931.lux");
+	//std::ifstream infile("./lookingwestalongroadintermittent/1379665721.2561829.lux");
+
 
 	std::vector<double> xvalues, yvalues;
 
@@ -62,7 +64,9 @@ int main() {
 	int FoundStart = 0;
 	int InitialSearchDirn = 0;
 	double Max_r = 0.0;
+	double SecondMax_r = 0.0;
 	double Peak_i = 0.0;
+	double SecondPeak_i = 0.0;
 	int LBoundaryPriorToRSearch = 0;
 
 	double Slope = 0;
@@ -89,6 +93,8 @@ int main() {
 			std::vector<double> groupx(xlast,xfirst);
 			std::vector<double> groupy(ylast,yfirst);
 
+
+
 			Maths::Regression::Linear fit(GroupSize,groupx.data(), groupy.data());
 
 			if(fabs(fit.getSlope()) < 0.5) {
@@ -114,6 +120,8 @@ int main() {
 			std::vector<double> groupx(xlast,xfirst);
 			std::vector<double> groupy(ylast,yfirst);
 
+
+
 			Maths::Regression::Linear fit(GroupSize,groupx.data(), groupy.data());
 
 			if(fabs(fit.getSlope()) < 0.5) {
@@ -137,28 +145,40 @@ int main() {
 			std::vector<double> groupx(xlast,xfirst);
 			std::vector<double> groupy(ylast,yfirst);
 
+
+
 			Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
 
 			double r = pow(fit.getCoefficient(),2);
 
 
-			if(r > Max_r) { Max_r = r; Peak_i = i; };
+
+
+			if(r > Max_r) { Max_r = r; Peak_i = i; }
+			//else if(r > SecondMax_r && (i - Peak_i) > GroupSize*2) { SecondMax_r = r; SecondPeak_i = i; }
+			
+
 
 			i++;
 
+
 			if(i == xvalues.size()) { // We've reached the RHS edge
 				i = LBoundaryPriorToRSearch; // Restore i
-				if(Max_r > 0.4) { 	// We found something, set the LHS bracket.
+				if(Max_r > 0.3 && 0) { 	// We found something, set the LHS bracket.
+					//if(SecondMax_r > 0.4) { Peak_i = SecondPeak_i; }
 					xfirst = xvalues.begin() + Peak_i;
 					yfirst = yvalues.begin() + Peak_i;
 				}
 				else {			// We didn't...
 					xfirst = xvalues.begin() + i;
 					yfirst = yvalues.begin() + i;
+					i = i - GroupSize;
 				}
 				FoundStart = 2;		// Increase fit left next
 				Max_r = 0; Peak_i = 0;
 			}
+
+			
 
 		}
 		else if(FoundStart == 2) { // Increase fit left
@@ -169,16 +189,14 @@ int main() {
 			std::vector<double> groupx(xlast,xfirst);
 			std::vector<double> groupy(ylast,yfirst);
 
+
+
 			Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
 
 			double r = pow(fit.getCoefficient(),2);
-
-			if(r > Max_r) { 
-				Max_r = r; 
-				Peak_i = i; 			
-				Slope = fit.getSlope();
-				Intercept = fit.getIntercept(); 
-			}
+						std::cout << i << "," << xvalues[i] << "," << r << "\n";
+			if(r > Max_r) { Max_r = r; Peak_i = i; Slope = fit.getSlope(); Intercept = fit.getIntercept();  }
+			//else if(r > SecondMax_r) { SecondMax_r = r; SecondPeak_i = i; }
 
 			i--; // Decrement (until we hit the LHS edge and break the while loop)
 
@@ -187,7 +205,7 @@ int main() {
 
 	}
 
-	if(Max_r > 0.4) { std::cout << "Edges are: " << *(xlast + Peak_i-1) << " " << *(xfirst-1) << " Slope: " << Slope << " Intercept: " << Intercept << '\n'; }
+	if(Max_r > 0.3) { std::cout << "Edges are: " << *(xlast + Peak_i-1) << " " << *(xfirst) << " Slope: " << Slope << " Intercept: " << Intercept << '\n'; }
 
 
 	return 0;

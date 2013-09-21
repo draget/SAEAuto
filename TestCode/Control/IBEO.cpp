@@ -1,9 +1,10 @@
 /* 
  * File:   IBEO.cpp
- * Author: Timothy Black (20373081), modifications Thomas Drage (20510505)
+ * Author: Timothy Black (20373081), modifications Thomas Drage (20510505).
  * 
  * Created on 18 April 2012, 7:34 PM
  * Modified 3 March 2013, 23 July 2013 (T.Drage).
+ * Road finding and object projection T. Drage Sep 2013.
  */
 
 
@@ -353,6 +354,14 @@ bool IBEO::Read_Size2D(SIZE_2D *sizeIn) {
     return true;
 }
 
+
+/*
+*	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+*	All code after this point was written by T. Drage, Sep 2013.
+*	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+*/
+
+
 void IBEO::Start() {
 
 	if(inUse) {	
@@ -388,6 +397,7 @@ void IBEO::ProcessMessages() {
 			double dist;
 
 			for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
+				if(scan_data_points[curScanDataSource][i].layer_echo != 0) { continue; }
 				angle = (scan_data_points[curScanDataSource][i].horiz_angle+2880)*CarControl->TwoPi/11520;
 				dist = scan_data_points[curScanDataSource][i].radial_dist/100.0;
 				CurrentXYScan.xvalues.push_back(cos(angle)*dist);
@@ -433,8 +443,8 @@ void IBEO::ProcessMessages() {
 void IBEO::WriteFiles(timeval current) {
 
 		if(CarControl->ExtLogging) {
-			rename("./ramdisk/current.lux", (CarControl->LogDir + "/lux/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".lux").c_str());
-			rename("./ramdisk/current.luxobj", (CarControl->LogDir + "/luxobj/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".luxobj").c_str());
+		  	system(("cp ./ramdisk/current.lux " + CarControl->LogDir + "/luxscan/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".lux").c_str());
+			system(("cp ./ramdisk/current.luxobj " + CarControl->LogDir + "/luxobj/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".luxobj").c_str());		
 		}
 
 
@@ -473,7 +483,7 @@ void IBEO::WriteFiles(timeval current) {
 				<< object_data[curObjectDataSource][i].bounding_box_center.x << "," 
 				<< object_data[curObjectDataSource][i].bounding_box_center.y << "," 
 				<< object_data[curObjectDataSource][i].bounding_box_width << "," 
-				<< object_data[curObjectDataSource][i].bounding_box_height << ","
+				<< object_data[curObjectDataSource][i].bounding_box_length << ","
 				<< object_data[curObjectDataSource][i].object_age << "\n";
 		}
 		
@@ -484,24 +494,30 @@ void IBEO::WriteFiles(timeval current) {
 
 void IBEO::FindRoad() {
 
-	int FoundStart = 0;
-	int InitialSearchDirn = 0;
-	double Max_r = 0.0;
-	double Peak_i = 0.0;
-	int LBoundaryPriorToRSearch = 0;
+	int FoundStart = 0;			// State variable.
+	int InitialSearchDirn = 0;		// Used to tell which direction the loop is currently searching.
+	double Max_r = 0.0;			// Stores peak correlation value during fitting.
+	double Peak_i = 0.0;			// Stores i of above.
+	int LBoundaryPriorToRSearch = 0;	// Stores L bracket after initial search.
 
-	double Slope = 0;
-	double Intercept = 0;
-
+	// Iterators used for bracketing the section being examined.
 	std::vector<double>::iterator xfirst;
 	std::vector<double>::iterator xlast;
 	std::vector<double>::iterator yfirst;
 	std::vector<double>::iterator ylast;
 
+	std::vector<double>::iterator RHS_i = CurrentXYScan.xvalues.begin();	// Stores RH bracket after finding R.
+	std::vector<double>::iterator LHS_i = CurrentXYScan.xvalues.begin(); 	// Stores final LH bracket after finding L.
 
-	int GroupSize = 8;
+	// Number of points included in intial search and minimum for a fit.
+	int GroupSize = 12;
+	double RequiredSlope = 0.5;
+	double RThreshold = 0.15;
 
+	// Index that is iterated over.
 	unsigned int i = CurrentXYScan.xvalues.size() / 2;
+
+
 	while(i > 0 && i < CurrentXYScan.xvalues.size()) {
 
 		if((! FoundStart) && InitialSearchDirn == 0) { // Initial search left
@@ -514,14 +530,24 @@ void IBEO::FindRoad() {
 			std::vector<double> groupx(xlast,xfirst);
 			std::vector<double> groupy(ylast,yfirst);
 
+
+
 			Maths::Regression::Linear fit(GroupSize,groupx.data(), groupy.data());
 
-			if(fabs(fit.getSlope()) < 0.5) {
+			if(fabs(fit.getSlope()) < RequiredSlope) {
 
 				// Points were found directly to the left so we need to increase the fit right
 				// otherwise we want to increase the fit left
-				if(i == (CurrentXYScan.xvalues.size() / 2)) { FoundStart = 1; LBoundaryPriorToRSearch = i; } 
-				else { FoundStart = 2; i = i - GroupSize - 1; }
+				if(i == (CurrentXYScan.xvalues.size() / 2)) { 
+					FoundStart = 1; 
+					LBoundaryPriorToRSearch = i; 
+					i = i + GroupSize + 1; 
+				} 
+				else { 
+					FoundStart = 2; 
+					RHS_i = CurrentXYScan.xvalues.begin() + i; 
+					i = i - GroupSize - 1; 
+				}
 	
 			}
 			else { i--; InitialSearchDirn = 1; } // Interleave left and right searching
@@ -529,7 +555,7 @@ void IBEO::FindRoad() {
 		}
 		else if((! FoundStart) && InitialSearchDirn == 1) { // Initial search right
 
-			unsigned int j = CurrentXYScan.xvalues.size() - i; // j and i are symmetric about the centre
+			int j = CurrentXYScan.xvalues.size() - i; // j and i are symmetric about the centre
 
 			xfirst = CurrentXYScan.xvalues.begin() + j + GroupSize;
 			xlast = CurrentXYScan.xvalues.begin() + j;
@@ -539,9 +565,10 @@ void IBEO::FindRoad() {
 			std::vector<double> groupx(xlast,xfirst);
 			std::vector<double> groupy(ylast,yfirst);
 
+
 			Maths::Regression::Linear fit(GroupSize,groupx.data(), groupy.data());
 
-			if(fabs(fit.getSlope()) < 0.5) {
+			if(fabs(fit.getSlope()) < RequiredSlope) {
 
 				// If the points lie directly to the right of the centre then we go straight to increasing the fit right
 				// Otherwise we do so starting in the right spot.
@@ -562,28 +589,32 @@ void IBEO::FindRoad() {
 			std::vector<double> groupx(xlast,xfirst);
 			std::vector<double> groupy(ylast,yfirst);
 
+
 			Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
 
 			double r = pow(fit.getCoefficient(),2);
 
-
-			if(r > Max_r) { Max_r = r; Peak_i = i; };
+			// Check if we have a max - must also have a reasonable slope.
+			if(r > Max_r && fabs(fit.getSlope()) < RequiredSlope) { Max_r = r; Peak_i = i; }
 
 			i++;
 
 			if(i == CurrentXYScan.xvalues.size()) { // We've reached the RHS edge
 				i = LBoundaryPriorToRSearch; // Restore i
-				if(Max_r > 0.4) { 	// We found something, set the LHS bracket.
-					xfirst = CurrentXYScan.xvalues.begin() + Peak_i;
-					yfirst = CurrentXYScan.yvalues.begin() + Peak_i;
+				if(Max_r > RThreshold) { 	// We found something, set the RHS bracket.
+					RHS_i = CurrentXYScan.xvalues.begin() + Peak_i;
 				}
 				else {			// We didn't...
-					xfirst = CurrentXYScan.xvalues.begin() + i;
-					yfirst = CurrentXYScan.yvalues.begin() + i;
+					RHS_i = CurrentXYScan.xvalues.begin() + i;					
 				}
+				xfirst = CurrentXYScan.xvalues.begin() + i;
+				yfirst = CurrentXYScan.yvalues.begin() + i;
+				i = i - GroupSize;
 				FoundStart = 2;		// Increase fit left next
 				Max_r = 0; Peak_i = 0;
 			}
+
+			
 
 		}
 		else if(FoundStart == 2) { // Increase fit left
@@ -597,13 +628,8 @@ void IBEO::FindRoad() {
 			Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
 
 			double r = pow(fit.getCoefficient(),2);
-
-			if(r > Max_r) { 
-				Max_r = r; 
-				Peak_i = i; 			
-				Slope = fit.getSlope();
-				Intercept = fit.getIntercept(); 
-			}
+							std::cout << i << "," << CurrentXYScan.xvalues[i] << "," << r << " " << fit.getSlope() << "\n";
+			if(r > Max_r && fit.getSlope() < RequiredSlope) { Max_r = r; Peak_i = i; }
 
 			i--; // Decrement (until we hit the LHS edge and break the while loop)
 
@@ -612,18 +638,25 @@ void IBEO::FindRoad() {
 
 	}
 
-	if(Max_r > 0.4) {  
-		LHEdge =  *(xlast + Peak_i-1); 
-		RHEdge = *(xfirst-1); 
-		RoadSlope = Slope; 
-		RoadIntercept = Intercept; 
+	// Check if we found a better LHS edge, otherwise its the one found in the initial search.
+	if(Max_r > RThreshold) {
+		LHS_i = xlast + Peak_i-1;
 	}
 	else {
-		LHEdge =  0; 
-		RHEdge = 0; 
-		RoadSlope = 0; 
-		RoadIntercept = 0; 
+		LHS_i = CurrentXYScan.xvalues.begin() + LBoundaryPriorToRSearch;
 	}
 
+	// Find and fit the entire point from edge to edge.
+	std::vector<double> groupx(LHS_i,RHS_i);
+	std::vector<double> groupy(CurrentXYScan.yvalues.begin() + (LHS_i - CurrentXYScan.xvalues.begin()),CurrentXYScan.yvalues.begin() + (RHS_i - CurrentXYScan.xvalues.begin()));
+
+	Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
+
+	if(fabs(fit.getSlope()) > RequiredSlope && (RHS_i - LHS_i) > GroupSize) {
+		RoadSlope = fit.getSlope(); RoadIntercept = fit.getIntercept(); RHEdge = *(RHS_i); LHEdge = *(LHS_i);
+	}
+	else {
+		RoadSlope = 0; RoadIntercept = 0; RHEdge = 0; LHEdge = 0;
+	}
 
 }

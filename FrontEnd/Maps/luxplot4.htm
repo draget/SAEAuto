@@ -37,7 +37,6 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 
 		RGraph.AJAX.getJSON("getlux4.cgi?no=" + arg + "&run=" + document.getElementById("run").value + "&layer=" + document.getElementById("layers").options[document.getElementById("layers").selectedIndex].text, drawLuxGraph);
 
-		setTimeout(updateLuxPlot,500);
 
 	}
 
@@ -64,8 +63,8 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 
 			// Plot axes are opposite of IBEO axes.
 
-			var x = (centerx - parseInt(parts[2],10)/100.0*scale);
-			var y = (centery - parseInt(parts[1],10)/100.0*scale);
+			var x = (centerx - parseFloat(parts[2],10)/100.0*scale);
+			var y = (centery - parseFloat(parts[1],10)/100.0*scale);
 
 			var boundingbox = new Array(4);
 			boundingbox[0] = new Array(2);
@@ -73,11 +72,11 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 			boundingbox[2] = new Array(2);
 			boundingbox[3] = new Array(2);
 
-			boxwidth = parseInt(parts[8],10)/100.0;
-			boxheight = parseInt(parts[9],10)/100.0;
+			boxwidth = parseFloat(parts[8],10)/100.0;
+			boxheight = parseFloat(parts[9],10)/100.0;
 			
-			box_center_x = parseInt(parts[7],10)/100.0;
-			box_center_y = parseInt(parts[6],10)/100.0;
+			box_center_x = parseFloat(parts[7],10)/100.0;
+			box_center_y = parseFloat(parts[6],10)/100.0;
 
 			boundingbox[0][0] = (centerx - (box_center_x - boxwidth/2)*scale);
 			boundingbox[0][1] = (centery - (box_center_y - boxheight/2)*scale);
@@ -88,30 +87,36 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 			boundingbox[3][0] = (centerx - (box_center_x + boxwidth/2)*scale);
 			boundingbox[3][1] = (centery - (box_center_y + boxheight/2)*scale);
 
+			var poly = new RGraph.Drawing.Poly('cvs', [[boundingbox[0][0],boundingbox[0][1]],[boundingbox[2][0],boundingbox[2][1]],[boundingbox[3][0],boundingbox[3][1]],[boundingbox[1][0],boundingbox[1][1]]])
+			.Set("strokestyle","black")
+			.Set("fillstyle","rgba(255,0,0,0.1)")
+			.Set("linewidth",1)
+            		.Draw();
+
 			var circle = new RGraph.Drawing.Circle('cvs',x,y, 5)
             				.Set('chart.strokestyle', 'black')
            				.Set('chart.fillstyle', 'rgba(255,0,0,0.7)')
             				.Set('chart.tooltips', ["ID: " + parts[0] + "<br /> Type: " + objtypes[parseInt(parts[5],10)]])
             				.Draw();
 
-			var poly = new RGraph.Drawing.Poly('cvs', [[boundingbox[0][0],boundingbox[0][1]],[boundingbox[2][0],boundingbox[2][1]],[boundingbox[3][0],boundingbox[3][1]],[boundingbox[1][0],boundingbox[1][1]]])
-			.Set("strokestyle","black")
-			.Set("fillstyle","rgba(255,0,0,0.1)")
-			.Set("linewidth",1)
-            		.Draw();
+			
 					
  		});
 
 
-		var x_l = (centerx - parseInt(json.roadedge[0][0],10)*scale);
-		var y_l = (centery - parseInt(json.roadedge[0][1],10)*scale);
+		var x_l = (centerx + parseFloat(json.roadedge[0][0],10)*scale);
+		var y_l = (centery - parseFloat(json.roadedge[0][1],10)*scale);
 
-		var x_r = (centerx - parseInt(json.roadedge[1][0],10)*scale);
-		var y_r = (centery - parseInt(json.roadedge[1][1],10)*scale);
+		var x_r = (centerx + parseFloat(json.roadedge[1][0],10)*scale);
+		var y_r = (centery - parseFloat(json.roadedge[1][1],10)*scale);
+
+
 
 		var poly = new RGraph.Drawing.Poly('cvs', [[x_l,y_l],[x_r,y_r]])
-		.Set("strokestyle","brown")
+		.Set("strokestyle","white")
             	.Draw();
+
+		setTimeout(updateLuxPlot,500);
 
 
         }
@@ -156,7 +161,7 @@ function updateList() {
 
 
 <table>
-<tr><td>Layers:</td><td style="background-color : grey"> <b> <font color="red">0 (bottom)</font> <font color="orange">1</font> <font color="yellow">2</font> <font color="green">3 (top)</font> <font color="brown">Road</font></b></td></tr>
+<tr><td>Layers:</td><td style="background-color : grey"> <b> <font color="red">0 (bottom)</font> <font color="orange">1</font> <font color="yellow">2</font> <font color="green">3 (top)</font> <font color="white">Road</font></b></td></tr>
 <tr><td>Scale Max:</td><td><input type="text" value="20" id="scale" size="4" /></td></tr>
 <tr><td>Run ID:</td><td><input type="text" value="0" id="run" size="15" /></td></tr>
 <tr><td>Layers:</td><td><select id="layers"><option>All</option><option>0</option><option>1</option><option>2</option><option>3</option></td></tr>

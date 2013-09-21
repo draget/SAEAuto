@@ -3,6 +3,7 @@
  * Author: Timothy Black (20373081)
  *
  * Created on 18 April 2012, 7:34 PM
+ * Modified, T. Drage, 2013.
  */
 
 #ifndef _IBEO_H

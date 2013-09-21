@@ -61,6 +61,8 @@ Linear(int n, double *x, double *y)
                 m_a = ya - m_b * xa;
             m_coeff = (fabs(yy) == 0) ? 1 : xy / sqrt(xx * yy);
 
+		m_cov = xy;
+
         }
 
 //! Evaluates the linear regression function at the given abscissa.
@@ -91,9 +93,14 @@ double getCoefficient()
   return m_coeff;
 }
 
+double getCovariance()
+{
+  return m_cov;
+}
+
 private:
 
-double m_a, m_b, m_coeff;
+double m_a, m_b, m_coeff, m_cov;
 };
 
 

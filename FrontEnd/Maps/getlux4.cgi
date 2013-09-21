@@ -36,8 +36,8 @@ foreach my $LuxLine (@LuxLines) {
 	my @LuxLineParts = split(/,/,$LuxLine);
 
 	if($LuxLineParts[0] eq "R") { 
-		push(@{$PlotInfo->{"roadedge"}},[$LuxLineParts[1],$LuxLineParts[1]*$LuxLineParts[3] + $LuxLineParts[4], 'brown']); 
-		push(@{$PlotInfo->{"roadedge"}},[$LuxLineParts[2],$LuxLineParts[2]*$LuxLineParts[3] + $LuxLineParts[4], 'brown']); 	
+		push(@{$PlotInfo->{"roadedge"}},[$LuxLineParts[1]*1.0,$LuxLineParts[1]*$LuxLineParts[3] + $LuxLineParts[4], 'white']); 
+		push(@{$PlotInfo->{"roadedge"}},[$LuxLineParts[2]*1.0,$LuxLineParts[2]*$LuxLineParts[3] + $LuxLineParts[4], 'white']); 	
 	}	
 	elsif($LuxLineParts[0] == 0 && ($Layers eq '0' || $Layers eq 'All')) { 	push(@{$PlotInfo->{"data"}},[$LuxLineParts[2]*360/11520,$LuxLineParts[3]/100.0, 'red']); }
 	elsif($LuxLineParts[0] == 1 && ($Layers eq '1' || $Layers eq 'All')) { 	push(@{$PlotInfo->{"data"}},[$LuxLineParts[2]*360/11520,$LuxLineParts[3]/100.0, 'orange']); }

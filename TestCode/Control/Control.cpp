@@ -77,6 +77,8 @@ Control::Control(std::string LogDir, bool ExtLog) {
 	// Create object instances...
 	Log = new Logger(LogDir + "/mainlog.txt");
 
+	Log->WriteLogLine("Control - Ext logging: " + boost::lexical_cast<std::string>(ExtLogging));
+
 	CarNetworkConnection = new CarNetwork(this, Log);
 
 	SafetySerial = new SafetySerialOut(this,Log);

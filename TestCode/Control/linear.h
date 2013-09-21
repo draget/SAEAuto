@@ -55,11 +55,19 @@ Linear(int n, double *x, double *y)
             // calculate regression line parameters
 
             // make sure slope is not infinite
-            assert(fabs(xx) != 0);
+            if(fabs(xx) == 0) {
+		m_b = 0;
+		m_a = 0;
+		m_coeff = 0;
+		
+		}
+	else {
 
                 m_b = xy / xx;
                 m_a = ya - m_b * xa;
             m_coeff = (fabs(yy) == 0) ? 1 : xy / sqrt(xx * yy);
+
+	}
 
         }
 
