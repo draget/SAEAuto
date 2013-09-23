@@ -22,7 +22,14 @@
 #define MAX_OBJECTS         20              // Maximum objects stored.
 #define MAX_CONTOUR_POINTS  100             // Maximum contour points per scan.
 
+#define IBEO_PERIOD	0.2	// Minimum period between analysing IBEO data.
+
 #define OBJECT_THRESHOLD	15	// Distance outside which all points are considered road.
+
+#define GROUP_SIZE	12	// Size of road detections search groups
+#define MAX_SLOPE	0.2	// Maximum slope of a road segment.
+#define	MIN_R		0.15	// Minimum correlation coefficient in road fits.	
+
 
 class Control;
 class Logger;
@@ -145,25 +152,25 @@ struct SCAN_XY_DATA {
 
 class IBEO {
 public:
-    int curScanDataSource;
-    int curObjectDataSource;
-    int curErrorDataSource;
-    SCAN_DATA_HEADER    scan_data_header[MSG_BUFFERS];
-    SCAN_DATA_POINT     scan_data_points[MSG_BUFFERS][MAX_SCAN_POINTS];
-    OBJECT_DATA_HEADER  object_data_header[MSG_BUFFERS];
-    OBJECT_DATA         object_data[MSG_BUFFERS][MAX_OBJECTS];
-    ERROR_DATA          error_data[MSG_BUFFERS];
+	int curScanDataSource;
+	int curObjectDataSource;
+	int curErrorDataSource;
+	SCAN_DATA_HEADER    scan_data_header[MSG_BUFFERS];
+	SCAN_DATA_POINT     scan_data_points[MSG_BUFFERS][MAX_SCAN_POINTS];
+	OBJECT_DATA_HEADER  object_data_header[MSG_BUFFERS];
+	OBJECT_DATA         object_data[MSG_BUFFERS][MAX_OBJECTS];
+	ERROR_DATA          error_data[MSG_BUFFERS];
 
-    IBEO(Control* CarController, Logger* Logger);
-    IBEO(const IBEO& orig);
-    virtual ~IBEO();
-    bool Open(char *, int);
-    bool Open();
-    void Start();
-    void StopScanner();
-    void ReadMessages();
-    IBEO_HEADER FindHeader();
-    bool inUse;
+	IBEO(Control* CarController, Logger* Logger);
+	IBEO(const IBEO& orig);
+	virtual ~IBEO();
+	bool Open(char *, int);
+	bool Open();
+	void Start();
+	void StopScanner();
+	void ReadMessages();
+	IBEO_HEADER FindHeader();
+	bool inUse;
 
 	double LHEdge;
 	double RHEdge;
@@ -171,9 +178,9 @@ public:
 	double RoadIntercept;
 
 private:
-    IBEONetwork *connection;
+	IBEONetwork *connection;
 
-    boost::thread m_Thread;
+	boost::thread m_Thread;
 
 	Control* CarControl;
 
@@ -181,19 +188,21 @@ private:
 
 	SCAN_XY_DATA CurrentXYScan;
 
-    bool Read_Scan_Data();
-    bool Read_Object_Data();
-    bool Read_Errors();
-    bool Read_Point2D(POINT_2D*);
-    bool Read_Size2D(SIZE_2D*);
+	bool Read_Scan_Data();
+	bool Read_Object_Data();
+	bool Read_Errors();
+	bool Read_Point2D(POINT_2D*);
+	bool Read_Size2D(SIZE_2D*);
 
-    void ProcessMessages();
+	void ProcessMessages();
 	void WriteFiles(timeval current);
 	void FindRoad();
+	void PolarToXY();
+	void ProjectObjectsToMap();
 	
 	timeval lastwrite;
 
-    bool Run;
+	bool Run;
 };
 
 #endif	/* _IBEO_H */

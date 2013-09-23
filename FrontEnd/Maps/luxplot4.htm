@@ -43,6 +43,8 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
         function drawLuxGraph(json)
         {
 
+		if(json == null) { setTimeout(updateLuxPlot,500); return; }
+
 		RGraph.Reset(document.getElementById('cvs'));
             	var rscatter = new RGraph.Rscatter('cvs', json.data)
 

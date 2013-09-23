@@ -1,8 +1,12 @@
 /*
-* Autonomous SAE Car Controller
+* UWA Autonomous SAE Car Controller
 * (C) Thomas Drage 2013
 *
 * Created June 2013
+*
+* Permission is given for use of this software in derivative works within the UWA Robotics and Automation laboratory,
+* however acknowledgement must be given in all derived works and publications.
+*
 */
 
 
@@ -63,6 +67,8 @@ Control::Control(std::string LogDir, bool ExtLog) {
 	AutoOn = false;
 	BrakeILOn = true;
 	RecordActive = false;
+
+	FencepostRadius = MAPPOINT_RADIUS;
 
 	DatumLat = -31.980569;
 	DatumLong = 115.817807;
@@ -537,6 +543,8 @@ void Control::DumpMap(std::string MapName) {
  */
 void Control::AutoStart() {
 
+	if(ExtLogging) { AutoLogger = new Logger(LogDir + "/autolog.txt"); }
+
 	if(CurrentMap.Waypoints.size() == 0) { Log->WriteLogLine("Control - No map loaded, can't start auto."); return; }
 
 	if(! CarNetworkConnection->HasConnection && BrakeILOn) { Log->WriteLogLine("Control - No base connection, can't start auto."); return; }
@@ -578,7 +586,7 @@ void Control::CheckFenceposts(VECTOR_2D CurPosn) {
 
 	BOOST_FOREACH( VECTOR_2D Fencepost, CurrentMap.Fenceposts ) {
 		VECTOR_2D DistanceVector = SubtractVector(Fencepost,CurPosn);
-		if(sqrt(pow(DistanceVector.x,2) + pow(DistanceVector.y,2)) < 2) {
+		if(sqrt(pow(DistanceVector.x,2) + pow(DistanceVector.y,2)) < FencepostRadius) {
 			Log->WriteLogLine("Control - Near fence post!");
 			Control::AutoStop();
 			if(TripState == 0) { Trip(8); }
@@ -588,6 +596,11 @@ void Control::CheckFenceposts(VECTOR_2D CurPosn) {
 }
 
 
+/**
+ * Purpose: Updates controller set points when a new position is received during autonomous driving.
+ * Inputs : New position vector.
+ * Outputs: None.
+ */
 void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 
 	VECTOR_2D DistanceVector = SubtractVector(CurrentMap.Waypoints[NextWaypoint],CurPosn);
@@ -615,19 +628,35 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 
 	SteerController->setSetPoint(DesiredBearing);
 
-	
-	if(CurrentSteeringSetPosn > 60) { ThrottleController->setSetPoint(0.8); BrakeController->setSetPoint(0.8); }
-	else { ThrottleController->setSetPoint(1.5); BrakeController->setSetPoint(1.5); }
+	if(CurrentSteeringSetPosn > 60) { DesiredSpeed = 0.8; }
+	else { DesiredSpeed = 1.5; }
 
+	ThrottleController->setSetPoint(DesiredSpeed); 
+	BrakeController->setSetPoint(DesiredSpeed);
+
+	if(ExtLogging) { 
+		AutoLogger->WriteLogLine("DB," + boost::lexical_cast<std::string>(DesiredBearing), true);
+		AutoLogger->WriteLogLine("DS," + boost::lexical_cast<std::string>(DesiredSpeed), true);
+	}
 
 }
 
+/**
+ * Purpose: Performs control loop actions when a new speed is received during autonomous driving.
+ * Inputs : New speed value.
+ * Outputs: None.
+ */
 void Control::AutoSpeedUpdate(double CurSpeed) {
 
 	ThrottleController->setProcessValue(CurSpeed);
 
 	double SpeedIncrement = ThrottleController->compute();
 	double BrakeValue = BrakeController->compute();
+
+	if(ExtLogging) { 
+		AutoLogger->WriteLogLine("SI," + boost::lexical_cast<std::string>(SpeedIncrement), true);
+		AutoLogger->WriteLogLine("BV," + boost::lexical_cast<std::string>(BrakeValue), true);
+	}
 
 	if(BrakeValue < 0) { CurrentThrottleBrakeSetPosn = BrakeValue; }
 
@@ -648,17 +677,31 @@ void Control::AutoSpeedUpdate(double CurSpeed) {
 		}
 		else { CurrentThrottleBrakeSetPosn = 0; }
 	}
+
+	if(ExtLogging) { AutoLogger->WriteLogLine("TB," + boost::lexical_cast<std::string>(CurrentThrottleBrakeSetPosn), true); }
 		
 }
 
 
+/**
+ * Purpose: Performs control loop actions when a new heading is received during autonomous driving.
+ * Inputs : New heading value.
+ * Outputs: None.
+ */
 void Control::AutoTrackUpdate(double CurTrack) {
 
 	SteerController->setProcessValue(CurTrack);
 	CurrentSteeringSetPosn = SteerController->compute();
 
+	if(ExtLogging) { AutoLogger->WriteLogLine("SS," + boost::lexical_cast<std::string>(CurrentSteeringSetPosn), true); }
+
 }
 
+/**
+ * Purpose: Temporarily suspend autonomous driving.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::AutoPause() {
 	
 	AutoRun = false;
@@ -669,6 +712,11 @@ void Control::AutoPause() {
 
 }
 
+/**
+ * Purpose: Resume autonomous driving.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::AutoContinue() {
 	
 	AutoRun = true;
@@ -677,6 +725,11 @@ void Control::AutoContinue() {
 
 }
 
+/**
+ * Purpose: Stop autonomous driving.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::AutoStop() {
 
 	AutoRun = false;
@@ -687,11 +740,17 @@ void Control::AutoStop() {
 	boost::thread brake_Thread = boost::thread(&Control::TimedBrake, this);
 	brake_Thread.detach();
 
+	if(ExtLogging) { AutoLogger->CloseLog(); }
+
 	Log->WriteLogLine("Control - autonomous stop.");
 
 }
 
-
+/**
+ * Purpose: Start automatic map recording mode.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::StartMapRecord() {
 
 	ClearMap();
@@ -703,11 +762,15 @@ void Control::StartMapRecord() {
 
 	RecordActive = true;
 
-
 	Log->WriteLogLine("Control - Recording map points...");
 
 }
 
+/**
+ * Purpose: Act on new position data during map recording.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::MapRecordPosUpdate(VECTOR_2D CurPosn) {
 
 	if(VectorMagnitude(SubtractVector(CurPosn,LastRecordedPoint)) > MAPPOINT_RADIUS) {
@@ -717,12 +780,22 @@ void Control::MapRecordPosUpdate(VECTOR_2D CurPosn) {
 
 }
 
+/**
+ * Purpose: Stop automatic map recording and save with default name.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::StopMapRecord() {
 
 	StopMapRecord(boost::lexical_cast<std::string>(TimeStamp()));
 
 }
 
+/**
+ * Purpose: Stop automatic map recording.
+ * Inputs : Map file name.
+ * Outputs: None.
+ */
 void Control::StopMapRecord(std::string MapName) {
 
 	RecordActive = false;
@@ -733,7 +806,11 @@ void Control::StopMapRecord(std::string MapName) {
 
 }
 
-
+/**
+ * Purpose: Brake for two seconds. Needs to be run its own thread as to not block execution.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::TimedBrake() {
 
 	Log->WriteLogLine("Control - Braking for 2s.");
@@ -744,6 +821,11 @@ void Control::TimedBrake() {
 
 }
 
+/**
+ * Purpose: Tell the safety serial box to beep.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void Control::SendAlarm() {
 
 	if(SafetySerial->SerialState) { SafetySerial->Send('A'); }

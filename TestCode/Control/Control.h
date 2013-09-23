@@ -1,8 +1,17 @@
+/* 
+ * File:   Control.h - Header file for Control.cpp
+ * Author: Thomas Drage (20510505).
+ *
+ * Date: 2013
+ * 
+ */
+
+
 #ifndef _CONTROL_H
 #define	_CONTROL_H
 
 #define EARTH_RADIUS 6371000
-#define MAPPOINT_RADIUS 2.5
+#define MAPPOINT_RADIUS 2
 
 #include <vector>
 #include <string>
@@ -85,7 +94,7 @@ public:
 	void MapRecordPosUpdate(VECTOR_2D CurPosn);
 
 	
-	
+	double FencepostRadius;
 
 	double LatOffset;
 	double LongOffset;
@@ -121,6 +130,7 @@ private:
 	void TimedBrake();
 
 	double DesiredBearing;
+	double DesiredSpeed;
 	
 	VECTOR_2D LastRecordedPoint;
 	int MapRecordCounter;
@@ -140,6 +150,8 @@ private:
 	IPC* WebIPC;
 
 	Logger* WebLogger;
+
+	Logger* AutoLogger;
 
 };
 

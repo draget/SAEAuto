@@ -124,10 +124,12 @@ void Xsens::ProcessMessages() {
 
     while (Run)
     {
+	Log->WriteLogLine("B " + boost::lexical_cast<std::string>(CarControl->TimeStamp()));
         if (serial->waitForDataMessage(reply) != XRV_OK)
         {
 		Log->WriteLogLine("XSens - Error reading messages!");
         }
+       Log->WriteLogLine("A " + boost::lexical_cast<std::string>(CarControl->TimeStamp()));
 
 	matrix_data = reply->getOriMatrix();
 
@@ -147,6 +149,7 @@ void Xsens::ProcessMessages() {
 	// IMU axes are the wrong way about
 	CurrentAccel.x = -yacc_comp;
 	CurrentAccel.y = xacc_comp;
+
 
 	Accelerations.erase(Accelerations.begin());
 
@@ -168,6 +171,8 @@ void Xsens::ProcessMessages() {
 //	if(reply->getOriEuler().m_yaw < 0) { Yaw = 360 + reply->getOriEuler().m_yaw ; }
 //	else { Yaw = reply->getOriEuler().m_yaw; }
 
+	// Massively decrease the amount of time that the CMT API spends waiting for a message.
+	boost::this_thread::sleep(boost::posix_time::milliseconds(7));
 
     }
 

@@ -4,6 +4,7 @@
  * 
  * Created on 18 April 2012, 7:34 PM
  * Modified 3 March 2013, 23 July 2013 (T.Drage).
+ *
  * Road finding and object projection T. Drage Sep 2013.
  */
 
@@ -361,7 +362,11 @@ bool IBEO::Read_Size2D(SIZE_2D *sizeIn) {
 *	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 */
 
-
+/**
+ * Purpose: Start the IBEO sensor processing incoming messages.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void IBEO::Start() {
 
 	if(inUse) {	
@@ -375,62 +380,33 @@ void IBEO::Start() {
 
 }
 
-void IBEO::ProcessMessages() {
 
-	VECTOR_2D Object;
-	VECTOR_2D TransformedObject;
+/**
+ * Purpose: Contains the main loop that deals with IBEO data.
+ * Inputs : None.
+ * Outputs: None.
+ */
+void IBEO::ProcessMessages() {
 
 	while(Run) {
 
 		ReadMessages();
 
-
 		timeval current;
 		gettimeofday(&current,NULL);
 		
-		if((current.tv_sec + ((double)current.tv_usec)/1000000) > (lastwrite.tv_sec + ((double)lastwrite.tv_usec)/1000000) + 0.2) { 
+		// Save CPU time by not acting upon every set of data.
+		if((current.tv_sec + ((double)current.tv_usec)/1000000) > (lastwrite.tv_sec + ((double)lastwrite.tv_usec)/1000000) + IBEO_PERIOD) { 
 
-			CurrentXYScan.xvalues.clear();
-			CurrentXYScan.yvalues.clear();
-
-			double angle;
-			double dist;
-
-			for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
-				if(scan_data_points[curScanDataSource][i].layer_echo != 0) { continue; }
-				angle = (scan_data_points[curScanDataSource][i].horiz_angle+2880)*CarControl->TwoPi/11520;
-				dist = scan_data_points[curScanDataSource][i].radial_dist/100.0;
-				CurrentXYScan.xvalues.push_back(cos(angle)*dist);
-				CurrentXYScan.yvalues.push_back(sin(angle)*dist);
-			}
+			PolarToXY();
 
 			FindRoad();
 
 			WriteFiles(current); 
 	
-			for(int i = 0; i < object_data_header[curObjectDataSource].number_of_objects; i++) {
-			
-				Object.x = (double)object_data[curObjectDataSource][i].reference_point.x/100.0; 
-				Object.y = (double)object_data[curObjectDataSource][i].reference_point.y/100.0;
+			ProjectObjectsToMap();
 
-				// Ignore objects that make up the road.
-				if(CarControl->VectorMagnitude(Object) > OBJECT_THRESHOLD) { continue; }
-			
-				TransformedObject.x = -cos(-1*CarControl->Fuser->CurrentHeading) * Object.y + sin(-1*CarControl->Fuser->CurrentHeading) * Object.x + CarControl->Fuser->CurrentPosition.x;
-				TransformedObject.y = sin(-1*CarControl->Fuser->CurrentHeading) * Object.y + cos(-1*CarControl->Fuser->CurrentHeading) * Object.x + CarControl->Fuser->CurrentPosition.y;
-
-				bool Found = false;
-
-				BOOST_FOREACH( VECTOR_2D MapPoint, CarControl->CurrentMap.DetectedFenceposts ) {
-					if(CarControl->VectorMagnitude(CarControl->SubtractVector(MapPoint,TransformedObject)) < 0.2) { Found = true; break; }
-				}
-
-				if(! Found) { CarControl->CurrentMap.DetectedFenceposts.push_back(TransformedObject); }
-
-			}
-
-
-
+			gettimeofday(&lastwrite,NULL);
 
 		}
 		
@@ -439,7 +415,73 @@ void IBEO::ProcessMessages() {
 
 }
 
+/**
+ * Purpose: Convert the various object contour points detected into fenceposts on the map.
+ * Inputs : None.
+ * Outputs: None.
+ */
+void IBEO::ProjectObjectsToMap() {
 
+	VECTOR_2D Object;
+	VECTOR_2D TransformedObject;
+
+	for(int i = 0; i < object_data_header[curObjectDataSource].number_of_objects; i++) {
+
+		for(int j = 0; j < object_data[curObjectDataSource][i].number_contour_points; j++) {	
+
+			Object.x = (double)object_data[curObjectDataSource][i].contour_points[j].x/100.0; 
+			Object.y = (double)object_data[curObjectDataSource][i].contour_points[j].y/100.0;
+
+			// Ignore objects that make up the road.
+			if(CarControl->VectorMagnitude(Object) > OBJECT_THRESHOLD) { continue; }
+		
+			TransformedObject.x = -cos(-1*CarControl->Fuser->CurrentHeading) * Object.y + sin(-1*CarControl->Fuser->CurrentHeading) * Object.x + CarControl->Fuser->CurrentPosition.x;
+			TransformedObject.y = sin(-1*CarControl->Fuser->CurrentHeading) * Object.y + cos(-1*CarControl->Fuser->CurrentHeading) * Object.x + CarControl->Fuser->CurrentPosition.y;
+
+			bool Found = false;
+
+			// Only put fenceposts down that are at least a radius away from existing ones.
+			BOOST_FOREACH( VECTOR_2D MapPoint, CarControl->CurrentMap.DetectedFenceposts ) {
+				if(CarControl->VectorMagnitude(CarControl->SubtractVector(MapPoint,TransformedObject)) < CarControl->FencepostRadius) { Found = true; break; }
+			}
+
+			if(! Found) { CarControl->CurrentMap.DetectedFenceposts.push_back(TransformedObject); }
+		}
+
+	}
+
+}
+
+
+/**
+ * Purpose: Convert the polar scan data to Cartesian coordinates..
+ * Inputs : None.
+ * Outputs: None.
+ */
+void IBEO::PolarToXY() {
+
+	CurrentXYScan.xvalues.clear();
+	CurrentXYScan.yvalues.clear();
+
+	double angle;
+	double dist;
+
+	for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
+		if(scan_data_points[curScanDataSource][i].layer_echo != 0) { continue; }
+		angle = (scan_data_points[curScanDataSource][i].horiz_angle+2880)*CarControl->TwoPi/11520;
+		dist = scan_data_points[curScanDataSource][i].radial_dist/100.0;
+		CurrentXYScan.xvalues.push_back(cos(angle)*dist);
+		CurrentXYScan.yvalues.push_back(sin(angle)*dist);
+	}
+
+}
+
+
+/**
+ * Purpose: Write out the IBEO results files.
+ * Inputs : timeval associated with this scan.
+ * Outputs: None.
+ */
 void IBEO::WriteFiles(timeval current) {
 
 		if(CarControl->ExtLogging) {
@@ -492,6 +534,11 @@ void IBEO::WriteFiles(timeval current) {
 }
 
 
+/**
+ * Purpose: Perform road edge detection.
+ * Inputs : None.
+ * Outputs: None.
+ */
 void IBEO::FindRoad() {
 
 	int FoundStart = 0;			// State variable.
@@ -509,10 +556,6 @@ void IBEO::FindRoad() {
 	std::vector<double>::iterator RHS_i = CurrentXYScan.xvalues.begin();	// Stores RH bracket after finding R.
 	std::vector<double>::iterator LHS_i = CurrentXYScan.xvalues.begin(); 	// Stores final LH bracket after finding L.
 
-	// Number of points included in intial search and minimum for a fit.
-	int GroupSize = 12;
-	double RequiredSlope = 0.5;
-	double RThreshold = 0.15;
 
 	// Index that is iterated over.
 	unsigned int i = CurrentXYScan.xvalues.size() / 2;
@@ -523,30 +566,30 @@ void IBEO::FindRoad() {
 		if((! FoundStart) && InitialSearchDirn == 0) { // Initial search left
 
 			xfirst = CurrentXYScan.xvalues.begin() + i;
-			xlast = CurrentXYScan.xvalues.begin() + i-GroupSize;
+			xlast = CurrentXYScan.xvalues.begin() + i-GROUP_SIZE;
 			yfirst = CurrentXYScan.yvalues.begin() + i;
-			ylast = CurrentXYScan.yvalues.begin() + i-GroupSize;
+			ylast = CurrentXYScan.yvalues.begin() + i-GROUP_SIZE;
 
 			std::vector<double> groupx(xlast,xfirst);
 			std::vector<double> groupy(ylast,yfirst);
 
 
 
-			Maths::Regression::Linear fit(GroupSize,groupx.data(), groupy.data());
+			Maths::Regression::Linear fit(GROUP_SIZE,groupx.data(), groupy.data());
 
-			if(fabs(fit.getSlope()) < RequiredSlope) {
+			if(fabs(fit.getSlope()) < MAX_SLOPE) {
 
 				// Points were found directly to the left so we need to increase the fit right
 				// otherwise we want to increase the fit left
 				if(i == (CurrentXYScan.xvalues.size() / 2)) { 
 					FoundStart = 1; 
 					LBoundaryPriorToRSearch = i; 
-					i = i + GroupSize + 1; 
+					i = i + GROUP_SIZE + 1; 
 				} 
 				else { 
 					FoundStart = 2; 
 					RHS_i = CurrentXYScan.xvalues.begin() + i; 
-					i = i - GroupSize - 1; 
+					i = i - GROUP_SIZE - 1; 
 				}
 	
 			}
@@ -557,23 +600,23 @@ void IBEO::FindRoad() {
 
 			int j = CurrentXYScan.xvalues.size() - i; // j and i are symmetric about the centre
 
-			xfirst = CurrentXYScan.xvalues.begin() + j + GroupSize;
+			xfirst = CurrentXYScan.xvalues.begin() + j + GROUP_SIZE;
 			xlast = CurrentXYScan.xvalues.begin() + j;
-			yfirst = CurrentXYScan.yvalues.begin() + j + GroupSize;
+			yfirst = CurrentXYScan.yvalues.begin() + j + GROUP_SIZE;
 			ylast = CurrentXYScan.yvalues.begin() + j;
 
 			std::vector<double> groupx(xlast,xfirst);
 			std::vector<double> groupy(ylast,yfirst);
 
 
-			Maths::Regression::Linear fit(GroupSize,groupx.data(), groupy.data());
+			Maths::Regression::Linear fit(GROUP_SIZE,groupx.data(), groupy.data());
 
-			if(fabs(fit.getSlope()) < RequiredSlope) {
+			if(fabs(fit.getSlope()) < MAX_SLOPE) {
 
 				// If the points lie directly to the right of the centre then we go straight to increasing the fit right
 				// Otherwise we do so starting in the right spot.
 				if(j == (CurrentXYScan.xvalues.size() / 2)) { FoundStart = 1; }
-				else { FoundStart = 1; i = j + GroupSize + 1; }
+				else { FoundStart = 1; i = j + GROUP_SIZE + 1; }
 	
 				LBoundaryPriorToRSearch = j; // Save this so that we can go back and increase the fit left later.
 
@@ -595,13 +638,13 @@ void IBEO::FindRoad() {
 			double r = pow(fit.getCoefficient(),2);
 
 			// Check if we have a max - must also have a reasonable slope.
-			if(r > Max_r && fabs(fit.getSlope()) < RequiredSlope) { Max_r = r; Peak_i = i; }
+			if(r > Max_r && fabs(fit.getSlope()) < MAX_SLOPE) { Max_r = r; Peak_i = i; }
 
 			i++;
 
 			if(i == CurrentXYScan.xvalues.size()) { // We've reached the RHS edge
 				i = LBoundaryPriorToRSearch; // Restore i
-				if(Max_r > RThreshold) { 	// We found something, set the RHS bracket.
+				if(Max_r > MIN_R) { 	// We found something, set the RHS bracket.
 					RHS_i = CurrentXYScan.xvalues.begin() + Peak_i;
 				}
 				else {			// We didn't...
@@ -609,7 +652,7 @@ void IBEO::FindRoad() {
 				}
 				xfirst = CurrentXYScan.xvalues.begin() + i;
 				yfirst = CurrentXYScan.yvalues.begin() + i;
-				i = i - GroupSize;
+				i = i - GROUP_SIZE;
 				FoundStart = 2;		// Increase fit left next
 				Max_r = 0; Peak_i = 0;
 			}
@@ -628,8 +671,8 @@ void IBEO::FindRoad() {
 			Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
 
 			double r = pow(fit.getCoefficient(),2);
-							std::cout << i << "," << CurrentXYScan.xvalues[i] << "," << r << " " << fit.getSlope() << "\n";
-			if(r > Max_r && fit.getSlope() < RequiredSlope) { Max_r = r; Peak_i = i; }
+//							std::cout << i << "," << CurrentXYScan.xvalues[i] << "," << r << " " << fit.getSlope() << "\n";
+			if(r > Max_r && fit.getSlope() < MAX_SLOPE) { Max_r = r; Peak_i = i; }
 
 			i--; // Decrement (until we hit the LHS edge and break the while loop)
 
@@ -639,7 +682,7 @@ void IBEO::FindRoad() {
 	}
 
 	// Check if we found a better LHS edge, otherwise its the one found in the initial search.
-	if(Max_r > RThreshold) {
+	if(Max_r > MIN_R) {
 		LHS_i = xlast + Peak_i-1;
 	}
 	else {
@@ -652,7 +695,8 @@ void IBEO::FindRoad() {
 
 	Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
 
-	if(fabs(fit.getSlope()) > RequiredSlope && (RHS_i - LHS_i) > GroupSize) {
+	// Decide if the road was found or not...
+	if(fabs(fit.getSlope()) < MAX_SLOPE && (RHS_i - LHS_i) > GROUP_SIZE) {
 		RoadSlope = fit.getSlope(); RoadIntercept = fit.getIntercept(); RHEdge = *(RHS_i); LHEdge = *(LHS_i);
 	}
 	else {
