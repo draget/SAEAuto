@@ -124,12 +124,12 @@ void Xsens::ProcessMessages() {
 
     while (Run)
     {
-	Log->WriteLogLine("B " + boost::lexical_cast<std::string>(CarControl->TimeStamp()));
+//	Log->WriteLogLine("B " + boost::lexical_cast<std::string>(CarControl->TimeStamp()));
         if (serial->waitForDataMessage(reply) != XRV_OK)
         {
 		Log->WriteLogLine("XSens - Error reading messages!");
         }
-       Log->WriteLogLine("A " + boost::lexical_cast<std::string>(CarControl->TimeStamp()));
+  //     Log->WriteLogLine("A " + boost::lexical_cast<std::string>(CarControl->TimeStamp()));
 
 	matrix_data = reply->getOriMatrix();
 
@@ -172,7 +172,7 @@ void Xsens::ProcessMessages() {
 //	else { Yaw = reply->getOriEuler().m_yaw; }
 
 	// Massively decrease the amount of time that the CMT API spends waiting for a message.
-	boost::this_thread::sleep(boost::posix_time::milliseconds(7));
+//	boost::this_thread::sleep(boost::posix_time::milliseconds(5));
 
     }
 
