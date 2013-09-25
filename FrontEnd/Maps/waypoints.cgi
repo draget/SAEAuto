@@ -490,11 +490,10 @@ function drawXYGraph(json)
         {
 
 		RGraph.Reset(document.getElementById('cvs'));
+	var HeadingVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[parseFloat(json.params["Fused X Pos"].content,10) + 3*Math.sin(2*Math.PI*parseFloat(json.params["Fused Heading"].content,10)/360.0),parseFloat(json.params["Fused Y Pos"].content,10) + 3*Math.cos(2*Math.PI*parseFloat(json.params["Fused Heading"].content,10)/360.0),"clear"]];
+	var NextWPVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[parseFloat(json.nextwp.x,10),parseFloat(json.nextwp.y,10),"clear"]];
+	var DesiredHeadingVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[parseFloat(json.params["Fused X Pos"].content,10) + 3*Math.sin(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),parseFloat(json.params["Fused Y Pos"].content,10) + 3*Math.cos(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),"clear"]];
 
-	var HeadingVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[3*Math.sin(2*Math.PI*parseFloat(json.params["Fused Heading"].content,10)/360.0),3*Math.cos(2*Math.PI*parseFloat(json.params["Fused Heading"].content,10)/360.0),"clear"]];
-	var NextWPVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[json.nextwp.x,json.nextwp.y,"clear"]];
-	var DesiredHeadingVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[3*Math.sin(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),3*Math.cos(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),"clear"]];
-            
 	var scatter = new RGraph.Scatter2('cvs', json.mapdata, HeadingVector,DesiredHeadingVector,NextWPVector)
 		.Set('scale.decimals', 1)
 		.Set('xscale.decimals', 1)
@@ -599,7 +598,7 @@ Save map as: <input type="text" size="20" name="mapname" value="$CurrentName" />
 <!-- tab "panes" -->
 <div class="panes">
 	<div style="display: block; height : 600px; width : 700px;" id="map-canvas"></div>
-	<div><canvas id="cvs" width="600" height="600">[No canvas support]</canvas></div>
+	<div><canvas id="cvs" width="600" height="600">[No canvas support]</canvas><br /><b><font color="blue">Car Heading</font> <font color="red">Desired Heading</font> <font color="orange">Desired Vector</font></b></div>
 </div>
 
 

@@ -567,7 +567,7 @@ void Control::AutoStart() {
 	BrakeController->setOutputLimits(-255,0);
 	BrakeController->setMode(AUTO_MODE);
 
-	SteerController = new PID(3.0,0.1,0,0.1);
+	SteerController = new PID(3,0.5,0.0,0.1);
 	SteerController->setInputLimits(-360, 720);
 	SteerController->setOutputLimits(-127,127);
 	SteerController->setMode(AUTO_MODE);
@@ -635,8 +635,9 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 	BrakeController->setSetPoint(DesiredSpeed);
 
 	if(ExtLogging) { 
-		AutoLogger->WriteLogLine("DB," + boost::lexical_cast<std::string>(DesiredBearing), true);
-		AutoLogger->WriteLogLine("DS," + boost::lexical_cast<std::string>(DesiredSpeed), true);
+		std::string time = boost::lexical_cast<std::string>(TimeStamp());
+		AutoLogger->WriteLogLine("DB," + time + "," + boost::lexical_cast<std::string>(DesiredBearing), true);
+		AutoLogger->WriteLogLine("DS," + time + "," + boost::lexical_cast<std::string>(DesiredSpeed), true);
 	}
 
 }
@@ -653,9 +654,12 @@ void Control::AutoSpeedUpdate(double CurSpeed) {
 	double SpeedIncrement = ThrottleController->compute();
 	double BrakeValue = BrakeController->compute();
 
+	std::string time;
+	
 	if(ExtLogging) { 
-		AutoLogger->WriteLogLine("SI," + boost::lexical_cast<std::string>(SpeedIncrement), true);
-		AutoLogger->WriteLogLine("BV," + boost::lexical_cast<std::string>(BrakeValue), true);
+		time = boost::lexical_cast<std::string>(TimeStamp());
+		AutoLogger->WriteLogLine("SI,"  + time + "," + boost::lexical_cast<std::string>(SpeedIncrement), true);
+		AutoLogger->WriteLogLine("BV,"  + time + "," + boost::lexical_cast<std::string>(BrakeValue), true);
 	}
 
 	if(BrakeValue < 0) { CurrentThrottleBrakeSetPosn = BrakeValue; }
@@ -678,7 +682,7 @@ void Control::AutoSpeedUpdate(double CurSpeed) {
 		else { CurrentThrottleBrakeSetPosn = 0; }
 	}
 
-	if(ExtLogging) { AutoLogger->WriteLogLine("TB," + boost::lexical_cast<std::string>(CurrentThrottleBrakeSetPosn), true); }
+	if(ExtLogging) { AutoLogger->WriteLogLine("TB," + time + "," + boost::lexical_cast<std::string>(CurrentThrottleBrakeSetPosn), true); }
 		
 }
 
@@ -693,7 +697,7 @@ void Control::AutoTrackUpdate(double CurTrack) {
 	SteerController->setProcessValue(CurTrack);
 	CurrentSteeringSetPosn = SteerController->compute();
 
-	if(ExtLogging) { AutoLogger->WriteLogLine("SS," + boost::lexical_cast<std::string>(CurrentSteeringSetPosn), true); }
+	if(ExtLogging) { AutoLogger->WriteLogLine("SS," + boost::lexical_cast<std::string>(TimeStamp()) + "," + boost::lexical_cast<std::string>(CurrentSteeringSetPosn), true); }
 
 }
 

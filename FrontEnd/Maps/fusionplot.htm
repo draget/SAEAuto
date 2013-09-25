@@ -53,7 +53,17 @@
                 	document.getElementById("point").value =  obj.canvas.__crosshairs_snap_point__;
             	}
 
-		var headingscatter = new RGraph.Scatter2('headingcvs', json.headingdata)
+		var headingscatter = new RGraph.Scatter2('headingcvs', json.headingdata, json.fusedheadingdata)
+		.Set('scale.decimals', 1)
+		.Set('xscale.decimals', 1)
+                .Set('xscale', true)
+		.Set('square', false)
+		.Set('chart.tickmarks','square')
+		.Set('chart.ticksize',2)
+		.Set('chart.gutter.left', 60)
+                .Draw();
+				
+		var steeringscatter = new RGraph.Scatter2('steercvs', json.fusedheadingdata, json.steervalues, json.desiredheading)
 		.Set('scale.decimals', 1)
 		.Set('xscale.decimals', 1)
                 .Set('xscale', true)
@@ -106,6 +116,9 @@
 	</td></tr>
 	<tr><td><canvas id="headingcvs" width="1000" height="500">[No canvas support]</canvas><br />
 	Heading vs. Time: <font color="blue">Fused</font> <font color="red">GPS</font> <font color="green">IMU</font>
+	</td></tr>
+	<tr><td><canvas id="steercvs" width="1000" height="500">[No canvas support]</canvas><br />
+	Autonomous Steering: <font color="blue">Car Heading</font> <font color="red">Desired Heading</font> <font color="purple">Steering Value</font>
 	</td></tr>
 	<tr><td><canvas id="velcvs" width="1000" height="500">[No canvas support]</canvas> <br />
 	Velocity vs. Time: <font color="blue">Fused X</font> <font color="green">GPS X</font> <font color="orange">Fused Y</font> <font color="red">GPS Y</font>

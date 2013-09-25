@@ -102,9 +102,11 @@ void Fusion::GPSTrackAngleUpdate(double GPSTrackAngle) {
 	
 
 	// Perform the averaging.
-	if(CurVel > 5) { CurrentHeading = GPSTrackAngle; }
-	else if(CurVel > 2)  { CurrentHeading = (IMUHeading)*(5.0/3.0 - CurVel/3.0) + GPSTrackAngle*(-2.0/3.0 + CurVel/3.0); }
-	else { CurrentHeading = IMUHeading; }
+	if(CurVel > 5.0) { CurrentHeading = GPSTrackAngle; }
+	else { 
+		if(CurVel > 2.0)  { CurrentHeading = (IMUHeading)*(5.0/3.0 - CurVel/3.0) + GPSTrackAngle*(-2.0/3.0 + CurVel/3.0); }
+		else { CurrentHeading = IMUHeading; }
+	}
 
 	TrackAngleActions();
 

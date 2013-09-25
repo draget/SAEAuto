@@ -37,7 +37,7 @@ foreach my $FusionLine (@FusionLines) {
 		push(@{$PlotInfo->{"posdata"}},[$LineContents[1]*1.0, $LineContents[2]*1.0, "green"]);
 	}
 	elsif($LineType eq "T") { 
-		push(@{$PlotInfo->{"headingdata"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, "blue"]);
+		push(@{$PlotInfo->{"fusedheadingdata"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, "blue"]);
 	}
 
 	elsif($LineType eq "V") { 
@@ -85,6 +85,26 @@ foreach my $GPSLine (@GPSLines) {
 
 	if($LineType eq "T") { 
 		push(@{$PlotInfo->{"headingdata"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, "red"]);
+	}
+
+}
+
+open (AUTOLOG, "../../TestCode/Control/RunFiles/$Run/autolog.txt");
+my @AutoLines = <AUTOLOG>;
+close AUTOLOG;
+
+shift @AutoLines;
+
+foreach my $AutoLine (@AutoLines) {
+
+	$AutoLine =~ s/\n//;
+	my ($LineType, @LineContents) = split(/,/,$AutoLine);
+
+	if($LineType eq "SS") { 
+		push(@{$PlotInfo->{"steervalues"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, "purple"]);
+	}
+	elsif($LineType eq "DB") {
+		push(@{$PlotInfo->{"desiredheading"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, "red"]);
 	}
 
 }

@@ -11,7 +11,7 @@
 #define	_CONTROL_H
 
 #define EARTH_RADIUS 6371000
-#define MAPPOINT_RADIUS 2
+#define MAPPOINT_RADIUS 2.75
 
 #include <vector>
 #include <string>
