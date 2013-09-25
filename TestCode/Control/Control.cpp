@@ -603,31 +603,34 @@ void Control::CheckFenceposts(VECTOR_2D CurPosn) {
  */
 void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 
+	// Check if we have reached a waypoint.
 	VECTOR_2D DistanceVector = SubtractVector(CurrentMap.Waypoints[NextWaypoint],CurPosn);
 	if(VectorMagnitude(DistanceVector) < MAPPOINT_RADIUS) {
 		Log->WriteLogLine("Control - Reached waypoint " + boost::lexical_cast<std::string>(NextWaypoint));
 		NextWaypoint++;
-		if(NextWaypoint >= CurrentMap.Waypoints.size()) { Log->WriteLogLine("Control - Reached end of map."); Control::AutoStop(); }
+		if(NextWaypoint >= CurrentMap.Waypoints.size()) { Log->WriteLogLine("Control - Reached end of map."); Control::AutoStop(); return; }
 	}
 
-
+	// Calculate the vector to the next waypoint.
 	VECTOR_2D VectorToNextWp = SubtractVector(CurrentMap.Waypoints[NextWaypoint], CurPosn);
 
 	//Log->WriteLogLine("Current xy " + boost::lexical_cast<std::string>(CurPosn.x) + " " +  boost::lexical_cast<std::string>(CurPosn.y));
 	//Log->WriteLogLine("Current vec " + boost::lexical_cast<std::string>(VectorToNextWp.x) + " " +  boost::lexical_cast<std::string>(VectorToNextWp.y));
 	//Log->WriteLogLine("next wp " + boost::lexical_cast<std::string>(CurrentMap.Waypoints[NextWaypoint].x) + " " +  boost::lexical_cast<std::string>(CurrentMap.Waypoints[NextWaypoint].y));
 
+	// Calculate an angle bearing.
 	if(VectorToNextWp.y > 0 && VectorToNextWp.x < 0) { DesiredBearing = 360 + 90 - 360*atan2(VectorToNextWp.y,VectorToNextWp.x)/TwoPi; }
 	else { DesiredBearing = 90 - 360*atan2(VectorToNextWp.y,VectorToNextWp.x)/TwoPi; }
 	//Log->WriteLogLine("pre flip: " + boost::lexical_cast<std::string>(DesiredBearing));
 
 	
-	// Sometimes we need to go backwards.
+	// Sometimes we need to go out of bounds on the bearing to smooth north crossings and make sure we turn the shortest dirn.
 	if(DesiredBearing > (180 + Fuser->CurrentHeading) && Fuser->CurrentHeading < 180) { DesiredBearing = DesiredBearing - 360; } // Turning from NE to NW quadrant.
 	if(DesiredBearing < (Fuser->CurrentHeading - 180) && Fuser->CurrentHeading > 180) { DesiredBearing = DesiredBearing + 360; } // Turning from NW to NE quadrant.
 
 	SteerController->setSetPoint(DesiredBearing);
 
+	// Speed profile based on turn radius.
 	if(CurrentSteeringSetPosn > 60) { DesiredSpeed = 0.8; }
 	else { DesiredSpeed = 1.5; }
 
@@ -693,6 +696,10 @@ void Control::AutoSpeedUpdate(double CurSpeed) {
  * Outputs: None.
  */
 void Control::AutoTrackUpdate(double CurTrack) {
+
+	// If we cross north before the desired bearing is recalculated it will need fixing!
+	if(DesiredBearing < 0 && CurTrack > 180) { DesiredBearing = DesiredBearing + 360; SteerController->setSetPoint(DesiredBearing); }
+	if(DesiredBearing > 360 && CurTrack < 180) { DesiredBearing = DesiredBearing - 360; SteerController->setSetPoint(DesiredBearing); }
 
 	SteerController->setProcessValue(CurTrack);
 	CurrentSteeringSetPosn = SteerController->compute();
