@@ -41,17 +41,17 @@
 		.Set('scale.decimals', 1)
 		.Set('xscale.decimals', 1)
                 .Set('xscale', true)
-		.Set('crosshairs', true)
-                .Set('crosshairs.snap', true)
+		//.Set('crosshairs', true)
+                //.Set('crosshairs.snap', true)
 		.Set('chart.tickmarks','square')
 		.Set('chart.ticksize',2)
 		.Set('chart.gutter.left', 60)
                 .Draw();
 
-		posscatter.oncrosshairs = function (obj)
-            	{
-                	document.getElementById("point").value =  obj.canvas.__crosshairs_snap_point__;
-            	}
+		//posscatter.oncrosshairs = function (obj)
+            	//{
+                //	document.getElementById("point").value =  obj.canvas.__crosshairs_snap_point__;
+            	//}
 
 		var headingscatter = new RGraph.Scatter2('headingcvs', json.headingdata, json.fusedheadingdata)
 		.Set('scale.decimals', 1)
@@ -63,7 +63,7 @@
 		.Set('chart.gutter.left', 60)
                 .Draw();
 				
-		var steeringscatter = new RGraph.Scatter2('steercvs', json.fusedheadingdata, json.steervalues, json.desiredheading)
+		var steeringscatter = new RGraph.Scatter2('steercvs', json.fusedheadingdata, json.steervalues, json.desiredheading,[[0,0,"black"]])
 		.Set('scale.decimals', 1)
 		.Set('xscale.decimals', 1)
                 .Set('xscale', true)

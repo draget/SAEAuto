@@ -557,17 +557,17 @@ void Control::AutoStart() {
 
 	//Initialise the three PID controllers.
 
-	ThrottleController = new PID(10.0,1.0,0,0.1);
+	ThrottleController = new PID(30.0,5.0,0,0.1);
 	ThrottleController->setInputLimits(0.0, 30);
-	ThrottleController->setOutputLimits(0,255);
+	ThrottleController->setOutputLimits(-255,255);
 	ThrottleController->setMode(AUTO_MODE);
 
-	BrakeController = new PID(10.0,1.0,0,0.1);
+	BrakeController = new PID(40.0,10.0,0,0.1);
 	BrakeController->setInputLimits(0.0, 30);
-	BrakeController->setOutputLimits(-255,0);
+	BrakeController->setOutputLimits(-255,255);
 	BrakeController->setMode(AUTO_MODE);
 
-	SteerController = new PID(3,0.5,0.0,0.1);
+	SteerController = new PID(6.3,0.5,0.0,0.1);
 	SteerController->setInputLimits(-360, 720);
 	SteerController->setOutputLimits(-127,127);
 	SteerController->setMode(AUTO_MODE);
@@ -631,8 +631,8 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 	SteerController->setSetPoint(DesiredBearing);
 
 	// Speed profile based on turn radius.
-	if(CurrentSteeringSetPosn > 60) { DesiredSpeed = 0.8; }
-	else { DesiredSpeed = 1.5; }
+	if(CurrentSteeringSetPosn > 60) { DesiredSpeed = 0.6; }
+	else { DesiredSpeed = 1.0; }
 
 	ThrottleController->setSetPoint(DesiredSpeed); 
 	BrakeController->setSetPoint(DesiredSpeed);
@@ -653,7 +653,9 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 void Control::AutoSpeedUpdate(double CurSpeed) {
 
 	ThrottleController->setProcessValue(CurSpeed);
+	BrakeController->setProcessValue(CurSpeed);
 
+	
 	double SpeedIncrement = ThrottleController->compute();
 	double BrakeValue = BrakeController->compute();
 

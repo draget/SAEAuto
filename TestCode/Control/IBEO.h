@@ -27,7 +27,7 @@
 #define OBJECT_THRESHOLD	15	// Distance outside which all points are considered road.
 
 #define GROUP_SIZE	12	// Size of road detections search groups
-#define MAX_SLOPE	0.2	// Maximum slope of a road segment.
+#define MAX_SLOPE	0.1	// Maximum slope of a road segment.
 #define	MIN_R		0.15	// Minimum correlation coefficient in road fits.	
 
 
