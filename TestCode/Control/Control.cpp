@@ -667,25 +667,25 @@ void Control::AutoSpeedUpdate(double CurSpeed) {
 		AutoLogger->WriteLogLine("BV,"  + time + "," + boost::lexical_cast<std::string>(BrakeValue), true);
 	}
 
-	if(BrakeValue < 0) { CurrentThrottleBrakeSetPosn = BrakeValue; }
 
-	else {
+	if(TripState == 0) { 
 
-		if(TripState == 0) { 
-
-			if((CurrentThrottleBrakeSetPosn + SpeedIncrement) > 255) {
-				CurrentThrottleBrakeSetPosn = 255;
-			}
-			else if ((CurrentThrottleBrakeSetPosn + SpeedIncrement) < 0) {
-				CurrentThrottleBrakeSetPosn = 0;
-			}
-			else {
-				CurrentThrottleBrakeSetPosn = CurrentThrottleBrakeSetPosn + SpeedIncrement; 
-			}
-
+		if((CurrentThrottleBrakeSetPosn + SpeedIncrement) > 255) {
+			CurrentThrottleBrakeSetPosn = 255;
 		}
+		else if ((CurrentThrottleBrakeSetPosn + SpeedIncrement) < 0 && BrakeValue < 0) {
+			CurrentThrottleBrakeSetPosn = BrakeValue;
+		}
+		else {
+			CurrentThrottleBrakeSetPosn = CurrentThrottleBrakeSetPosn + SpeedIncrement; 
+		}
+
+	}
+	else { 
+		if(BrakeValue < 0) { CurrentThrottleBrakeSetPosn = BrakeValue; } 
 		else { CurrentThrottleBrakeSetPosn = 0; }
 	}
+	
 
 	if(ExtLogging) { AutoLogger->WriteLogLine("TB," + time + "," + boost::lexical_cast<std::string>(CurrentThrottleBrakeSetPosn), true); }
 		
