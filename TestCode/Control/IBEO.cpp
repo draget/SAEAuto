@@ -195,7 +195,7 @@ void IBEO::ReadMessages() {
                     if (!Read_Errors()) return;
                     break;
                 default:
-                    if (verbose) Log->WriteLogLine("ibeo scanner: received unknown message with id " + htons(header.data_type));
+                    if (verbose) Log->WriteLogLine("ibeo scanner: received unknown message with id "); //+ htons(header.data_type));
             }
 
         } catch (int e) {
@@ -489,15 +489,20 @@ void IBEO::WriteFiles(timeval current) {
 			system(("cp ./ramdisk/current.luxobj " + CarControl->LogDir + "/luxobj/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".luxobj").c_str());		
 		}
 
+		ofstream lockfile("./ramdisk/ibeo.lck");
+		
+		lockfile.close();
 
 		ofstream outfile_scan;
 
 		std::string FileName = "./ramdisk/current.lux";
 
 		outfile_scan.open(FileName.c_str(), ios::trunc);
+		
 
 		for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
-			outfile_scan << (int)scan_data_points[curScanDataSource][i].layer_echo << "," 
+				int layer = (int)scan_data_points[curScanDataSource][i].layer_echo & 15;
+			outfile_scan << layer << "," 
 				<< (int)scan_data_points[curScanDataSource][i].flags << "," 
 				<< scan_data_points[curScanDataSource][i].horiz_angle << "," 
 				<< scan_data_points[curScanDataSource][i].radial_dist << "," 
@@ -530,6 +535,8 @@ void IBEO::WriteFiles(timeval current) {
 		}
 		
 		outfile_obj.close();
+		
+		remove("./ramdisk/ibeo.lck");
 
 }
 

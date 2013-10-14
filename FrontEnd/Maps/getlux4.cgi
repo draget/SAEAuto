@@ -3,6 +3,7 @@
 use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 use JSON;
+use Time::HiRes qw(usleep);
 
 
 print header('application/json');
@@ -20,7 +21,14 @@ my $LuxFileNumber = 0;
 my @LuxFileName;
 
 if(param('no')) { $LuxFileNumber = param('no'); $LuxFileName = "../../TestCode/Control/RunFiles/$Run/luxscan/$LuxFileNumber.lux"; }
-else { $LuxFileName = "../../TestCode/Control/ramdisk/current.lux"; }
+else { 
+
+	my $i = 0;
+	while(-e "../../TestCode/Control/ramdisk/ibeo.lck") { if($i > 1000) { last; } usleep(1000); $i++; }
+
+	$LuxFileName = "../../TestCode/Control/ramdisk/current.lux"; 
+	
+	}
 
 
 #print $LuxFileName . "\n";
