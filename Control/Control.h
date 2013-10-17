@@ -92,6 +92,7 @@ public:
 	void StopMapRecord();	
 	void StartMapRecord();
 	void MapRecordPosUpdate(VECTOR_2D CurPosn);
+	VECTOR_2D GetInterpolatedVector(VECTOR_2D CurPosn);
 
 	
 	double FencepostRadius;

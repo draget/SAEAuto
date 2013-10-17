@@ -34,6 +34,7 @@
 #include "Fusion.h"
 
 #include "PID.h"
+#include "spline.hpp"
 
 Control *SAECar;
 
@@ -612,11 +613,8 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 	}
 
 	// Calculate the vector to the next waypoint.
-	VECTOR_2D VectorToNextWp = SubtractVector(CurrentMap.Waypoints[NextWaypoint], CurPosn);
-
-	//Log->WriteLogLine("Current xy " + boost::lexical_cast<std::string>(CurPosn.x) + " " +  boost::lexical_cast<std::string>(CurPosn.y));
-	//Log->WriteLogLine("Current vec " + boost::lexical_cast<std::string>(VectorToNextWp.x) + " " +  boost::lexical_cast<std::string>(VectorToNextWp.y));
-	//Log->WriteLogLine("next wp " + boost::lexical_cast<std::string>(CurrentMap.Waypoints[NextWaypoint].x) + " " +  boost::lexical_cast<std::string>(CurrentMap.Waypoints[NextWaypoint].y));
+	VECTOR_2D VectorToNextWp = SubtractVector(CurrentMap.Waypoints[NextWaypoint], CurPosn); // Simple
+	//VECTOR_2D VectorToNextWp = GetInterpolatedVector(CurPosn);				// Use interpolation
 
 	// Calculate an angle bearing.
 	if(VectorToNextWp.y > 0 && VectorToNextWp.x < 0) { DesiredBearing = 360 + 90 - 360*atan2(VectorToNextWp.y,VectorToNextWp.x)/TwoPi; }
@@ -736,6 +734,48 @@ void Control::AutoContinue() {
 
 	Log->WriteLogLine("Control - autonomous continue.");
 
+}
+
+/**
+ * Purpose: Intelligently compute trajectory.
+ * Inputs : Current position vector.
+ * Outputs: Desired heading vector.
+ */
+VECTOR_2D Control::GetInterpolatedVector(VECTOR_2D CurPosn) {
+
+	Spline splinex;
+  	Spline spliney;
+
+	double CurrentSpeed = Fuser->CurrentSpeed;
+
+	double time = 0;
+
+	// Add the current position.
+	splinex.addPoint(time, CurPosn.x);
+	spliney.addPoint(time, CurPosn.y);
+
+	time = VectorMagnitude(SubtractVector(CurPosn,CurrentMap.Waypoints[NextWaypoint]))/CurrentSpeed;
+
+	// Add a few waypoints ahead
+	for(int i = 0; (i < 3) && ((NextWaypoint + i) < CurrentMap.Waypoints.size()); i++) {
+
+		splinex.addPoint(time, CurrentMap.Waypoints[NextWaypoint + i].x);
+		spliney.addPoint(time, CurrentMap.Waypoints[NextWaypoint + i].y);
+
+		if((NextWaypoint + i + 1) < CurrentMap.Waypoints.size()) {
+			time = VectorMagnitude(SubtractVector(CurrentMap.Waypoints[NextWaypoint + i + 1],CurrentMap.Waypoints[NextWaypoint + i]))/CurrentSpeed;
+		}
+	
+	}
+
+	// Return the derivative for the next timestep at the current location.
+	VECTOR_2D DesiredVector;
+
+	DesiredVector.x = splinex(0.1) - splinex(0);
+	DesiredVector.y = spliney(0.1) - spliney(0);
+
+
+	return DesiredVector;
 }
 
 /**
