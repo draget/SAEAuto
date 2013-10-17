@@ -9,9 +9,9 @@ use Time::HiRes qw(usleep);
 print header('application/json');
 
 my $i = 0;
-while(-e "../../TestCode/Control/ramdisk/weblog.txt_LOCK") { if($i > 1000) { last; } usleep(1000); $i++; }
+while(-e "../../Control/ramdisk/weblog.txt_LOCK") { if($i > 1000) { last; } usleep(1000); $i++; }
 
-open (LOGFILE, "../../TestCode/Control/ramdisk/weblog.txt");
+open (LOGFILE, "../../Control/ramdisk/weblog.txt");
 my @LogLines = <LOGFILE>;
 close LOGFILE;
 
@@ -38,9 +38,9 @@ foreach my $LogLine (@LogLines) {
 }
 
 $i = 0;
-while(-e "../../TestCode/Control/ramdisk/runningmap.txt_LOCK") { if($i > 1000) { last; } usleep(1000); $i++; }
+while(-e "../../Control/ramdisk/runningmap.txt_LOCK") { if($i > 1000) { last; } usleep(1000); $i++; }
 
-open (MAPFILE, "../../TestCode/Control/ramdisk/runningmap.txt");
+open (MAPFILE, "../../Control/ramdisk/runningmap.txt");
 my @MapLines = <MAPFILE>;
 close MAPFILE;
 

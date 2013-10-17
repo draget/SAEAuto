@@ -12,7 +12,7 @@ my $Run = "0";
 
 if(param('run')) { $Run = param('run'); }
 
-open (FUSIONFILE, "../../TestCode/Control/RunFiles/$Run/fusion.log");
+open (FUSIONFILE, "../../Control/RunFiles/$Run/fusion.log");
 my @FusionLines = <FUSIONFILE>;
 close FUSIONFILE;
 
@@ -56,7 +56,7 @@ foreach my $FusionLine (@FusionLines) {
 }
 
 
-open (IMUFILE, "../../TestCode/Control/RunFiles/$Run/imu.log");
+open (IMUFILE, "../../Control/RunFiles/$Run/imu.log");
 my @IMULines = <IMUFILE>;
 close IMUFILE;
 
@@ -72,7 +72,7 @@ foreach my $IMULine (@IMULines) {
 }
 
 
-open (GPSFILE, "../../TestCode/Control/RunFiles/$Run/gps.log");
+open (GPSFILE, "../../Control/RunFiles/$Run/gps.log");
 my @GPSLines = <GPSFILE>;
 close GPSFILE;
 
@@ -89,7 +89,7 @@ foreach my $GPSLine (@GPSLines) {
 
 }
 
-open (AUTOLOG, "../../TestCode/Control/RunFiles/$Run/autolog.txt");
+open (AUTOLOG, "../../Control/RunFiles/$Run/autolog.txt");
 my @AutoLines = <AUTOLOG>;
 close AUTOLOG;
 

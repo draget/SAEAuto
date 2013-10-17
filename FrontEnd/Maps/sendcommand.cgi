@@ -7,6 +7,6 @@ print header;
 
 print param("command");
 
-open (PIPE, ">> ../../TestCode/Control/IPC_FIFO_RX");
+open (PIPE, ">> ../../Control/IPC_FIFO_RX");
 print PIPE param("command") . "\n";
 close PIPE;

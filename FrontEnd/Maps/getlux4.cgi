@@ -20,13 +20,13 @@ my $LuxFileNumber = 0;
 
 my @LuxFileName;
 
-if(param('no')) { $LuxFileNumber = param('no'); $LuxFileName = "../../TestCode/Control/RunFiles/$Run/luxscan/$LuxFileNumber.lux"; }
+if(param('no')) { $LuxFileNumber = param('no'); $LuxFileName = "../../Control/RunFiles/$Run/luxscan/$LuxFileNumber.lux"; }
 else { 
 
 	my $i = 0;
-	while(-e "../../TestCode/Control/ramdisk/ibeo.lck") { if($i > 1000) { last; } usleep(1000); $i++; }
+	while(-e "../../Control/ramdisk/ibeo.lck") { if($i > 1000) { last; } usleep(1000); $i++; }
 
-	$LuxFileName = "../../TestCode/Control/ramdisk/current.lux"; 
+	$LuxFileName = "../../Control/ramdisk/current.lux"; 
 	
 	}
 

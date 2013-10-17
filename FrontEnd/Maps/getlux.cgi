@@ -18,7 +18,7 @@ my @LuxFileName;
 if(param('no')) { $LuxFileNumber = param('no'); $LuxFileName = $LuxFileNumber . ".lux"; }
 else {
 
-opendir(LUXDIR, "../../TestCode/Control/RunFiles/$Run/luxscan/");
+opendir(LUXDIR, "../../Control/RunFiles/$Run/luxscan/");
 my @LuxFiles = readdir(LUXDIR);
 @LuxFiles = sort(@LuxFiles);
 closedir(LUXDIR);
@@ -28,7 +28,7 @@ $LuxFileName = $LuxFiles[${@LuxFiles} - 2];
 
 #print $LuxFileName . "\n";
 
-open (LUXFILE, "../../TestCode/Control/RunFiles/$Run/luxscan/$LuxFileName");
+open (LUXFILE, "../../Control/RunFiles/$Run/luxscan/$LuxFileName");
 @LuxLines = <LUXFILE>;
 close LUXFILE;
 
