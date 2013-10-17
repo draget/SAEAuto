@@ -33,8 +33,8 @@ void trip() {
 
 void interrupt() {
 
-    if(hb_interruptcount > 30) {
-                      if(arm_state > 0) {
+    if(hb_interruptcount > 50) {
+                      if((arm_state > 0) && (brakeil == 1)) {
                                    hb_trip = 1;    // HB LED constant on
                                    tripreq = 1;
                       }

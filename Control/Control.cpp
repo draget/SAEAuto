@@ -167,11 +167,17 @@ void Control::Run() {
 	// Start all sensors/interfaces.
 	WebIPC->Start();
 	CarNetworkConnection->StartProcessMessages();
-	SafetySerial->Start();
-	LowLevelSerial->Start();
 	GPS->Start();
 	Lux->Start();
 	IMU->Start();
+	SafetySerial->Start();
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	SendAlarm();
+	boost::this_thread::sleep(boost::posix_time::milliseconds(400));
+
+	LowLevelSerial->Start();
+
 
 	// Loop through updating terminal and information output file.
 	while(RunState) {
