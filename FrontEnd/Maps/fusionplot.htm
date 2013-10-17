@@ -83,7 +83,27 @@
 		.Set('chart.gutter.left', 60)
                 .Draw();
 
-		var speedscatter = new RGraph.Scatter2('speedcvs', json.speeddata)
+		var speedscatter = new RGraph.Scatter2('speedcvs', json.speeddata, json.fusedspeeddata)
+		.Set('scale.decimals', 1)
+		.Set('xscale.decimals', 1)
+                .Set('xscale', true)
+		.Set('square', false)
+		.Set('chart.tickmarks','square')
+		.Set('chart.ticksize',2)
+		.Set('chart.gutter.left', 60)
+                .Draw();
+
+		var autospeedscatter = new RGraph.Scatter2('autospeedcvs', json.desiredspeed, json.fusedspeeddata)
+		.Set('scale.decimals', 1)
+		.Set('xscale.decimals', 1)
+                .Set('xscale', true)
+		.Set('square', false)
+		.Set('chart.tickmarks','square')
+		.Set('chart.ticksize',2)
+		.Set('chart.gutter.left', 60)
+                .Draw();
+
+		var tbscatter = new RGraph.Scatter2('tbcvs', json.throttlebrake)
 		.Set('scale.decimals', 1)
 		.Set('xscale.decimals', 1)
                 .Set('xscale', true)
@@ -109,7 +129,7 @@
 
 
 
-<table border=1><tr><td><h2>Car Diagnostic Display</h2> Run: <input type="text" id="run" value="0" /></td></tr>
+<table border=1><tr><td><h2>Car Diagnostic Display</h2> Run:  <input type="text" name="run" id="run" value="0" /><input type="button" onclick="location.reload()" value="Go"/></td></tr>
 
 	<tr><td><canvas id="poscvs" width="1000" height="750">[No canvas support]</canvas> <br />
 	Position XY: <font color="blue">Fused</font> <font color="green">Predicted</font> <font color="red">GPS</font>    Point:<input id="point" type="text" />
@@ -125,6 +145,14 @@
 	</td></tr>
 	<tr><td><canvas id="speedcvs" width="1000" height="500">[No canvas support]</canvas> <br />
 	Speed vs. Time: <font color="blue">Fused</font> <font color="red">GPS</font>
+
+	</td></tr>	
+	<tr><td><canvas id="autospeedcvs" width="1000" height="500">[No canvas support]</canvas> <br />
+	(Auto) Speed vs. Time: <font color="blue">Fused</font> <font color="red">Desired</font>
+
+	</td></tr>
+	<tr><td><canvas id="tbcvs" width="1000" height="500">[No canvas support]</canvas> <br />
+	Throttle/brake value vs. Time: <font color="purple">throttlebrake</font>
 
 	</td></tr>
 

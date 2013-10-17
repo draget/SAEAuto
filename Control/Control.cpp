@@ -419,7 +419,7 @@ void Control::LoadMap(std::string MapFilename) {
 
 	ClearMap();
 
-	std::ifstream infile(("../../FrontEnd/Maps/maps/" + MapFilename).c_str());
+	std::ifstream infile(("../FrontEnd/Maps/maps/" + MapFilename).c_str());
 
 	if (infile.is_open()) {
 
@@ -813,7 +813,7 @@ void Control::StopMapRecord(std::string MapName) {
 
 	RecordActive = false;
 
-	DumpMap("../../FrontEnd/Maps/maps/" + MapName + ".wyp");
+	DumpMap("../FrontEnd/Maps/maps/" + MapName + ".wyp");
 	
 	Log->WriteLogLine("Control - Finished recording " + boost::lexical_cast<std::string>(CurrentMap.Waypoints.size()) + " map points.");
 

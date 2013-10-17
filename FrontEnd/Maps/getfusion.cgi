@@ -43,7 +43,7 @@ foreach my $FusionLine (@FusionLines) {
 	elsif($LineType eq "V") { 
 		push(@{$PlotInfo->{"veldata"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, "blue"]);
 		push(@{$PlotInfo->{"veldata"}},[$LineContents[0]*1.0, $LineContents[2]*1.0, "orange"]);
-		push(@{$PlotInfo->{"speeddata"}},[$LineContents[0]*1.0, sqrt($LineContents[2]**2 + $LineContents[1]**2), "blue"]);
+		push(@{$PlotInfo->{"fusedspeeddata"}},[$LineContents[0]*1.0, sqrt($LineContents[2]**2 + $LineContents[1]**2), "blue"]);
 	}	
 	elsif($LineType eq "UV") { 
 		push(@{$PlotInfo->{"veldata"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, "green"]);
@@ -105,6 +105,12 @@ foreach my $AutoLine (@AutoLines) {
 	}
 	elsif($LineType eq "DB") {
 		push(@{$PlotInfo->{"desiredheading"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, "red"]);
+	}
+	elsif($LineType eq "DS") {
+		push(@{$PlotInfo->{"desiredspeed"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, "red"]);
+	}
+	elsif($LineType eq "TB") {
+		push(@{$PlotInfo->{"throttlebrake"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, "purple"]);
 	}
 
 }
