@@ -100,10 +100,10 @@ foreach my $AutoLine (@AutoLines) {
 	$AutoLine =~ s/\n//;
 	my ($LineType, @LineContents) = split(/,/,$AutoLine);
 
-	if($LineType eq "SS") { 
+	if($LineType eq "SS") { if($LineContents[0]*1.0 < 1000) { print $AutoLine . "\n"; }
 		push(@{$PlotInfo->{"steervalues"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, "purple"]);
 	}
-	elsif($LineType eq "DB") {
+	elsif($LineType eq "DB") { if($LineContents[0]*1.0 < 1000) { print $AutoLine . "\n"; }
 		push(@{$PlotInfo->{"desiredheading"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, "red"]);
 	}
 	elsif($LineType eq "DS") {

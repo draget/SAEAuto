@@ -63,7 +63,7 @@
 		.Set('chart.gutter.left', 60)
                 .Draw();
 				
-		var steeringscatter = new RGraph.Scatter2('steercvs', json.fusedheadingdata, json.steervalues, json.desiredheading,[[0,0,"black"]])
+		var steeringscatter = new RGraph.Scatter2('steercvs', json.fusedheadingdata, json.steervalues, json.desiredheading)
 		.Set('scale.decimals', 1)
 		.Set('xscale.decimals', 1)
                 .Set('xscale', true)
