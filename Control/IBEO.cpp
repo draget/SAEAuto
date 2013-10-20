@@ -435,8 +435,8 @@ void IBEO::ProjectObjectsToMap() {
 			// Ignore objects that make up the road.
 			if(CarControl->VectorMagnitude(Object) > OBJECT_THRESHOLD) { continue; }
 		
-			TransformedObject.x = -cos(-1*CarControl->Fuser->CurrentHeading) * Object.y + sin(-1*CarControl->Fuser->CurrentHeading) * Object.x + CarControl->Fuser->CurrentPosition.x;
-			TransformedObject.y = sin(-1*CarControl->Fuser->CurrentHeading) * Object.y + cos(-1*CarControl->Fuser->CurrentHeading) * Object.x + CarControl->Fuser->CurrentPosition.y;
+			TransformedObject.x = -cos(CarControl->Fuser->CurrentHeading) * Object.y + sin(CarControl->Fuser->CurrentHeading) * Object.x + CarControl->Fuser->CurrentPosition.x;
+			TransformedObject.y = -1*sin(CarControl->Fuser->CurrentHeading) * Object.y + cos(CarControl->Fuser->CurrentHeading) * Object.x + CarControl->Fuser->CurrentPosition.y;
 
 			bool Found = false;
 
