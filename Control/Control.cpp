@@ -330,7 +330,7 @@ void Control::WriteInfoFile() {
  * Inputs : The new trip state (type of trip).
  * Outputs: None.
  */
-void Control::Trip(int TripState) {
+void Control::Trip(int TripState) { 
 
 	std::string TripReason;
 
@@ -619,8 +619,8 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 	}
 
 	// Calculate the vector to the next waypoint.
-	VECTOR_2D VectorToNextWp = SubtractVector(CurrentMap.Waypoints[NextWaypoint], CurPosn); // Simple
-	//VECTOR_2D VectorToNextWp = GetInterpolatedVector(CurPosn);				// Use interpolation
+	//VECTOR_2D VectorToNextWp = SubtractVector(CurrentMap.Waypoints[NextWaypoint], CurPosn); // Simple
+	VECTOR_2D VectorToNextWp = GetInterpolatedVector(CurPosn);				// Use interpolation
 
 	// Calculate an angle bearing.
 	if(VectorToNextWp.y > 0 && VectorToNextWp.x < 0) { DesiredBearing = 360 + 90 - 360*atan2(VectorToNextWp.y,VectorToNextWp.x)/TwoPi; }
@@ -635,8 +635,8 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 	SteerController->setSetPoint(DesiredBearing);
 
 	// Speed profile based on turn radius.
-	if(CurrentSteeringSetPosn > 60) { DesiredSpeed = 0.6; }
-	else { DesiredSpeed = 1.0; }
+	if(fabs(CurrentSteeringSetPosn) < 50) { DesiredSpeed = 2.5; }
+	else { DesiredSpeed = 2.5 - 0.02*(fabs(CurrentSteeringSetPosn)-50); }
 
 	ThrottleController->setSetPoint(DesiredSpeed); 
 	BrakeController->setSetPoint(DesiredSpeed);
@@ -752,15 +752,13 @@ VECTOR_2D Control::GetInterpolatedVector(VECTOR_2D CurPosn) {
 	Spline splinex;
   	Spline spliney;
 
-	double CurrentSpeed = Fuser->CurrentSpeed;
-
 	double time = 0;
 
 	// Add the current position.
 	splinex.addPoint(time, CurPosn.x);
 	spliney.addPoint(time, CurPosn.y);
 
-	time = VectorMagnitude(SubtractVector(CurPosn,CurrentMap.Waypoints[NextWaypoint]))/CurrentSpeed;
+	time = VectorMagnitude(SubtractVector(CurPosn,CurrentMap.Waypoints[NextWaypoint]));
 
 	// Add a few waypoints ahead
 	for(int i = 0; (i < 3) && ((NextWaypoint + i) < CurrentMap.Waypoints.size()); i++) {
@@ -769,7 +767,7 @@ VECTOR_2D Control::GetInterpolatedVector(VECTOR_2D CurPosn) {
 		spliney.addPoint(time, CurrentMap.Waypoints[NextWaypoint + i].y);
 
 		if((NextWaypoint + i + 1) < CurrentMap.Waypoints.size()) {
-			time = VectorMagnitude(SubtractVector(CurrentMap.Waypoints[NextWaypoint + i + 1],CurrentMap.Waypoints[NextWaypoint + i]))/CurrentSpeed;
+			time = time + VectorMagnitude(SubtractVector(CurrentMap.Waypoints[NextWaypoint + i + 1],CurrentMap.Waypoints[NextWaypoint + i]));
 		}
 	
 	}
@@ -779,7 +777,6 @@ VECTOR_2D Control::GetInterpolatedVector(VECTOR_2D CurPosn) {
 
 	DesiredVector.x = splinex(0.1) - splinex(0);
 	DesiredVector.y = spliney(0.1) - spliney(0);
-
 
 	return DesiredVector;
 }
