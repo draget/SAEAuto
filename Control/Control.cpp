@@ -564,12 +564,12 @@ void Control::AutoStart() {
 
 	//Initialise the three PID controllers.
 
-	ThrottleController = new PID(30.0,5.0,0,0.1);
+	ThrottleController = new PID(10.0,3.0,0,0.1);
 	ThrottleController->setInputLimits(0.0, 30);
 	ThrottleController->setOutputLimits(-255,255);
 	ThrottleController->setMode(AUTO_MODE);
 
-	BrakeController = new PID(40.0,10.0,0,0.1);
+	BrakeController = new PID(20.0,4.0,0,0.1);
 	BrakeController->setInputLimits(0.0, 30);
 	BrakeController->setOutputLimits(-255,255);
 	BrakeController->setMode(AUTO_MODE);
@@ -829,7 +829,7 @@ void Control::StartMapRecord() {
  */
 void Control::MapRecordPosUpdate(VECTOR_2D CurPosn) {
 
-	if(VectorMagnitude(SubtractVector(CurPosn,LastRecordedPoint)) > MAPPOINT_RADIUS) {
+	if(VectorMagnitude(SubtractVector(CurPosn,LastRecordedPoint)) > MAPPOINT_RADIUS*2) {
 		CurrentMap.Waypoints.push_back(CurPosn);
 		LastRecordedPoint = CurPosn;
 	}
