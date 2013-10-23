@@ -141,7 +141,7 @@ void LowLevelSerialOut::SendCurrent() {
 		}
 
 		else { 
-			Log->WriteLogLine("LowLevelSerial - Brake/throttle set point out of range");
+			Log->WriteLogLine("LowLevelSerial - Brake/throttle set point out of range " + boost::lexical_cast<std::string>(CarControl->CurrentThrottleBrakeSetPosn));
 			CarControl->Trip(5);
 		}
 
