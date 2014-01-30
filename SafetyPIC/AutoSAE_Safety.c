@@ -1,3 +1,10 @@
+/*
+* UWA Autonomous SAE Hardware Safety Supervisor Code
+* Suits a PIC16F88.
+* Thomas Drage, 2013.
+*/
+
+
 
 char uart_rd;
 short brakeil = 1;
@@ -11,6 +18,9 @@ int hb_interruptcount = 0;
 int arm_interruptcount = 0;
 int alarm_counter = 0;
 
+/*
+* Perform appropriate emergency actions.
+*/
 void trip() {
 
      tripstate = 1;
@@ -30,7 +40,11 @@ void trip() {
 
 }
 
-
+/*
+* This function is called when the PICs hardware interrupt is triggered.
+* It handles operations based upon timers.
+*
+*/
 void interrupt() {
 
     if(hb_interruptcount > 50) {
@@ -67,7 +81,9 @@ void interrupt() {
 }
 
 
-
+/*
+* Program entry point.
+*/
 void main() {
 
      OSCCON = 0b1111110;    // Set up internal oscillator.
@@ -114,8 +130,9 @@ void main() {
      
               if(tripreq == 1) { trip(); }
 
-             asm { CLRWDT; }
-              if (UART1_Data_Ready()) {
+             asm { CLRWDT; } // Reset watchdog timer
+
+              if (UART1_Data_Ready()) {		// Receive serial data.
                  uart_rd = UART1_Read();
                  
                  if(uart_rd == 'E' && tripstate == 0) { trip(); }
@@ -132,14 +149,14 @@ void main() {
 
                  if(oldhbstate != hbstate) { hb_interruptcount = 0; }
 
-                 UART1_Write_Text("ACK ");
+                 UART1_Write_Text("ACK ");	// Reply with acknowledgement of message.
                  UART1_Write(uart_rd);
                  UART1_Write_Text("\n");
               }
 
-              if(tripstate == 0) { 
+              if(tripstate == 0) { // Update heartbeat LED.
                            PORTA.B3 = hbstate; 
-                           if(alarm_counter == 0) { PORTA.B0 = 0; }
+                           if(alarm_counter == 0) { PORTA.B0 = 0; } // Turn off the alarm if it shouldn't be on.
               }
               
               PORTB.B1 = brakeil;

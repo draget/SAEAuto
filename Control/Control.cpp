@@ -706,6 +706,9 @@ void Control::AutoTrackUpdate(double CurTrack) {
 	// If we cross north before the desired bearing is recalculated it will need fixing!
 	if(DesiredBearing < 0 && CurTrack > 180) { DesiredBearing = DesiredBearing + 360; SteerController->setSetPoint(DesiredBearing); }
 	if(DesiredBearing > 360 && CurTrack < 180) { DesiredBearing = DesiredBearing - 360; SteerController->setSetPoint(DesiredBearing); }
+	if(CurTrack < 0 && DesiredBearing > 180) { DesiredBearing =  DesiredBearing - 360; SteerController->setSetPoint(DesiredBearing); }
+	if(CurTrack > 360 && DesiredBearing < 180) { DesiredBearing =  DesiredBearing + 360; SteerController->setSetPoint(DesiredBearing); }
+
 
 	SteerController->setProcessValue(CurTrack);
 	CurrentSteeringSetPosn = SteerController->compute();

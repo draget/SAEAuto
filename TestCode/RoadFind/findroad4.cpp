@@ -23,7 +23,7 @@
 
 #include "BoeingKalman.cpp"
 
-#define MAX_SLOPE	0.5
+#define MAX_SLOPE	0.4
 #define MIN_R	0.1
 #define GROUPSIZE 12
 #define MAX_X	10
@@ -31,6 +31,7 @@
 #define MIN_X	0.75
 #define ALLOWED_VARIATION	1.5
 #define CUTOFF_SLOPE	0.75
+#define VARIATION_THRESHOLD	0.25
 
 int dips = 0;
 int reallocs = 0;
@@ -142,13 +143,13 @@ int findrpeak(double AvgRHS, std::vector<RPOINT> rightr) {
 		}
 
 		// If we are off average, but not by too far its profitable to seek the dip.
-		if((fabs(Peak_x - AvgRHS) > 0.25 || CheckDip) && fabs(Dip_x) > fabs(Peak_x) && fabs(Dip_x - AvgRHS) < ALLOWED_VARIATION) {
-			dips++;
+		if((fabs(Peak_x - AvgRHS) > VARIATION_THRESHOLD || CheckDip) && fabs(Dip_x) > fabs(Peak_x) && fabs(Dip_x - AvgRHS) < ALLOWED_VARIATION) {
+			dips++; 
 			return Dip_i;
 
 		}
 
-		if(Max_r > MIN_R) { peaked++; return Peak_i; }
+		if(Max_r > MIN_R) {  peaked++; return Peak_i; }
 
 		else { failed++; return 0; }
 	
@@ -310,7 +311,7 @@ double* findroad(std::string file, double AvgLHS, double AvgRHS) {
 			Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
 
 			double r = pow(fit.getCoefficient(),2);
-							//std::cout << i << "," << xvalues[i] << "," << r << "," << fit.getSlope() << "\n";
+							std::cout << i << "," << xvalues[i] << "," << r << "," << fit.getSlope() << "\n";
 
 			RPOINT fitpoint;
 			fitpoint.i = i;
@@ -412,7 +413,7 @@ std::vector<std::string> files;
  DIR *dfd;
 
  char *dir ;
- dir = "./curbs2";
+ dir = "./curbs1";
 
 
  if ((dfd = opendir(dir)) == NULL)
@@ -459,7 +460,7 @@ double RHS = 2;
 
 KalmanPVA KlmL = KalmanPVA(2,K_P,LHS,0,0,0.2,ProcNoise,MeasNoise);
 KalmanPVA KlmR = KalmanPVA(2,K_P,RHS,0,0,0.2,ProcNoise,MeasNoise);
-
+/*
 for (std::vector<std::string>::iterator it=files.begin(); it!=files.end(); ++it) {
 
 	Edges = findroad(*it,LHS,RHS);
@@ -478,15 +479,17 @@ for (std::vector<std::string>::iterator it=files.begin(); it!=files.end(); ++it)
 	
 	//std::cout << *it << "\n";
 
-	std::cout << Edges[0] << "," << Edges[1] << "," << LHS << "," << RHS << "\n";
-}
+	//std::cout << Edges[0] << "," << Edges[1] << "," << LHS << "," << RHS << "\n";
+
+	//std::cout << KlmL.GetVelocityEstimate() << "," << KlmR.GetVelocityEstimate() << "\n";
+}*/
 
 	std::cout << "Peaked " << peaked << "\n";
 	std::cout << "Reallocated " << reallocs << "\n";
 	std::cout << "Dips " << dips << "\n";
 	std::cout << "Failed " << failed << "\n";
 
-	//Edges = findroad("./curbs1/1382085949.3852961.lux",-2.5,2.6);
+	Edges = findroad("./curbs1/1382085929.4942639.lux",-2.5769,2.75913);
 	//std::cout << Edges[0] << "," << Edges[1] << "\n";
 
 	return 0;
