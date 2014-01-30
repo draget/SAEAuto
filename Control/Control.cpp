@@ -636,7 +636,8 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 
 	// Speed profile based on turn radius.
 	if(fabs(CurrentSteeringSetPosn) < 50) { DesiredSpeed = 2.5; }
-	else { DesiredSpeed = 2.5 - 0.02*(fabs(CurrentSteeringSetPosn)-50); }
+	//else { DesiredSpeed = 2.5 - 0.02*(fabs(CurrentSteeringSetPosn)-50); }
+	else { DesiredSpeed = 1.0; }
 
 	ThrottleController->setSetPoint(DesiredSpeed); 
 	BrakeController->setSetPoint(DesiredSpeed);
@@ -662,7 +663,7 @@ void Control::AutoSpeedUpdate(double CurSpeed) {
 	
 	double SpeedIncrement = ThrottleController->compute();
 	double BrakeValue = BrakeController->compute();
-
+Log->WriteLogLine(boost::lexical_cast<std::string>(BrakeValue));
 	std::string time;
 	
 	if(ExtLogging) { 
@@ -678,11 +679,13 @@ void Control::AutoSpeedUpdate(double CurSpeed) {
 			CurrentThrottleBrakeSetPosn = 255;
 		}
 		else if ((CurrentThrottleBrakeSetPosn + SpeedIncrement) < 0 && BrakeValue < 0) {
-			CurrentThrottleBrakeSetPosn = BrakeValue;
+			if(BrakeValue > -255) { CurrentThrottleBrakeSetPosn = BrakeValue; }
+			else { BrakeValue = -255; }
 		}
-		else {
+		else if((CurrentThrottleBrakeSetPosn + SpeedIncrement) > 0) {
 			CurrentThrottleBrakeSetPosn = CurrentThrottleBrakeSetPosn + SpeedIncrement; 
 		}
+		else { CurrentThrottleBrakeSetPosn = 0; }
 
 	}
 	else { 
