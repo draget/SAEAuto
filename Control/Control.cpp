@@ -482,8 +482,10 @@ void Control::LoadMap(std::string MapFilename) {
 		emxArray_real_T *sy = emxCreate_real_T(1,1);
 		emxArray_real_T *ss = emxCreate_real_T(1,1);
 
-		arclengthcurve(points, 100, scoefx, scoefy, si);
+		arclengthcurve(points, 300, scoefx, scoefy, si);
 		builddetailedbf(scoefx,scoefy,si,1,sx,sy,ss);
+		
+		CurrentMap.BaseFrame.clear();
 		
 		for(int i = 0; i < sx->size[0]; i++) {
 			MapPoint.x = sx->data[i];

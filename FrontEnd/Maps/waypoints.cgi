@@ -539,6 +539,11 @@ function sendCommand(Command) {
 }
 
 function drawbaseframe(json) {
+	
+	while(baseframe.length > 0) {
+		baseframe.pop();
+	}
+	
 	for (i = 0; i < json.mapdata.length; i++) {
 		baseframe[baseframe.length] = new google.maps.LatLng(json.mapdata[i][0],json.mapdata[i][1]);
 	}
