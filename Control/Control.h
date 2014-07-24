@@ -42,6 +42,7 @@ struct MAP {
 	std::vector<VECTOR_2D> Fenceposts;
 	std::vector<VECTOR_2D> Waypoints;
 	std::vector<VECTOR_2D> DetectedFenceposts;
+	std::vector<VECTOR_2D> BaseFrame;
 
 };
 
@@ -65,6 +66,7 @@ public:
 	void LoadMap(std::string MapFilename);
 	void DumpMap();
 	void DumpMap(std::string MapName);
+	void DumpBaseFrame();
 	void ClearMap();
 
 	bool HeartbeatState;
@@ -111,6 +113,7 @@ public:
 	static double TimeStamp();
 
 	VECTOR_2D LatLongToXY(double lat, double lng);
+	VECTOR_2D XYToLatLong(double x, double y);
 	
 	static double VectorMagnitude(VECTOR_2D MapPoint);
 	static VECTOR_2D SubtractVector(VECTOR_2D Point1, VECTOR_2D Point2);

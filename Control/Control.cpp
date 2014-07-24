@@ -36,6 +36,10 @@
 #include "PID.h"
 #include "spline.hpp"
 
+#include "matlab/matlab_emxAPI.h"
+#include "matlab/arclengthcurve.h"
+#include "matlab/builddetailedbf.h"
+
 Control *SAECar;
 
 
@@ -468,6 +472,28 @@ void Control::LoadMap(std::string MapFilename) {
 
     		}
     		infile.close();
+
+		emxArray_real_T *points;
+		points = emxCreateWrapper_real_T(&CurrentMap.Waypoints[0].x, 2, w);
+		emxArray_real_T *scoefx = emxCreate_real_T(1,1);
+		emxArray_real_T *scoefy = emxCreate_real_T(1,1);
+		emxArray_real_T *si = emxCreate_real_T(1,1);
+		emxArray_real_T *sx = emxCreate_real_T(1,1);
+		emxArray_real_T *sy = emxCreate_real_T(1,1);
+		emxArray_real_T *ss = emxCreate_real_T(1,1);
+
+		arclengthcurve(points, 100, scoefx, scoefy, si);
+		builddetailedbf(scoefx,scoefy,si,1,sx,sy,ss);
+		
+		for(int i = 0; i < sx->size[0]; i++) {
+			MapPoint.x = sx->data[i];
+			MapPoint.y = sy->data[i];
+			CurrentMap.BaseFrame.push_back(MapPoint);
+		}
+		
+		Log->WriteLogLine("Size: " + boost::lexical_cast<std::string>(sx->size[0]));
+		Log->WriteLogLine("Path Length: " + boost::lexical_cast<std::string>(si->data[si->size[0]-1]));
+		
 		Log->WriteLogLine("Control - loaded " + boost::lexical_cast<std::string>(f) + " fence and " + boost::lexical_cast<std::string>(w) + " waypoints.");
   	}
 	else { Log->WriteLogLine("Control - Couldn't open map"); }
@@ -542,6 +568,32 @@ void Control::DumpMap(std::string MapName) {
 	DumpLog->ClearLock();	
 }
 
+/**
+ * Purpose: Saves current baseframe to a text file.
+ * Inputs : None.
+ * Outputs: None.
+ */
+void Control::DumpBaseFrame() {
+
+	// Create a new logger, set a lock and empty the file if it exists.
+	Logger* DumpLog = new Logger("./ramdisk/baseframe.txt");
+	
+
+	DumpLog->WriteLock();
+	DumpLog->ClearLog();
+
+
+	// Dump the baseframe waypoints in lat/long
+	int i = 0;
+	BOOST_FOREACH( VECTOR_2D MapPoint, CurrentMap.BaseFrame ) {
+		VECTOR_2D LatLongPoint = XYToLatLong(MapPoint.x, MapPoint.y);
+   		DumpLog->WriteLogLine(boost::lexical_cast<std::string>(i) + "," + boost::lexical_cast<std::string>(LatLongPoint.x) + "," + boost::lexical_cast<std::string>(LatLongPoint.y), true);
+		i++;
+	}
+
+	DumpLog->CloseLog();
+	DumpLog->ClearLock();	
+}
 
 /**
  * Purpose: Starts Autonomous driving.
@@ -911,6 +963,19 @@ VECTOR_2D Control::LatLongToXY(double lat, double lng) {
 
 	MapPoint.y = -1*EARTH_RADIUS*TwoPi*(DatumLat - lat)/360;
 	MapPoint.x = -1*EARTH_RADIUS*cos(abs(lat))*TwoPi*(DatumLong - lng)/360;
+
+	return MapPoint;
+
+}
+
+VECTOR_2D Control::XYToLatLong(double x, double y) {
+
+	VECTOR_2D MapPoint;
+
+	//Lat
+	MapPoint.x = 1*y*360/(EARTH_RADIUS*TwoPi) + DatumLat;
+	//Lon
+	MapPoint.y = 1*x*360/(EARTH_RADIUS*TwoPi*cos(abs(MapPoint.x))) + DatumLong;
 
 	return MapPoint;
 

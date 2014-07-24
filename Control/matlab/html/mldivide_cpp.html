@@ -14,7 +14,7 @@
 <a name="3"><font color="#888888"><i>    3   </i></font></a><font color="#117755"><I> *</i></font>
 <a name="4"><font color="#888888"><i>    4   </i></font></a><font color="#117755"><I> * Code generation for function 'mldivide'</i></font>
 <a name="5"><font color="#888888"><i>    5   </i></font></a><font color="#117755"><I> *</i></font>
-<a name="6"><font color="#888888"><i>    6   </i></font></a><font color="#117755"><I> * C source code generated on: Wed Jul 23 14:27:34 2014</i></font>
+<a name="6"><font color="#888888"><i>    6   </i></font></a><font color="#117755"><I> * C source code generated on: Wed Jul 23 22:33:34 2014</i></font>
 <a name="7"><font color="#888888"><i>    7   </i></font></a><font color="#117755"><I> *</i></font>
 <a name="8"><font color="#888888"><i>    8   </i></font></a><font color="#117755"><I> */</i></font>
 <a name="9"><font color="#888888"><i>    9   </i></font></a>
@@ -71,7 +71,7 @@
 <a name="60"><font color="#888888"><i>   60   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> ia;
 <a name="61"><font color="#888888"><i>   61   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> exitg1;
 <a name="62"><font color="#888888"><i>   62   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> iy;
-<a name="63"><font color="#888888"><i>   63   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> i6;
+<a name="63"><font color="#888888"><i>   63   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> i7;
 <a name="64"><font color="#888888"><i>   64   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> ix;
 <a name="65"><font color="#888888"><i>   65   </i></font></a>  <a href="rtwtypes_h.html#type_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_real_T');" target="rtwreport_document_frame"><font color="#1122aa">real_T</font></a> c;
 <a name="66"><font color="#888888"><i>   66   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> jy;
@@ -122,8 +122,8 @@
 <a name="111"><font color="#888888"><i>  111   </i></font></a>      <b>}</b>
 <a name="112"><font color="#888888"><i>  112   </i></font></a>
 <a name="113"><font color="#888888"><i>  113   </i></font></a>      iy = 0;
-<a name="114"><font color="#888888"><i>  114   </i></font></a>      i6 = ic0 + ldc * i;
-<a name="115"><font color="#888888"><i>  115   </i></font></a>      <font color="#112266"><b>for</b></font> (i = ic0; i &lt;= i6; i += ldc) <b>{</b>
+<a name="114"><font color="#888888"><i>  114   </i></font></a>      i7 = ic0 + ldc * i;
+<a name="115"><font color="#888888"><i>  115   </i></font></a>      <font color="#112266"><b>for</b></font> (i = ic0; i &lt;= i7; i += ldc) <b>{</b>
 <a name="116"><font color="#888888"><i>  116   </i></font></a>        ix = iv0;
 <a name="117"><font color="#888888"><i>  117   </i></font></a>        c = 0.0;
 <a name="118"><font color="#888888"><i>  118   </i></font></a>        jy = i + lastv;
@@ -145,8 +145,8 @@
 <a name="134"><font color="#888888"><i>  134   </i></font></a>        <font color="#112266"><b>if</b></font> (work-&gt;data[jy] != 0.0) <b>{</b>
 <a name="135"><font color="#888888"><i>  135   </i></font></a>          c = work-&gt;data[jy] * -tau;
 <a name="136"><font color="#888888"><i>  136   </i></font></a>          ix = iv0;
-<a name="137"><font color="#888888"><i>  137   </i></font></a>          i6 = lastv + i;
-<a name="138"><font color="#888888"><i>  138   </i></font></a>          <font color="#112266"><b>for</b></font> (iy = i; iy + 1 &lt;= i6; iy++) <b>{</b>
+<a name="137"><font color="#888888"><i>  137   </i></font></a>          i7 = lastv + i;
+<a name="138"><font color="#888888"><i>  138   </i></font></a>          <font color="#112266"><b>for</b></font> (iy = i; iy + 1 &lt;= i7; iy++) <b>{</b>
 <a name="139"><font color="#888888"><i>  139   </i></font></a>            C-&gt;data[iy] += C-&gt;data[ix - 1] * c;
 <a name="140"><font color="#888888"><i>  140   </i></font></a>            ix++;
 <a name="141"><font color="#888888"><i>  141   </i></font></a>          <b>}</b>
@@ -509,11 +509,11 @@
 <a name="498"><font color="#888888"><i>  498   </i></font></a><font color="#112266"><b>static</b></font> <font color="#112266"><b>void</b></font> <a name="fcn_eml_xscal">eml_xscal</a>(<a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> n, <a href="rtwtypes_h.html#type_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_real_T');" target="rtwreport_document_frame"><font color="#1122aa">real_T</font></a> a, <a href="matlab_types_h.html#type_emxArray_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_emxArray_real_T');" target="rtwreport_document_frame"><font color="#1122aa">emxArray_real_T</font></a> *x, <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> ix0)
 <a name="499"><font color="#888888"><i>  499   </i></font></a><b>{</b>
 <a name="500"><font color="#888888"><i>  500   </i></font></a>  <a href="matlab_types_h.html#type_emxArray_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_emxArray_real_T');" target="rtwreport_document_frame"><font color="#1122aa">emxArray_real_T</font></a> *b_x;
-<a name="501"><font color="#888888"><i>  501   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> i5;
+<a name="501"><font color="#888888"><i>  501   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> i6;
 <a name="502"><font color="#888888"><i>  502   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> k;
 <a name="503"><font color="#888888"><i>  503   </i></font></a>  <a href="matlab_emxutil_cpp.html#fcn_b_emxInit_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_b_emxInit_real_T');" target="rtwreport_document_frame"><font color="#1122aa">b_emxInit_real_T</font></a>(&amp;b_x, 2);
-<a name="504"><font color="#888888"><i>  504   </i></font></a>  i5 = (ix0 + n) - 1;
-<a name="505"><font color="#888888"><i>  505   </i></font></a>  <font color="#112266"><b>for</b></font> (k = ix0; k &lt;= i5; k++) <b>{</b>
+<a name="504"><font color="#888888"><i>  504   </i></font></a>  i6 = (ix0 + n) - 1;
+<a name="505"><font color="#888888"><i>  505   </i></font></a>  <font color="#112266"><b>for</b></font> (k = ix0; k &lt;= i6; k++) <b>{</b>
 <a name="506"><font color="#888888"><i>  506   </i></font></a>    x-&gt;data[k - 1] *= a;
 <a name="507"><font color="#888888"><i>  507   </i></font></a>  <b>}</b>
 <a name="508"><font color="#888888"><i>  508   </i></font></a>
@@ -573,7 +573,7 @@
 <a name="562"><font color="#888888"><i>  562   </i></font></a>  <a href="matlab_types_h.html#type_emxArray_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_emxArray_real_T');" target="rtwreport_document_frame"><font color="#1122aa">emxArray_real_T</font></a> *Y;
 <a name="563"><font color="#888888"><i>  563   </i></font></a>  <a href="matlab_types_h.html#type_emxArray_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_emxArray_real_T');" target="rtwreport_document_frame"><font color="#1122aa">emxArray_real_T</font></a> *b_B;
 <a name="564"><font color="#888888"><i>  564   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> n;
-<a name="565"><font color="#888888"><i>  565   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> i4;
+<a name="565"><font color="#888888"><i>  565   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> i5;
 <a name="566"><font color="#888888"><i>  566   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> jy;
 <a name="567"><font color="#888888"><i>  567   </i></font></a>  <a href="matlab_types_h.html#type_emxArray_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_emxArray_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">emxArray_int32_T</font></a> *ipiv;
 <a name="568"><font color="#888888"><i>  568   </i></font></a>  <a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a> ldap1;
@@ -593,13 +593,13 @@
 <a name="582"><font color="#888888"><i>  582   </i></font></a>  <font color="#112266"><b>if</b></font> (A-&gt;size[0] == A-&gt;size[1]) <b>{</b>
 <a name="583"><font color="#888888"><i>  583   </i></font></a>    <a href="matlab_emxutil_cpp.html#fcn_b_emxInit_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_b_emxInit_real_T');" target="rtwreport_document_frame"><font color="#1122aa">b_emxInit_real_T</font></a>(&amp;b_B, 2);
 <a name="584"><font color="#888888"><i>  584   </i></font></a>    n = A-&gt;size[1];
-<a name="585"><font color="#888888"><i>  585   </i></font></a>    i4 = b_B-&gt;size[0] * b_B-&gt;size[1];
+<a name="585"><font color="#888888"><i>  585   </i></font></a>    i5 = b_B-&gt;size[0] * b_B-&gt;size[1];
 <a name="586"><font color="#888888"><i>  586   </i></font></a>    b_B-&gt;size[0] = A-&gt;size[0];
 <a name="587"><font color="#888888"><i>  587   </i></font></a>    b_B-&gt;size[1] = A-&gt;size[1];
-<a name="588"><font color="#888888"><i>  588   </i></font></a>    <a href="matlab_emxutil_cpp.html#fcn_emxEnsureCapacity" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxEnsureCapacity');" target="rtwreport_document_frame"><font color="#1122aa">emxEnsureCapacity</font></a>((<a href="matlab_types_h.html#type_emxArray__common" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_emxArray__common');" target="rtwreport_document_frame"><font color="#1122aa">emxArray__common</font></a> *)b_B, i4, (<a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a>)<font color="#112266"><b>sizeof</b></font>(<a href="rtwtypes_h.html#type_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_real_T');" target="rtwreport_document_frame"><font color="#1122aa">real_T</font></a>));
+<a name="588"><font color="#888888"><i>  588   </i></font></a>    <a href="matlab_emxutil_cpp.html#fcn_emxEnsureCapacity" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxEnsureCapacity');" target="rtwreport_document_frame"><font color="#1122aa">emxEnsureCapacity</font></a>((<a href="matlab_types_h.html#type_emxArray__common" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_emxArray__common');" target="rtwreport_document_frame"><font color="#1122aa">emxArray__common</font></a> *)b_B, i5, (<a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a>)<font color="#112266"><b>sizeof</b></font>(<a href="rtwtypes_h.html#type_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_real_T');" target="rtwreport_document_frame"><font color="#1122aa">real_T</font></a>));
 <a name="589"><font color="#888888"><i>  589   </i></font></a>    jy = A-&gt;size[0] * A-&gt;size[1] - 1;
-<a name="590"><font color="#888888"><i>  590   </i></font></a>    <font color="#112266"><b>for</b></font> (i4 = 0; i4 &lt;= jy; i4++) <b>{</b>
-<a name="591"><font color="#888888"><i>  591   </i></font></a>      b_B-&gt;data[i4] = A-&gt;data[i4];
+<a name="590"><font color="#888888"><i>  590   </i></font></a>    <font color="#112266"><b>for</b></font> (i5 = 0; i5 &lt;= jy; i5++) <b>{</b>
+<a name="591"><font color="#888888"><i>  591   </i></font></a>      b_B-&gt;data[i5] = A-&gt;data[i5];
 <a name="592"><font color="#888888"><i>  592   </i></font></a>    <b>}</b>
 <a name="593"><font color="#888888"><i>  593   </i></font></a>
 <a name="594"><font color="#888888"><i>  594   </i></font></a>    <a href="matlab_emxutil_cpp.html#fcn_emxInit_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxInit_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">emxInit_int32_T</font></a>(&amp;ipiv, 2);
@@ -640,8 +640,8 @@
 <a name="629"><font color="#888888"><i>  629   </i></font></a>          <a href="mldivide_cpp.html#fcn_eml_xswap" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_eml_xswap');" target="rtwreport_document_frame"><font color="#1122aa">eml_xswap</font></a>(n, b_B, j, n, (j + jy) - 1, n);
 <a name="630"><font color="#888888"><i>  630   </i></font></a>        <b>}</b>
 <a name="631"><font color="#888888"><i>  631   </i></font></a>
-<a name="632"><font color="#888888"><i>  632   </i></font></a>        i4 = (jp1j + mmj) - 1;
-<a name="633"><font color="#888888"><i>  633   </i></font></a>        <font color="#112266"><b>for</b></font> (jy = jp1j; jy &lt;= i4; jy++) <b>{</b>
+<a name="632"><font color="#888888"><i>  632   </i></font></a>        i5 = (jp1j + mmj) - 1;
+<a name="633"><font color="#888888"><i>  633   </i></font></a>        <font color="#112266"><b>for</b></font> (jy = jp1j; jy &lt;= i5; jy++) <b>{</b>
 <a name="634"><font color="#888888"><i>  634   </i></font></a>          b_B-&gt;data[jy - 1] /= b_B-&gt;data[jj];
 <a name="635"><font color="#888888"><i>  635   </i></font></a>        <b>}</b>
 <a name="636"><font color="#888888"><i>  636   </i></font></a>      <b>}</b>
@@ -653,8 +653,8 @@
 <a name="642"><font color="#888888"><i>  642   </i></font></a>        temp = b_B-&gt;data[jy];
 <a name="643"><font color="#888888"><i>  643   </i></font></a>        <font color="#112266"><b>if</b></font> (b_B-&gt;data[jy] != 0.0) <b>{</b>
 <a name="644"><font color="#888888"><i>  644   </i></font></a>          ix = jp1j;
-<a name="645"><font color="#888888"><i>  645   </i></font></a>          i4 = mmj + jA;
-<a name="646"><font color="#888888"><i>  646   </i></font></a>          <font color="#112266"><b>for</b></font> (jj = jA; jj + 1 &lt;= i4; jj++) <b>{</b>
+<a name="645"><font color="#888888"><i>  645   </i></font></a>          i5 = mmj + jA;
+<a name="646"><font color="#888888"><i>  646   </i></font></a>          <font color="#112266"><b>for</b></font> (jj = jA; jj + 1 &lt;= i5; jj++) <b>{</b>
 <a name="647"><font color="#888888"><i>  647   </i></font></a>            b_B-&gt;data[jj] += b_B-&gt;data[ix - 1] * -temp;
 <a name="648"><font color="#888888"><i>  648   </i></font></a>            ix++;
 <a name="649"><font color="#888888"><i>  649   </i></font></a>          <b>}</b>
@@ -696,23 +696,23 @@
 <a name="685"><font color="#888888"><i>  685   </i></font></a>    <a href="matlab_emxutil_cpp.html#fcn_emxFree_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxFree_real_T');" target="rtwreport_document_frame"><font color="#1122aa">emxFree_real_T</font></a>(&amp;b_B);
 <a name="686"><font color="#888888"><i>  686   </i></font></a>  <b>}</b> <font color="#112266"><b>else</b></font> <b>{</b>
 <a name="687"><font color="#888888"><i>  687   </i></font></a>    <a href="matlab_emxutil_cpp.html#fcn_emxInit_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxInit_real_T');" target="rtwreport_document_frame"><font color="#1122aa">emxInit_real_T</font></a>(&amp;b_B, 1);
-<a name="688"><font color="#888888"><i>  688   </i></font></a>    i4 = b_B-&gt;size[0];
+<a name="688"><font color="#888888"><i>  688   </i></font></a>    i5 = b_B-&gt;size[0];
 <a name="689"><font color="#888888"><i>  689   </i></font></a>    b_B-&gt;size[0] = B-&gt;size[0];
-<a name="690"><font color="#888888"><i>  690   </i></font></a>    <a href="matlab_emxutil_cpp.html#fcn_emxEnsureCapacity" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxEnsureCapacity');" target="rtwreport_document_frame"><font color="#1122aa">emxEnsureCapacity</font></a>((<a href="matlab_types_h.html#type_emxArray__common" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_emxArray__common');" target="rtwreport_document_frame"><font color="#1122aa">emxArray__common</font></a> *)b_B, i4, (<a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a>)<font color="#112266"><b>sizeof</b></font>(<a href="rtwtypes_h.html#type_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_real_T');" target="rtwreport_document_frame"><font color="#1122aa">real_T</font></a>));
+<a name="690"><font color="#888888"><i>  690   </i></font></a>    <a href="matlab_emxutil_cpp.html#fcn_emxEnsureCapacity" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxEnsureCapacity');" target="rtwreport_document_frame"><font color="#1122aa">emxEnsureCapacity</font></a>((<a href="matlab_types_h.html#type_emxArray__common" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_emxArray__common');" target="rtwreport_document_frame"><font color="#1122aa">emxArray__common</font></a> *)b_B, i5, (<a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a>)<font color="#112266"><b>sizeof</b></font>(<a href="rtwtypes_h.html#type_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_real_T');" target="rtwreport_document_frame"><font color="#1122aa">real_T</font></a>));
 <a name="691"><font color="#888888"><i>  691   </i></font></a>    jy = B-&gt;size[0] - 1;
-<a name="692"><font color="#888888"><i>  692   </i></font></a>    <font color="#112266"><b>for</b></font> (i4 = 0; i4 &lt;= jy; i4++) <b>{</b>
-<a name="693"><font color="#888888"><i>  693   </i></font></a>      b_B-&gt;data[i4] = B-&gt;data[i4];
+<a name="692"><font color="#888888"><i>  692   </i></font></a>    <font color="#112266"><b>for</b></font> (i5 = 0; i5 &lt;= jy; i5++) <b>{</b>
+<a name="693"><font color="#888888"><i>  693   </i></font></a>      b_B-&gt;data[i5] = B-&gt;data[i5];
 <a name="694"><font color="#888888"><i>  694   </i></font></a>    <b>}</b>
 <a name="695"><font color="#888888"><i>  695   </i></font></a>
 <a name="696"><font color="#888888"><i>  696   </i></font></a>    <a href="matlab_emxutil_cpp.html#fcn_emxInit_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxInit_real_T');" target="rtwreport_document_frame"><font color="#1122aa">emxInit_real_T</font></a>(&amp;r11, 1);
 <a name="697"><font color="#888888"><i>  697   </i></font></a>    <a href="mldivide_cpp.html#fcn_eml_qrsolve" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_eml_qrsolve');" target="rtwreport_document_frame"><font color="#1122aa">eml_qrsolve</font></a>(A, b_B, r11);
-<a name="698"><font color="#888888"><i>  698   </i></font></a>    i4 = B-&gt;size[0];
+<a name="698"><font color="#888888"><i>  698   </i></font></a>    i5 = B-&gt;size[0];
 <a name="699"><font color="#888888"><i>  699   </i></font></a>    B-&gt;size[0] = r11-&gt;size[0];
-<a name="700"><font color="#888888"><i>  700   </i></font></a>    <a href="matlab_emxutil_cpp.html#fcn_emxEnsureCapacity" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxEnsureCapacity');" target="rtwreport_document_frame"><font color="#1122aa">emxEnsureCapacity</font></a>((<a href="matlab_types_h.html#type_emxArray__common" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_emxArray__common');" target="rtwreport_document_frame"><font color="#1122aa">emxArray__common</font></a> *)B, i4, (<a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a>)<font color="#112266"><b>sizeof</b></font>(<a href="rtwtypes_h.html#type_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_real_T');" target="rtwreport_document_frame"><font color="#1122aa">real_T</font></a>));
+<a name="700"><font color="#888888"><i>  700   </i></font></a>    <a href="matlab_emxutil_cpp.html#fcn_emxEnsureCapacity" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxEnsureCapacity');" target="rtwreport_document_frame"><font color="#1122aa">emxEnsureCapacity</font></a>((<a href="matlab_types_h.html#type_emxArray__common" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_emxArray__common');" target="rtwreport_document_frame"><font color="#1122aa">emxArray__common</font></a> *)B, i5, (<a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a>)<font color="#112266"><b>sizeof</b></font>(<a href="rtwtypes_h.html#type_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_real_T');" target="rtwreport_document_frame"><font color="#1122aa">real_T</font></a>));
 <a name="701"><font color="#888888"><i>  701   </i></font></a>    <a href="matlab_emxutil_cpp.html#fcn_emxFree_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxFree_real_T');" target="rtwreport_document_frame"><font color="#1122aa">emxFree_real_T</font></a>(&amp;b_B);
 <a name="702"><font color="#888888"><i>  702   </i></font></a>    jy = r11-&gt;size[0] - 1;
-<a name="703"><font color="#888888"><i>  703   </i></font></a>    <font color="#112266"><b>for</b></font> (i4 = 0; i4 &lt;= jy; i4++) <b>{</b>
-<a name="704"><font color="#888888"><i>  704   </i></font></a>      B-&gt;data[i4] = r11-&gt;data[i4];
+<a name="703"><font color="#888888"><i>  703   </i></font></a>    <font color="#112266"><b>for</b></font> (i5 = 0; i5 &lt;= jy; i5++) <b>{</b>
+<a name="704"><font color="#888888"><i>  704   </i></font></a>      B-&gt;data[i5] = r11-&gt;data[i5];
 <a name="705"><font color="#888888"><i>  705   </i></font></a>    <b>}</b>
 <a name="706"><font color="#888888"><i>  706   </i></font></a>
 <a name="707"><font color="#888888"><i>  707   </i></font></a>    <a href="matlab_emxutil_cpp.html#fcn_emxFree_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxFree_real_T');" target="rtwreport_document_frame"><font color="#1122aa">emxFree_real_T</font></a>(&amp;r11);

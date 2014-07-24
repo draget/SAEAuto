@@ -14,7 +14,7 @@
 <a name="3"><font color="#888888"><i>    3   </i></font></a><font color="#117755"><I> *</i></font>
 <a name="4"><font color="#888888"><i>    4   </i></font></a><font color="#117755"><I> * Code generation for function 'parevalspline'</i></font>
 <a name="5"><font color="#888888"><i>    5   </i></font></a><font color="#117755"><I> *</i></font>
-<a name="6"><font color="#888888"><i>    6   </i></font></a><font color="#117755"><I> * C source code generated on: Wed Jul 23 14:27:34 2014</i></font>
+<a name="6"><font color="#888888"><i>    6   </i></font></a><font color="#117755"><I> * C source code generated on: Wed Jul 23 22:33:34 2014</i></font>
 <a name="7"><font color="#888888"><i>    7   </i></font></a><font color="#117755"><I> *</i></font>
 <a name="8"><font color="#888888"><i>    8   </i></font></a><font color="#117755"><I> */</i></font>
 <a name="9"><font color="#888888"><i>    9   </i></font></a>
@@ -61,7 +61,7 @@
 <a name="50"><font color="#888888"><i>   50   </i></font></a>
 <a name="51"><font color="#888888"><i>   51   </i></font></a>  <font color="#117755"><i>/* UNTITLED16 Summary of this function goes here */</i></font>
 <a name="52"><font color="#888888"><i>   52   </i></font></a>  <font color="#117755"><i>/*    Detailed explanation goes here */</i></font>
-<a name="53"><font color="#888888"><i>   53   </i></font></a>  <font color="#117755"><i>/* <span><a href="113,4">'parevalspline:4'</a></span> hist = breaks; */</i></font>
+<a name="53"><font color="#888888"><i>   53   </i></font></a>  <font color="#117755"><i>/* <span><a href="109,4">'parevalspline:4'</a></span> hist = breaks; */</i></font>
 <a name="54"><font color="#888888"><i>   54   </i></font></a>  bin = hist-&gt;size[0];
 <a name="55"><font color="#888888"><i>   55   </i></font></a>  hist-&gt;size[0] = breaks-&gt;size[0];
 <a name="56"><font color="#888888"><i>   56   </i></font></a>  <a href="matlab_emxutil_cpp.html#fcn_emxEnsureCapacity" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxEnsureCapacity');" target="rtwreport_document_frame"><font color="#1122aa">emxEnsureCapacity</font></a>((<a href="matlab_types_h.html#type_emxArray__common" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_emxArray__common');" target="rtwreport_document_frame"><font color="#1122aa">emxArray__common</font></a> *)hist, bin, (<a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a>)<font color="#112266"><b>sizeof</b></font>(<a href="rtwtypes_h.html#type_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_real_T');" target="rtwreport_document_frame"><font color="#1122aa">real_T</font></a>));
@@ -72,11 +72,11 @@
 <a name="61"><font color="#888888"><i>   61   </i></font></a>
 <a name="62"><font color="#888888"><i>   62   </i></font></a>  <a href="matlab_emxutil_cpp.html#fcn_emxInit_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxInit_real_T');" target="rtwreport_document_frame"><font color="#1122aa">emxInit_real_T</font></a>(&amp;curvn, 1);
 <a name="63"><font color="#888888"><i>   63   </i></font></a>
-<a name="64"><font color="#888888"><i>   64   </i></font></a>  <font color="#117755"><i>/* <span><a href="113,5">'parevalspline:5'</a></span> hist(end) = hist(end) + 1; */</i></font>
+<a name="64"><font color="#888888"><i>   64   </i></font></a>  <font color="#117755"><i>/* <span><a href="109,5">'parevalspline:5'</a></span> hist(end) = hist(end) + 1; */</i></font>
 <a name="65"><font color="#888888"><i>   65   </i></font></a>  hist-&gt;data[breaks-&gt;size[0] - 1] = breaks-&gt;data[breaks-&gt;size[0] - 1] + 1.0;
 <a name="66"><font color="#888888"><i>   66   </i></font></a>
 <a name="67"><font color="#888888"><i>   67   </i></font></a>  <font color="#117755"><i>/* increase the last bin to include the last value */</i></font>
-<a name="68"><font color="#888888"><i>   68   </i></font></a>  <font color="#117755"><i>/* <span><a href="113,6">'parevalspline:6'</a></span> [~,curvn] = histc(t,hist); */</i></font>
+<a name="68"><font color="#888888"><i>   68   </i></font></a>  <font color="#117755"><i>/* <span><a href="109,6">'parevalspline:6'</a></span> [~,curvn] = histc(t,hist); */</i></font>
 <a name="69"><font color="#888888"><i>   69   </i></font></a>  outsize_idx_0 = (<a href="rtwtypes_h.html#type_uint32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_uint32_T');" target="rtwreport_document_frame"><font color="#1122aa">uint32_T</font></a>)t-&gt;size[0];
 <a name="70"><font color="#888888"><i>   70   </i></font></a>  bin = curvn-&gt;size[0];
 <a name="71"><font color="#888888"><i>   71   </i></font></a>  curvn-&gt;size[0] = (<a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a>)outsize_idx_0;
@@ -152,9 +152,9 @@
 <a name="141"><font color="#888888"><i>  141   </i></font></a>    <b>}</b>
 <a name="142"><font color="#888888"><i>  142   </i></font></a>  <b>}</b>
 <a name="143"><font color="#888888"><i>  143   </i></font></a>
-<a name="144"><font color="#888888"><i>  144   </i></font></a>  <font color="#117755"><i>/* <span><a href="113,9">'parevalspline:9'</a></span> if d == 0 */</i></font>
-<a name="145"><font color="#888888"><i>  145   </i></font></a>  <font color="#117755"><i>/* <span><a href="113,10">'parevalspline:10'</a></span> result = coefs(curvn,1).*(t-breaks(curvn)).^3 + coefs(curvn,2).*(t-breaks(curvn)).^2 + ... */</i></font>
-<a name="146"><font color="#888888"><i>  146   </i></font></a>  <font color="#117755"><i>/* <span><a href="113,11">'parevalspline:11'</a></span>         coefs(curvn,3).*(t-breaks(curvn)) + coefs(curvn,4); */</i></font>
+<a name="144"><font color="#888888"><i>  144   </i></font></a>  <font color="#117755"><i>/* <span><a href="109,9">'parevalspline:9'</a></span> if d == 0 */</i></font>
+<a name="145"><font color="#888888"><i>  145   </i></font></a>  <font color="#117755"><i>/* <span><a href="109,10">'parevalspline:10'</a></span> result = coefs(curvn,1).*(t-breaks(curvn)).^3 + coefs(curvn,2).*(t-breaks(curvn)).^2 + ... */</i></font>
+<a name="146"><font color="#888888"><i>  146   </i></font></a>  <font color="#117755"><i>/* <span><a href="109,11">'parevalspline:11'</a></span>         coefs(curvn,3).*(t-breaks(curvn)) + coefs(curvn,4); */</i></font>
 <a name="147"><font color="#888888"><i>  147   </i></font></a>  bin = hist-&gt;size[0];
 <a name="148"><font color="#888888"><i>  148   </i></font></a>  hist-&gt;size[0] = t-&gt;size[0];
 <a name="149"><font color="#888888"><i>  149   </i></font></a>  <a href="matlab_emxutil_cpp.html#fcn_emxEnsureCapacity" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxEnsureCapacity');" target="rtwreport_document_frame"><font color="#1122aa">emxEnsureCapacity</font></a>((<a href="matlab_types_h.html#type_emxArray__common" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_emxArray__common');" target="rtwreport_document_frame"><font color="#1122aa">emxArray__common</font></a> *)hist, bin, (<a href="rtwtypes_h.html#type_int32_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_int32_T');" target="rtwreport_document_frame"><font color="#1122aa">int32_T</font></a>)<font color="#112266"><b>sizeof</b></font>(<a href="rtwtypes_h.html#type_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'type_real_T');" target="rtwreport_document_frame"><font color="#1122aa">real_T</font></a>));
@@ -210,8 +210,8 @@
 <a name="199"><font color="#888888"><i>  199   </i></font></a>  <a href="matlab_emxutil_cpp.html#fcn_emxFree_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxFree_real_T');" target="rtwreport_document_frame"><font color="#1122aa">emxFree_real_T</font></a>(&amp;curvn);
 <a name="200"><font color="#888888"><i>  200   </i></font></a>  <a href="matlab_emxutil_cpp.html#fcn_emxFree_real_T" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'fcn_emxFree_real_T');" target="rtwreport_document_frame"><font color="#1122aa">emxFree_real_T</font></a>(&amp;unusedU0);
 <a name="201"><font color="#888888"><i>  201   </i></font></a>
-<a name="202"><font color="#888888"><i>  202   </i></font></a>  <font color="#117755"><i>/* <span><a href="113,13">'parevalspline:13'</a></span> if d == 1 */</i></font>
-<a name="203"><font color="#888888"><i>  203   </i></font></a>  <font color="#117755"><i>/* <span><a href="113,16">'parevalspline:16'</a></span> if d == 2 */</i></font>
+<a name="202"><font color="#888888"><i>  202   </i></font></a>  <font color="#117755"><i>/* <span><a href="109,13">'parevalspline:13'</a></span> if d == 1 */</i></font>
+<a name="203"><font color="#888888"><i>  203   </i></font></a>  <font color="#117755"><i>/* <span><a href="109,16">'parevalspline:16'</a></span> if d == 2 */</i></font>
 <a name="204"><font color="#888888"><i>  204   </i></font></a><b>}</b>
 <a name="205"><font color="#888888"><i>  205   </i></font></a>
 <a name="206"><font color="#888888"><i>  206   </i></font></a><font color="#117755"><i>/* End of code generation (parevalspline.cpp) */</i></font>

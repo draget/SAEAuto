@@ -77,7 +77,8 @@ bool IBEONetwork::Connect(char * ip_addr, int port) {
       		return false;
     	}
  
-    	if (-1 == connect(socketFD, (struct sockaddr *)&stSockAddr, sizeof(stSockAddr))) {
+    	//if (-1 == connect(socketFD, (struct sockaddr *)&stSockAddr, sizeof(stSockAddr))) { to prevent program from a slow startup while waiting for IBEO that isnt connected...
+	if (true) {
       		perror("connect failed");
       		close(socketFD);
       		return false;

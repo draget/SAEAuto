@@ -3,7 +3,7 @@
  *
  * Code generation for function 'mldivide'
  *
- * C source code generated on: Wed Jul 23 14:27:34 2014
+ * C source code generated on: Wed Jul 23 22:33:34 2014
  *
  */
 
@@ -60,7 +60,7 @@ static void eml_matlab_zlarf(int32_T m, int32_T n, int32_T iv0, real_T tau,
   int32_T ia;
   int32_T exitg1;
   int32_T iy;
-  int32_T i6;
+  int32_T i7;
   int32_T ix;
   real_T c;
   int32_T jy;
@@ -111,8 +111,8 @@ static void eml_matlab_zlarf(int32_T m, int32_T n, int32_T iv0, real_T tau,
       }
 
       iy = 0;
-      i6 = ic0 + ldc * i;
-      for (i = ic0; i <= i6; i += ldc) {
+      i7 = ic0 + ldc * i;
+      for (i = ic0; i <= i7; i += ldc) {
         ix = iv0;
         c = 0.0;
         jy = i + lastv;
@@ -134,8 +134,8 @@ static void eml_matlab_zlarf(int32_T m, int32_T n, int32_T iv0, real_T tau,
         if (work->data[jy] != 0.0) {
           c = work->data[jy] * -tau;
           ix = iv0;
-          i6 = lastv + i;
-          for (iy = i; iy + 1 <= i6; iy++) {
+          i7 = lastv + i;
+          for (iy = i; iy + 1 <= i7; iy++) {
             C->data[iy] += C->data[ix - 1] * c;
             ix++;
           }
@@ -498,11 +498,11 @@ static real_T eml_xnrm2(int32_T n, const emxArray_real_T *x, int32_T ix0)
 static void eml_xscal(int32_T n, real_T a, emxArray_real_T *x, int32_T ix0)
 {
   emxArray_real_T *b_x;
-  int32_T i5;
+  int32_T i6;
   int32_T k;
   b_emxInit_real_T(&b_x, 2);
-  i5 = (ix0 + n) - 1;
-  for (k = ix0; k <= i5; k++) {
+  i6 = (ix0 + n) - 1;
+  for (k = ix0; k <= i6; k++) {
     x->data[k - 1] *= a;
   }
 
@@ -562,7 +562,7 @@ void mldivide(const emxArray_real_T *A, emxArray_real_T *B)
   emxArray_real_T *Y;
   emxArray_real_T *b_B;
   int32_T n;
-  int32_T i4;
+  int32_T i5;
   int32_T jy;
   emxArray_int32_T *ipiv;
   int32_T ldap1;
@@ -582,13 +582,13 @@ void mldivide(const emxArray_real_T *A, emxArray_real_T *B)
   if (A->size[0] == A->size[1]) {
     b_emxInit_real_T(&b_B, 2);
     n = A->size[1];
-    i4 = b_B->size[0] * b_B->size[1];
+    i5 = b_B->size[0] * b_B->size[1];
     b_B->size[0] = A->size[0];
     b_B->size[1] = A->size[1];
-    emxEnsureCapacity((emxArray__common *)b_B, i4, (int32_T)sizeof(real_T));
+    emxEnsureCapacity((emxArray__common *)b_B, i5, (int32_T)sizeof(real_T));
     jy = A->size[0] * A->size[1] - 1;
-    for (i4 = 0; i4 <= jy; i4++) {
-      b_B->data[i4] = A->data[i4];
+    for (i5 = 0; i5 <= jy; i5++) {
+      b_B->data[i5] = A->data[i5];
     }
 
     emxInit_int32_T(&ipiv, 2);
@@ -629,8 +629,8 @@ void mldivide(const emxArray_real_T *A, emxArray_real_T *B)
           eml_xswap(n, b_B, j, n, (j + jy) - 1, n);
         }
 
-        i4 = (jp1j + mmj) - 1;
-        for (jy = jp1j; jy <= i4; jy++) {
+        i5 = (jp1j + mmj) - 1;
+        for (jy = jp1j; jy <= i5; jy++) {
           b_B->data[jy - 1] /= b_B->data[jj];
         }
       }
@@ -642,8 +642,8 @@ void mldivide(const emxArray_real_T *A, emxArray_real_T *B)
         temp = b_B->data[jy];
         if (b_B->data[jy] != 0.0) {
           ix = jp1j;
-          i4 = mmj + jA;
-          for (jj = jA; jj + 1 <= i4; jj++) {
+          i5 = mmj + jA;
+          for (jj = jA; jj + 1 <= i5; jj++) {
             b_B->data[jj] += b_B->data[ix - 1] * -temp;
             ix++;
           }
@@ -685,23 +685,23 @@ void mldivide(const emxArray_real_T *A, emxArray_real_T *B)
     emxFree_real_T(&b_B);
   } else {
     emxInit_real_T(&b_B, 1);
-    i4 = b_B->size[0];
+    i5 = b_B->size[0];
     b_B->size[0] = B->size[0];
-    emxEnsureCapacity((emxArray__common *)b_B, i4, (int32_T)sizeof(real_T));
+    emxEnsureCapacity((emxArray__common *)b_B, i5, (int32_T)sizeof(real_T));
     jy = B->size[0] - 1;
-    for (i4 = 0; i4 <= jy; i4++) {
-      b_B->data[i4] = B->data[i4];
+    for (i5 = 0; i5 <= jy; i5++) {
+      b_B->data[i5] = B->data[i5];
     }
 
     emxInit_real_T(&r11, 1);
     eml_qrsolve(A, b_B, r11);
-    i4 = B->size[0];
+    i5 = B->size[0];
     B->size[0] = r11->size[0];
-    emxEnsureCapacity((emxArray__common *)B, i4, (int32_T)sizeof(real_T));
+    emxEnsureCapacity((emxArray__common *)B, i5, (int32_T)sizeof(real_T));
     emxFree_real_T(&b_B);
     jy = r11->size[0] - 1;
-    for (i4 = 0; i4 <= jy; i4++) {
-      B->data[i4] = r11->data[i4];
+    for (i5 = 0; i5 <= jy; i5++) {
+      B->data[i5] = r11->data[i5];
     }
 
     emxFree_real_T(&r11);
