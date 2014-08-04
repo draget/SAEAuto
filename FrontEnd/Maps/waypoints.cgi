@@ -454,7 +454,7 @@ function updateLog() {
 				var position = new google.maps.LatLng(parseFloat(json.gps.lat) - offsetLat, parseFloat(json.gps.long) - offsetLong);
 				currentLocationMarker.setPosition(position);
 
-				//drawXYGraph(json);
+				drawXYGraph(json);
 
                             }
 		,error: function() { alert("AJAX Error!"); }

@@ -485,7 +485,6 @@ void Control::LoadMap(std::string MapFilename) {
 		arclengthcurve(points, 300, scoefx, scoefy, si);
 		builddetailedbf(scoefx,scoefy,si,1,sx,sy,ss);
 		
-		CurrentMap.BaseFrame.clear();
 		
 		for(int i = 0; i < sx->size[0]; i++) {
 			MapPoint.x = sx->data[i];
@@ -516,6 +515,7 @@ void Control::ClearMap() {
 	CurrentMap.Fenceposts.clear();
 	CurrentMap.Waypoints.clear();
 	CurrentMap.DetectedFenceposts.clear();
+	CurrentMap.BaseFrame.clear();
 
 }
 
@@ -585,7 +585,7 @@ void Control::DumpBaseFrame() {
 	DumpLog->ClearLog();
 
 
-	// Dump the baseframe waypoints in lat/long
+	// Dump the baseframe waypoints in lat/long. Re-use Map point datatype...
 	int i = 0;
 	BOOST_FOREACH( VECTOR_2D MapPoint, CurrentMap.BaseFrame ) {
 		VECTOR_2D LatLongPoint = XYToLatLong(MapPoint.x, MapPoint.y);
