@@ -18,6 +18,8 @@
 #include <vector>
 #include <cmath>
 
+#include <sys/time.h>
+
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
@@ -39,11 +41,10 @@
 #include "matlab/matlab_emxAPI.h"
 #include "matlab/arclengthcurve.h"
 #include "matlab/builddetailedbf.h"
+#include "matlab/parevalspline.h"
+#include "matlab/buildbfcurvature.h"
 
 Control *SAECar;
-
-
-
 
 /**
  * Purpose: Creates a new instance of the Control object.
@@ -87,6 +88,8 @@ Control::Control(std::string LogDir, bool ExtLog) {
 
 	// Create object instances...
 	Log = new Logger(LogDir + "/mainlog.txt");
+	
+	TimeLog = new Logger(LogDir + "/timelog.txt");
 
 	Log->WriteLogLine("Control - Ext logging: " + boost::lexical_cast<std::string>(ExtLogging));
 
@@ -469,31 +472,84 @@ void Control::LoadMap(std::string MapFilename) {
 				w++;
 				CurrentMap.Waypoints.push_back(MapPoint);
 			}
+    	}
+    	infile.close();
+    		
+    	timestamp_t t0 = get_timestamp();
 
-    		}
-    		infile.close();
-
-		emxArray_real_T *points;
-		points = emxCreateWrapper_real_T(&CurrentMap.Waypoints[0].x, 2, w);
-		emxArray_real_T *scoefx = emxCreate_real_T(1,1);
-		emxArray_real_T *scoefy = emxCreate_real_T(1,1);
-		emxArray_real_T *si = emxCreate_real_T(1,1);
-		emxArray_real_T *sx = emxCreate_real_T(1,1);
-		emxArray_real_T *sy = emxCreate_real_T(1,1);
-		emxArray_real_T *ss = emxCreate_real_T(1,1);
-
-		arclengthcurve(points, 300, scoefx, scoefy, si);
-		builddetailedbf(scoefx,scoefy,si,1,sx,sy,ss);
+		emxArray_real_T *points = emxCreateWrapper_real_T(&CurrentMap.Waypoints[0].x, 2, w); //Create waypoint matrix by wrapping Waypoints vector
 		
 		
+		emxArray_real_T *scoefx = emxCreate_real_T(1,1); //Create arc length parameterised x coeficients matrix
+		emxArray_real_T *scoefy = emxCreate_real_T(1,1); //Create arc length parameterised y coeficients matrix
+		emxArray_real_T *si = emxCreate_real_T(1,1); //Create arc length parameterised breaks matrix
+		
+		
+		//Calculate an arc length paramterised path based on the original waypoints with the arc length path matching the original path at PATHESTIMATEGRANULARITY intervals. 
+		arclengthcurve(points, PATHESTIMATEGRANULARITY, EPSILON, 
+						scoefx, scoefy, si);
+						
+		timestamp_t t1 = get_timestamp();
+					
+		emxArray_real_T *sx = emxCreate_real_T(1,1); //Create baseframe x point samples matrix
+		emxArray_real_T *sy = emxCreate_real_T(1,1); //Create baseframe y point samples matrix
+		emxArray_real_T *ss = emxCreate_real_T(1,1); //Create baseframe arc length samples matrix
+		
+		//Calculate detailed sample points at a distance GRANULATRITY between each point.
+		builddetailedbf(scoefx, scoefy, si, GRANULARITY,
+						sx, sy, ss);
+		
+		timestamp_t t2 = get_timestamp();
+		
+		//Put calculated detailes baseframe samples into the current map baseframe vector.
 		for(int i = 0; i < sx->size[0]; i++) {
 			MapPoint.x = sx->data[i];
 			MapPoint.y = sy->data[i];
-			CurrentMap.BaseFrame.push_back(MapPoint);
+			PathPlan.BaseFrame.push_back(MapPoint);
 		}
+		Log->WriteLogLine("#Samples: " + boost::lexical_cast<std::string>(ss->size[0]));
+		Log->WriteLogLine("Total Baseframe Path Length: " + boost::lexical_cast<std::string>(si->data[si->size[0]-1]));
 		
-		Log->WriteLogLine("Size: " + boost::lexical_cast<std::string>(sx->size[0]));
-		Log->WriteLogLine("Path Length: " + boost::lexical_cast<std::string>(si->data[si->size[0]-1]));
+		timestamp_t t3 = get_timestamp();
+		
+		emxArray_real_T *dxds = emxCreate_real_T(1,1); //Create first derivative of x with respect to arc length matrix
+		emxArray_real_T *dyds = emxCreate_real_T(1,1); //Create first derivative of y with respect to arc length matrix
+		emxArray_real_T *dx2ds = emxCreate_real_T(1,1); //Create second derivative of x with respect to arc length matrix
+		emxArray_real_T *dy2ds = emxCreate_real_T(1,1); //Create second derivative of y with respect to arc length matrix
+		
+		emxArray_real_T *dontcare = emxCreate_real_T(1,1); //Create a dontcare matrix
+		
+		//Calculate derivatives
+		parevalspline(scoefx,si,ss,1,dxds,dontcare);
+		parevalspline(scoefy,si,ss,1,dyds,dontcare);
+		parevalspline(scoefx,si,ss,2,dx2ds,dontcare);
+		parevalspline(scoefy,si,ss,2,dy2ds,dontcare);
+		
+		timestamp_t t4 = get_timestamp();
+		
+		
+		emxArray_real_T *basecurvature = emxCreate_real_T(1,1); //Create base frame curvature matrix
+		
+		//Calculate baseframe curvature
+		buildbfcurvature(dxds, dyds, dx2ds, dy2ds, basecurvature);
+		
+		timestamp_t t5 = get_timestamp();
+		
+		
+		double secs1 = (t1 - t0) / 1000000.0L;
+		double secs2 = (t2 - t1) / 1000000.0L;
+		double secs3 = (t3 - t2) / 1000000.0L;
+		double secs4 = (t4 - t3) / 1000000.0L;
+		double secs5 = (t5 - t4) / 1000000.0L;
+		
+		
+		
+		Log->WriteLogLine("#Curvature Samples: " + boost::lexical_cast<std::string>(basecurvature->size[0]));
+		TimeLog->WriteLogLine("Time to execute arclengthcurve: " + boost::lexical_cast<std::string>(secs1) + " s");
+		TimeLog->WriteLogLine("Time to execute builddetailedbf: " + boost::lexical_cast<std::string>(secs2) + " s");
+		TimeLog->WriteLogLine("Time to push baseframe onto currentmap: " + boost::lexical_cast<std::string>(secs3) + " s");
+		TimeLog->WriteLogLine("Time to execute parevalspline derivitives: " + boost::lexical_cast<std::string>(secs4) + " s");
+		TimeLog->WriteLogLine("Time to execute buildbfcurvature: " + boost::lexical_cast<std::string>(secs5) + " s");
 		
 		Log->WriteLogLine("Control - loaded " + boost::lexical_cast<std::string>(f) + " fence and " + boost::lexical_cast<std::string>(w) + " waypoints.");
   	}
@@ -515,7 +571,7 @@ void Control::ClearMap() {
 	CurrentMap.Fenceposts.clear();
 	CurrentMap.Waypoints.clear();
 	CurrentMap.DetectedFenceposts.clear();
-	CurrentMap.BaseFrame.clear();
+	PathPlan.BaseFrame.clear();
 
 }
 
@@ -587,7 +643,7 @@ void Control::DumpBaseFrame() {
 
 	// Dump the baseframe waypoints in lat/long. Re-use Map point datatype...
 	int i = 0;
-	BOOST_FOREACH( VECTOR_2D MapPoint, CurrentMap.BaseFrame ) {
+	BOOST_FOREACH( VECTOR_2D MapPoint, PathPlan.BaseFrame ) {
 		VECTOR_2D LatLongPoint = XYToLatLong(MapPoint.x, MapPoint.y);
    		DumpLog->WriteLogLine(boost::lexical_cast<std::string>(i) + "," + boost::lexical_cast<std::string>(LatLongPoint.x) + "," + boost::lexical_cast<std::string>(LatLongPoint.y), true);
 		i++;
@@ -958,6 +1014,14 @@ double Control::TimeStamp() {
 	return current.tv_sec + (double)current.tv_usec/1000000;
 
 }
+
+static timestamp_t get_timestamp()
+{
+  struct timeval now;
+  gettimeofday (&now, NULL);
+  return  now.tv_usec + (timestamp_t)now.tv_sec * 1000000;
+}
+
 
 VECTOR_2D Control::LatLongToXY(double lat, double lng) {
 

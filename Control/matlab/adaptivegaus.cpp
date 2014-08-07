@@ -3,14 +3,17 @@
  *
  * Code generation for function 'adaptivegaus'
  *
- * C source code generated on: Wed Jul 23 22:33:34 2014
+ * C source code generated on: Thu Aug  7 12:12:52 2014
  *
  */
 
 /* Include files */
 #include "rt_nonfinite.h"
 #include "arclengthcurve.h"
+#include "buildbfcurvature.h"
 #include "builddetailedbf.h"
+#include "localize.h"
+#include "parevalspline.h"
 #include "adaptivegaus.h"
 #include "matlab_rtwutil.h"
 
@@ -73,7 +76,7 @@ real_T adaptivegaus(const real_T coefx[4], const real_T coefy[4], real_T ti,
      rt_powd_snf((ti + c2) - tif, 2.0), 2.0) + rt_powd_snf((coefy[2] + 2.0 *
     coefy[1] * ((ti + c2) - tif)) + 3.0 * coefy[0] * rt_powd_snf((ti + c2) - tif,
     2.0), 2.0)));
-  b_epsilon = 0.0001;
+  b_epsilon = epsilon;
 
   /* UNTITLED11 Summary of this function goes here */
   /*    Detailed explanation goes here */

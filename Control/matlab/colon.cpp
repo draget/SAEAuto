@@ -3,14 +3,17 @@
  *
  * Code generation for function 'colon'
  *
- * C source code generated on: Wed Jul 23 22:33:34 2014
+ * C source code generated on: Thu Aug  7 12:12:52 2014
  *
  */
 
 /* Include files */
 #include "rt_nonfinite.h"
 #include "arclengthcurve.h"
+#include "buildbfcurvature.h"
 #include "builddetailedbf.h"
+#include "localize.h"
+#include "parevalspline.h"
 #include "colon.h"
 #include "matlab_emxutil.h"
 

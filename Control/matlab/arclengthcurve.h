@@ -3,7 +3,7 @@
  *
  * Code generation for function 'arclengthcurve'
  *
- * C source code generated on: Wed Jul 23 22:33:34 2014
+ * C source code generated on: Thu Aug  7 12:12:52 2014
  *
  */
 
@@ -28,6 +28,6 @@
 /* Variable Definitions */
 
 /* Function Declarations */
-extern void arclengthcurve(const emxArray_real_T *points, real_T nsegmentsnew, emxArray_real_T *scoefx, emxArray_real_T *scoefy, emxArray_real_T *si);
+extern void arclengthcurve(const emxArray_real_T *points, real_T gran, real_T epsilon, emxArray_real_T *scoefx, emxArray_real_T *scoefy, emxArray_real_T *si);
 #endif
 /* End of code generation (arclengthcurve.h) */

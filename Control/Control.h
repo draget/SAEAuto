@@ -13,6 +13,11 @@
 #define EARTH_RADIUS 6371000
 #define MAPPOINT_RADIUS 2.75
 
+//Path planning constants
+#define PATHESTIMATEGRANULARITY 1
+#define GRANULARITY 0.5
+#define EPSILON 0.01
+
 #include <vector>
 #include <string>
 
@@ -42,8 +47,11 @@ struct MAP {
 	std::vector<VECTOR_2D> Fenceposts;
 	std::vector<VECTOR_2D> Waypoints;
 	std::vector<VECTOR_2D> DetectedFenceposts;
-	std::vector<VECTOR_2D> BaseFrame;
+};
 
+struct PATHPLANNING {
+	std::vector<VECTOR_2D> BaseFrame;
+	
 };
 
 class Control {
@@ -123,6 +131,8 @@ public:
 	Fusion* Fuser;
 
 	MAP CurrentMap;
+	
+	PATHPLANNING PathPlan;
 
 private:
 
@@ -148,6 +158,7 @@ private:
 	
 	CarNetwork* CarNetworkConnection;
 	Logger* Log;
+	Logger* TimeLog;
 	SafetySerialOut* SafetySerial;
 	LowLevelSerialOut* LowLevelSerial;
 	IBEO* Lux;

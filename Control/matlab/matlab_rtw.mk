@@ -75,7 +75,7 @@ COMPILER_TOOL_CHAIN = unix
 #  MODELREFS           - List of referenced models
 
 MODEL                = matlab
-MODULES              = matlab_rtwutil.cpp matlab_initialize.cpp matlab_terminate.cpp arclengthcurve.cpp rdivide.cpp cubic_spline3.cpp cubic_spline.cpp mldivide.cpp colon.cpp adaptivegaus.cpp builddetailedbf.cpp parevalspline.cpp matlab_emxutil.cpp matlab_emxAPI.cpp rt_nonfinite.cpp rtGetNaN.cpp rtGetInf.cpp 
+MODULES              = matlab_rtwutil.cpp matlab_initialize.cpp matlab_terminate.cpp arclengthcurve.cpp diff.cpp power.cpp rdivide.cpp cubic_spline3.cpp cubic_spline.cpp mldivide.cpp colon.cpp adaptivegaus.cpp buildbfcurvature.cpp builddetailedbf.cpp parevalspline.cpp histc.cpp localize.cpp matlab_emxutil.cpp matlab_emxAPI.cpp rt_nonfinite.cpp rtGetNaN.cpp rtGetInf.cpp 
 MAKEFILE             = matlab_rtw.mk
 MATLAB_ROOT          = /Applications/MATLAB_R2012a.app
 ALT_MATLAB_ROOT      = /Applications/MATLAB_R2012a.app
