@@ -44,6 +44,13 @@
 #include "matlab/parevalspline.h"
 #include "matlab/buildbfcurvature.h"
 
+static timestamp_t get_timestamp()
+{
+  struct timeval now;
+  gettimeofday (&now, NULL);
+  return  now.tv_usec + (timestamp_t)now.tv_sec * 1000000;
+}
+
 Control *SAECar;
 
 /**
@@ -552,6 +559,9 @@ void Control::LoadMap(std::string MapFilename) {
 		TimeLog->WriteLogLine("Time to execute buildbfcurvature: " + boost::lexical_cast<std::string>(secs5) + " s");
 		
 		Log->WriteLogLine("Control - loaded " + boost::lexical_cast<std::string>(f) + " fence and " + boost::lexical_cast<std::string>(w) + " waypoints.");
+		
+		boost::thread UpdatePathPlanThread = boost::thread(&Control::UpdatePathPlan, this);
+		UpdatePathPlanThread.detach();
   	}
 	else { Log->WriteLogLine("Control - Couldn't open map"); }
 	
@@ -653,6 +663,19 @@ void Control::DumpBaseFrame() {
 	DumpLog->ClearLock();	
 }
 
+
+void Control::UpdatePathPlan() {
+	while (AutoRun || true) {
+		
+		PlanLock.lock(); //block until intermediate heading is calculated and sent to PIDs
+		//Log->WriteLogLine("PathPlan - Updating Plan");
+		//Update path plan here
+		
+		PlanLock.unlock();
+		boost::this_thread::sleep(boost::posix_time::milliseconds(10000)); //Plan path every
+	}
+}
+
 /**
  * Purpose: Starts Autonomous driving.
  * Inputs : None.
@@ -691,6 +714,10 @@ void Control::AutoStart() {
 
 	SteerController->setSetPoint(0);
 	ThrottleController->setSetPoint(0);
+	
+	boost::thread UpdatePathPlanThread = boost::thread(&Control::UpdatePathPlan, this);
+	UpdatePathPlanThread.detach();
+	
 }
 
 
@@ -719,7 +746,9 @@ void Control::CheckFenceposts(VECTOR_2D CurPosn) {
  * Outputs: None.
  */
 void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
-
+	
+	PlanLock.lock(); //block until path planning is complete, lock mutex
+	
 	// Check if we have reached a waypoint.
 	VECTOR_2D DistanceVector = SubtractVector(CurrentMap.Waypoints[NextWaypoint],CurPosn);
 	if(VectorMagnitude(DistanceVector) < MAPPOINT_RADIUS) {
@@ -751,6 +780,8 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 
 	ThrottleController->setSetPoint(DesiredSpeed); 
 	BrakeController->setSetPoint(DesiredSpeed);
+	
+	PlanLock.unlock(); //Unlock mutex
 
 	if(ExtLogging) { 
 		std::string time = boost::lexical_cast<std::string>(TimeStamp());
@@ -1013,13 +1044,6 @@ double Control::TimeStamp() {
 
 	return current.tv_sec + (double)current.tv_usec/1000000;
 
-}
-
-static timestamp_t get_timestamp()
-{
-  struct timeval now;
-  gettimeofday (&now, NULL);
-  return  now.tv_usec + (timestamp_t)now.tv_sec * 1000000;
 }
 
 
