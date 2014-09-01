@@ -429,7 +429,7 @@ void Control::ToggleBrakeIL() {
 	if(! this->BrakeILOn) { Success = SafetySerial->Send('B'); }
 	else { Success = SafetySerial->Send('H'); }
 
-	if(Success || true) {
+	if(Success) {
 		this->BrakeILOn = ! this->BrakeILOn;
 		Log->WriteLogLine("Control - Brake IL toggled " + this->BrakeILOn);
 	}
@@ -922,8 +922,10 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 		PathPlan.active = true;
 	}
 	
+	VECTOR_2D VectorToNextWp;
+	
 	//Check to see if path planning is active
-	if PathPlan.active {
+	if (PathPlan.active) {
 		// Check if we have reached a waypoint.
 		VECTOR_2D DistanceVector = SubtractVector(PathPlan.PlannedWaypoints[NextWaypoint],CurPosn);
 		if(VectorMagnitude(DistanceVector) < MAPPOINT_RADIUS) {
@@ -933,7 +935,7 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 		}
 
 		// Calculate the vector to the next waypoint.
-		VECTOR_2D VectorToNextWp = SubtractVector(PathPlan.PlannedWaypoints[NextWaypoint], CurPosn); // Simple
+		VectorToNextWp = SubtractVector(PathPlan.PlannedWaypoints[NextWaypoint], CurPosn); // Simple
 	} else {
 		// Check if we have reached a waypoint.
 		VECTOR_2D DistanceVector = SubtractVector(CurrentMap.Waypoints[NextWaypoint],CurPosn);
@@ -945,7 +947,7 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 
 		// Calculate the vector to the next waypoint.
 		//VECTOR_2D VectorToNextWp = SubtractVector(CurrentMap.Waypoints[NextWaypoint], CurPosn); // Simple
-		VECTOR_2D VectorToNextWp = GetInterpolatedVector(CurPosn);				// Use interpolation
+		VectorToNextWp = GetInterpolatedVector(CurPosn);				// Use interpolation
 	}
 	
 	
