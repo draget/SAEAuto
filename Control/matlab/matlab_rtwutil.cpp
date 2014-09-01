@@ -3,7 +3,7 @@
  *
  * Code generation for function 'matlab_rtwutil'
  *
- * C source code generated on: Thu Aug  7 12:12:52 2014
+ * C source code generated on: Mon Sep  1 19:20:44 2014
  *
  */
 
@@ -12,7 +12,14 @@
 #include "arclengthcurve.h"
 #include "buildbfcurvature.h"
 #include "builddetailedbf.h"
+#include "buildmanouvers.h"
+#include "checkpathcollision.h"
+#include "equateoffsetcost.h"
+#include "equatesafetycost.h"
+#include "evalheading.h"
 #include "localize.h"
+#include "mincost.h"
+#include "oblocalize.h"
 #include "parevalspline.h"
 #include "matlab_rtwutil.h"
 
@@ -30,17 +37,17 @@
 real_T rt_powd_snf(real_T u0, real_T u1)
 {
   real_T y;
-  real_T d0;
   real_T d1;
+  real_T d2;
   if (rtIsNaN(u0) || rtIsNaN(u1)) {
     y = rtNaN;
   } else {
-    d0 = fabs(u0);
-    d1 = fabs(u1);
+    d1 = fabs(u0);
+    d2 = fabs(u1);
     if (rtIsInf(u1)) {
-      if (d0 == 1.0) {
+      if (d1 == 1.0) {
         y = rtNaN;
-      } else if (d0 > 1.0) {
+      } else if (d1 > 1.0) {
         if (u1 > 0.0) {
           y = rtInf;
         } else {
@@ -51,9 +58,9 @@ real_T rt_powd_snf(real_T u0, real_T u1)
       } else {
         y = rtInf;
       }
-    } else if (d1 == 0.0) {
+    } else if (d2 == 0.0) {
       y = 1.0;
-    } else if (d1 == 1.0) {
+    } else if (d2 == 1.0) {
       if (u1 > 0.0) {
         y = u0;
       } else {

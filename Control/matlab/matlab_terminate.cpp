@@ -3,7 +3,7 @@
  *
  * Code generation for function 'matlab_terminate'
  *
- * C source code generated on: Thu Aug  7 12:12:52 2014
+ * C source code generated on: Mon Sep  1 19:20:44 2014
  *
  */
 
@@ -12,7 +12,14 @@
 #include "arclengthcurve.h"
 #include "buildbfcurvature.h"
 #include "builddetailedbf.h"
+#include "buildmanouvers.h"
+#include "checkpathcollision.h"
+#include "equateoffsetcost.h"
+#include "equatesafetycost.h"
+#include "evalheading.h"
 #include "localize.h"
+#include "mincost.h"
+#include "oblocalize.h"
 #include "parevalspline.h"
 #include "matlab_terminate.h"
 

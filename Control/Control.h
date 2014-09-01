@@ -25,6 +25,8 @@
 
 #include "PID.h"
 
+#include "matlab/matlab_emxAPI.h"
+
 class CarNetwork;
 class Logger;
 class SafetySerialOut;
@@ -53,7 +55,21 @@ struct MAP {
 
 struct PATHPLANNING {
 	std::vector<VECTOR_2D> BaseFrame;
-	
+	emxArray_real_T *points;
+	emxArray_real_T *scoefx;
+	emxArray_real_T *scoefy;
+	emxArray_real_T *si;
+	emxArray_real_T *ss;
+	emxArray_real_T *BaseFrameCurvature;
+	emxArray_real_T *dxds;
+	emxArray_real_T *dyds;
+	double scp;
+	double curvn;
+	emxArray_real_T *manxi;
+	emxArray_real_T *manyi;
+	int selectedpath;
+	std::vector<VECTOR_2D> PlannedWaypoints;
+	bool active;
 };
 
 class Control {

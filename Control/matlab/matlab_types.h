@@ -3,7 +3,7 @@
  *
  * Code generation for function 'arclengthcurve'
  *
- * C source code generated on: Thu Aug  7 12:12:52 2014
+ * C source code generated on: Mon Sep  1 19:20:44 2014
  *
  */
 
@@ -21,6 +21,17 @@ typedef struct emxArray__common
     int32_T numDimensions;
     boolean_T canFreeData;
 } emxArray__common;
+#endif
+#ifndef struct_emxArray_boolean_T
+#define struct_emxArray_boolean_T
+typedef struct emxArray_boolean_T
+{
+    boolean_T *data;
+    int32_T *size;
+    int32_T allocatedSize;
+    int32_T numDimensions;
+    boolean_T canFreeData;
+} emxArray_boolean_T;
 #endif
 #ifndef struct_emxArray_int32_T
 #define struct_emxArray_int32_T

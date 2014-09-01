@@ -3,7 +3,7 @@
  *
  * Code generation for function 'localize'
  *
- * C source code generated on: Thu Aug  7 12:12:52 2014
+ * C source code generated on: Mon Sep  1 19:20:44 2014
  *
  */
 
@@ -12,7 +12,14 @@
 #include "arclengthcurve.h"
 #include "buildbfcurvature.h"
 #include "builddetailedbf.h"
+#include "buildmanouvers.h"
+#include "checkpathcollision.h"
+#include "equateoffsetcost.h"
+#include "equatesafetycost.h"
+#include "evalheading.h"
 #include "localize.h"
+#include "mincost.h"
+#include "oblocalize.h"
 #include "parevalspline.h"
 #include "histc.h"
 #include "matlab_emxutil.h"
@@ -197,7 +204,7 @@ void localize(const emxArray_real_T *coefx, const emxArray_real_T *coefy, const
   real_T ys;
   real_T Bx;
   real_T ss[4];
-  int32_T i9;
+  int32_T i12;
   int32_T ixstart;
   real_T b_curvn[4];
   real_T distances[4];
@@ -210,7 +217,7 @@ void localize(const emxArray_real_T *coefx, const emxArray_real_T *coefy, const
   boolean_T exitg1;
   real_T ss_data[7];
   int32_T ss_size[1];
-  int32_T i10;
+  int32_T i13;
   int32_T b_ss_size[1];
   real_T b_ss_data[7];
 
@@ -308,12 +315,12 @@ void localize(const emxArray_real_T *coefx, const emxArray_real_T *coefy, const
     /* UNTITLED16 Summary of this function goes here */
     /*    Detailed explanation goes here */
     /* 'parevalspline:4' hist = breaks; */
-    i9 = hist->size[0];
+    i12 = hist->size[0];
     hist->size[0] = breaks->size[0];
-    emxEnsureCapacity((emxArray__common *)hist, i9, (int32_T)sizeof(real_T));
+    emxEnsureCapacity((emxArray__common *)hist, i12, (int32_T)sizeof(real_T));
     ixstart = breaks->size[0] - 1;
-    for (i9 = 0; i9 <= ixstart; i9++) {
-      hist->data[i9] = breaks->data[i9];
+    for (i12 = 0; i12 <= ixstart; i12++) {
+      hist->data[i12] = breaks->data[i12];
     }
 
     /* 'parevalspline:5' hist(end) = hist(end) + 1; */
@@ -321,12 +328,12 @@ void localize(const emxArray_real_T *coefx, const emxArray_real_T *coefy, const
 
     /* increase the last bin to include the last value */
     /* 'parevalspline:6' [~,curvn] = histc(t,hist); */
-    i9 = c_hist->size[0];
+    i12 = c_hist->size[0];
     c_hist->size[0] = hist->size[0];
-    emxEnsureCapacity((emxArray__common *)c_hist, i9, (int32_T)sizeof(real_T));
+    emxEnsureCapacity((emxArray__common *)c_hist, i12, (int32_T)sizeof(real_T));
     ixstart = hist->size[0] - 1;
-    for (i9 = 0; i9 <= ixstart; i9++) {
-      c_hist->data[i9] = hist->data[i9];
+    for (i12 = 0; i12 <= ixstart; i12++) {
+      c_hist->data[i12] = hist->data[i12];
     }
 
     c_histc(ss, c_hist, hist, b_curvn);
@@ -334,40 +341,41 @@ void localize(const emxArray_real_T *coefx, const emxArray_real_T *coefy, const
     /* 'parevalspline:9' if d == 0 */
     /* 'parevalspline:10' result = coefs(curvn,1).*(t-breaks(curvn)).^3 + coefs(curvn,2).*(t-breaks(curvn)).^2 + ... */
     /* 'parevalspline:11'         coefs(curvn,3).*(t-breaks(curvn)) + coefs(curvn,4); */
-    for (i9 = 0; i9 < 4; i9++) {
-      distances[i9] = ss[i9] - breaks->data[(int32_T)b_curvn[i9] - 1];
+    for (i12 = 0; i12 < 4; i12++) {
+      distances[i12] = ss[i12] - breaks->data[(int32_T)b_curvn[i12] - 1];
     }
 
     for (ixstart = 0; ixstart < 4; ixstart++) {
       y[ixstart] = rt_powd_snf(distances[ixstart], 3.0);
     }
 
-    for (i9 = 0; i9 < 4; i9++) {
-      distances[i9] = ss[i9] - breaks->data[(int32_T)b_curvn[i9] - 1];
+    for (i12 = 0; i12 < 4; i12++) {
+      distances[i12] = ss[i12] - breaks->data[(int32_T)b_curvn[i12] - 1];
     }
 
     for (ixstart = 0; ixstart < 4; ixstart++) {
       b_y[ixstart] = rt_powd_snf(distances[ixstart], 2.0);
     }
 
-    for (i9 = 0; i9 < 4; i9++) {
-      b_xs[i9] = ((coefx->data[(int32_T)b_curvn[i9] - 1] * y[i9] + coefx->data
-                   [((int32_T)b_curvn[i9] + coefx->size[0]) - 1] * b_y[i9]) +
-                  coefx->data[((int32_T)b_curvn[i9] + (coefx->size[0] << 1)) - 1]
-                  * (ss[i9] - breaks->data[(int32_T)b_curvn[i9] - 1])) +
-        coefx->data[((int32_T)b_curvn[i9] + coefx->size[0] * 3) - 1];
+    for (i12 = 0; i12 < 4; i12++) {
+      b_xs[i12] = ((coefx->data[(int32_T)b_curvn[i12] - 1] * y[i12] +
+                    coefx->data[((int32_T)b_curvn[i12] + coefx->size[0]) - 1] *
+                    b_y[i12]) + coefx->data[((int32_T)b_curvn[i12] +
+        (coefx->size[0] << 1)) - 1] * (ss[i12] - breaks->data[(int32_T)
+        b_curvn[i12] - 1])) + coefx->data[((int32_T)b_curvn[i12] + coefx->size[0]
+        * 3) - 1];
     }
 
     /* 'dissqrd:6' ys = parevalspline(coefy,breaks,s,0); */
     /* UNTITLED16 Summary of this function goes here */
     /*    Detailed explanation goes here */
     /* 'parevalspline:4' hist = breaks; */
-    i9 = hist->size[0];
+    i12 = hist->size[0];
     hist->size[0] = breaks->size[0];
-    emxEnsureCapacity((emxArray__common *)hist, i9, (int32_T)sizeof(real_T));
+    emxEnsureCapacity((emxArray__common *)hist, i12, (int32_T)sizeof(real_T));
     ixstart = breaks->size[0] - 1;
-    for (i9 = 0; i9 <= ixstart; i9++) {
-      hist->data[i9] = breaks->data[i9];
+    for (i12 = 0; i12 <= ixstart; i12++) {
+      hist->data[i12] = breaks->data[i12];
     }
 
     /* 'parevalspline:5' hist(end) = hist(end) + 1; */
@@ -375,12 +383,12 @@ void localize(const emxArray_real_T *coefx, const emxArray_real_T *coefy, const
 
     /* increase the last bin to include the last value */
     /* 'parevalspline:6' [~,curvn] = histc(t,hist); */
-    i9 = b_hist->size[0];
+    i12 = b_hist->size[0];
     b_hist->size[0] = hist->size[0];
-    emxEnsureCapacity((emxArray__common *)b_hist, i9, (int32_T)sizeof(real_T));
+    emxEnsureCapacity((emxArray__common *)b_hist, i12, (int32_T)sizeof(real_T));
     ixstart = hist->size[0] - 1;
-    for (i9 = 0; i9 <= ixstart; i9++) {
-      b_hist->data[i9] = hist->data[i9];
+    for (i12 = 0; i12 <= ixstart; i12++) {
+      b_hist->data[i12] = hist->data[i12];
     }
 
     c_histc(ss, b_hist, hist, b_curvn);
@@ -388,34 +396,35 @@ void localize(const emxArray_real_T *coefx, const emxArray_real_T *coefy, const
     /* 'parevalspline:9' if d == 0 */
     /* 'parevalspline:10' result = coefs(curvn,1).*(t-breaks(curvn)).^3 + coefs(curvn,2).*(t-breaks(curvn)).^2 + ... */
     /* 'parevalspline:11'         coefs(curvn,3).*(t-breaks(curvn)) + coefs(curvn,4); */
-    for (i9 = 0; i9 < 4; i9++) {
-      distances[i9] = ss[i9] - breaks->data[(int32_T)b_curvn[i9] - 1];
+    for (i12 = 0; i12 < 4; i12++) {
+      distances[i12] = ss[i12] - breaks->data[(int32_T)b_curvn[i12] - 1];
     }
 
     for (ixstart = 0; ixstart < 4; ixstart++) {
       y[ixstart] = rt_powd_snf(distances[ixstart], 3.0);
     }
 
-    for (i9 = 0; i9 < 4; i9++) {
-      distances[i9] = ss[i9] - breaks->data[(int32_T)b_curvn[i9] - 1];
+    for (i12 = 0; i12 < 4; i12++) {
+      distances[i12] = ss[i12] - breaks->data[(int32_T)b_curvn[i12] - 1];
     }
 
     for (ixstart = 0; ixstart < 4; ixstart++) {
       b_y[ixstart] = rt_powd_snf(distances[ixstart], 2.0);
     }
 
-    for (i9 = 0; i9 < 4; i9++) {
-      b_ys[i9] = ((coefy->data[(int32_T)b_curvn[i9] - 1] * y[i9] + coefy->data
-                   [((int32_T)b_curvn[i9] + coefy->size[0]) - 1] * b_y[i9]) +
-                  coefy->data[((int32_T)b_curvn[i9] + (coefy->size[0] << 1)) - 1]
-                  * (ss[i9] - breaks->data[(int32_T)b_curvn[i9] - 1])) +
-        coefy->data[((int32_T)b_curvn[i9] + coefy->size[0] * 3) - 1];
+    for (i12 = 0; i12 < 4; i12++) {
+      b_ys[i12] = ((coefy->data[(int32_T)b_curvn[i12] - 1] * y[i12] +
+                    coefy->data[((int32_T)b_curvn[i12] + coefy->size[0]) - 1] *
+                    b_y[i12]) + coefy->data[((int32_T)b_curvn[i12] +
+        (coefy->size[0] << 1)) - 1] * (ss[i12] - breaks->data[(int32_T)
+        b_curvn[i12] - 1])) + coefy->data[((int32_T)b_curvn[i12] + coefy->size[0]
+        * 3) - 1];
     }
 
     /* 'dissqrd:8' distance = (xs - x0).^2 + (ys - y0).^2; */
-    for (i9 = 0; i9 < 4; i9++) {
-      distances[i9] = rt_powd_snf(b_xs[i9] - x0, 2.0) + rt_powd_snf(b_ys[i9] -
-        b_y0, 2.0);
+    for (i12 = 0; i12 < 4; i12++) {
+      distances[i12] = rt_powd_snf(b_xs[i12] - x0, 2.0) + rt_powd_snf(b_ys[i12]
+        - b_y0, 2.0);
     }
 
     /* 'localize:40' [~, index] = max(distances); */
@@ -449,9 +458,9 @@ void localize(const emxArray_real_T *coefx, const emxArray_real_T *coefy, const
 
     /* 'localize:42' ss = sort([ss(1:index-1);ss(index+1:end)]); */
     if (1 > itmp) {
-      i9 = 0;
+      i12 = 0;
     } else {
-      i9 = itmp;
+      i12 = itmp;
     }
 
     if (itmp + 2 > 4) {
@@ -462,15 +471,15 @@ void localize(const emxArray_real_T *coefx, const emxArray_real_T *coefy, const
       itmp = 3;
     }
 
-    ss_size[0] = ((i9 + itmp) - ix) + 1;
-    ixstart = i9 - 1;
-    for (i10 = 0; i10 <= ixstart; i10++) {
-      ss_data[i10] = ss[i10];
+    ss_size[0] = ((i12 + itmp) - ix) + 1;
+    ixstart = i12 - 1;
+    for (i13 = 0; i13 <= ixstart; i13++) {
+      ss_data[i13] = ss[i13];
     }
 
     ixstart = itmp - ix;
     for (itmp = 0; itmp <= ixstart; itmp++) {
-      ss_data[itmp + i9] = ss[ix + itmp];
+      ss_data[itmp + i12] = ss[ix + itmp];
     }
 
     eml_sort(ss_data, ss_size, b_ss_data, b_ss_size);
