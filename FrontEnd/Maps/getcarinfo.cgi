@@ -61,6 +61,8 @@ foreach my $MapLine (@MapLines) {
 	}
 	elsif($LineType eq 'F') { $Colour = 'orange'; }
 	elsif($LineType eq 'I') { $Colour = 'brown'; }
+	elsif($LineType eq 'S') { $Colour = 'red'; }
+	
 
 	push(@{$PlotInfo->{"mapdata"}},[$LineContents[0]*1.0, $LineContents[1]*1.0, $Colour]);
 

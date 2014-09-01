@@ -179,6 +179,7 @@ var map;
 
 var markers = [];
 var fencemarkers = [];
+var baseframe = [];
 
 var offsetLat = 0;
 var offsetLong = 0;
@@ -196,6 +197,8 @@ var datumMarker;
 function initialize() {
 
 	var defaultPos = new google.maps.LatLng(-31.980569, 115.817807);
+	
+	
         
 	var mapOptions = {
 		center: defaultPos,
@@ -288,6 +291,7 @@ function logFenceLocation(location) {
 function setDatumLocation(location) {
 
 	datumMarker.setPosition(location);
+	map.setCenter(location);
 
 	updateMarkersText();
 
@@ -428,13 +432,30 @@ function updateLog() {
 
 }
 
+function updateBaseFrame() {
+
+	\$.ajax({
+		type: "GET"
+		,url: "getbaseframe.cgi"
+		,dataType: "json"
+		,cache: false
+		,success: function(json){
+			drawbaseframe(json);
+                            }
+		,error: function() { alert("AJAX Error!"); }
+	});
+
+}
+
 function loadMap() {
 
 	\$.ajax({
 		type: "POST",
 		url: "sendcommand.cgi",
 		data: "command=LOADMAP," + document.getElementById("openfilename").options[document.getElementById("openfilename").selectedIndex].value,
-		success: function() { },
+		success: function() {
+			updateBaseFrame();
+			},
 		dataType: "text",
 		error: function() { alert("AJAX IPC send Error!"); }
 	});
@@ -485,6 +506,25 @@ function sendCommand(Command) {
 
 }
 
+function drawbaseframe(json) {
+	
+	while(baseframe.length > 0) {
+		baseframe.pop();
+	}
+	
+	for (i = 0; i < json.mapdata.length; i++) {
+		baseframe[baseframe.length] = new google.maps.LatLng(json.mapdata[i][0],json.mapdata[i][1]);
+	}
+	var mapbaseframe = new google.maps.Polyline({
+		path: baseframe,
+		geodesic: true,
+		strokeColor: '#FF0000',
+		strokeOpacity: 1.0,
+		strokeWeight: 2
+	});
+
+  mapbaseframe.setMap(map);
+}
 
 function drawXYGraph(json)
         {
