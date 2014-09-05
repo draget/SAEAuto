@@ -706,15 +706,15 @@ void Control::DumpBaseFrame() {
 
 
 void Control::UpdatePathPlan() {
-	while ((AutoRun && PathPlan.active) || true) {
+	while ((AutoRun && PathPlan.active)) {
 		
 		PlanLock.lock(); //block until intermediate heading is calculated and sent to PIDs, then lock the mutex
 		Log->WriteLogLine("PathPlan - Updating Plan");
 		
 		NextWaypoint = 0; //reset next waypoint
-		double posx = 40;//Fuser->CurrentPosition.x;
-		double posy = 46;//Fuser->CurrentPosition.y;
-		PathPlan.curvn = 50;
+		double posx = Fuser->CurrentPosition.x;
+		double posy = Fuser->CurrentPosition.y;
+		PathPlan.curvn = 1;
 		
 		//Manouver Parameters
 		double maxlatoffset = 8;
@@ -724,7 +724,7 @@ void Control::UpdatePathPlan() {
 		
 		//Get current Obstacles
 		double ob[] = {22,46.8,1};
-		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob, 3, 1);
+		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob, 3, 0);
 		emxArray_real_T *arcob = emxCreate_real_T(1,1);
 		
 		Log->WriteLogLine("Object Localize");
