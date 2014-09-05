@@ -145,8 +145,8 @@ void LowLevelSerialOut::SendCurrent() {
 			CarControl->Trip(5);
 		}
 
-		if(CarControl->TripState > 0) { char E = 'E'; Serial->write(&E,1); }
-
+		if(CarControl->TripState > 0)  { char E = 'E'; Serial->write(&E,1); }
+		if(CarControl->ResetTrip == true) {char R = 'R'; Serial->write(&R,1); CarControl->ResetTrip = false; } 
 	
 		if(Serial->errorStatus() || Serial->isOpen() == false) {
                 		Log->WriteLogLine("LowLevelSerial - Error: serial port unexpectedly closed");
