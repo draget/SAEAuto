@@ -9,7 +9,6 @@
 *
 */
 
-
 #include <iostream>
 #include <curses.h>
 #include <csignal>
@@ -17,6 +16,8 @@
 #include <fstream>
 #include <vector>
 #include <cmath>
+
+#include <sys/time.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -36,10 +37,28 @@
 #include "PID.h"
 #include "spline.hpp"
 
+#include "matlab/matlab_emxAPI.h"
+#include "matlab/arclengthcurve.h"
+#include "matlab/builddetailedbf.h"
+#include "matlab/parevalspline.h"
+#include "matlab/buildbfcurvature.h"
+#include "matlab/oblocalize.h"
+#include "matlab/localize.h"
+#include "matlab/evalheading.h"
+#include "matlab/buildmanouvers.h"
+#include "matlab/checkpathcollision.h"
+#include "matlab/equatesafetycost.h"
+#include "matlab/equateoffsetcost.h"
+#include "matlab/mincost.h"
+
+static timestamp_t get_timestamp()
+{
+  struct timeval now;
+  gettimeofday (&now, NULL);
+  return  now.tv_usec + (timestamp_t)now.tv_sec * 1000000;
+}
+
 Control *SAECar;
-
-
-
 
 /**
  * Purpose: Creates a new instance of the Control object.
@@ -83,6 +102,8 @@ Control::Control(std::string LogDir, bool ExtLog) {
 
 	// Create object instances...
 	Log = new Logger(LogDir + "/mainlog.txt");
+	
+	TimeLog = new Logger(LogDir + "/timelog.txt");
 
 	Log->WriteLogLine("Control - Ext logging: " + boost::lexical_cast<std::string>(ExtLogging));
 
@@ -126,6 +147,9 @@ void Control::Setup() {
 	GPS->Open();
 	if(access("noibeo", F_OK ) == -1) { Lux->Open(); }
 	IMU->Open();
+	
+	PathPlan.manxi = emxCreate_real_T(1,1);
+	PathPlan.manyi = emxCreate_real_T(1,1);
 
 }
 
@@ -308,6 +332,8 @@ void Control::WriteInfoFile() {
 	WebLogger->WriteLogLine("IBEO RH Edge|" + boost::lexical_cast<std::string>(this->Lux->RHEdge), true);
 	WebLogger->WriteLogLine("IBEO Road Slope|" + boost::lexical_cast<std::string>(this->Lux->RoadSlope), true);
 	WebLogger->WriteLogLine("IBEO Road Intcpt|" + boost::lexical_cast<std::string>(this->Lux->RoadIntercept), true);
+	
+	WebLogger->WriteLogLine("Advanced Path Planning Active|" + boost::lexical_cast<std::string>(this->PathPlan.active), true);
 
 	int y = 30;
 	
@@ -390,6 +416,7 @@ void Control::Untrip() {
 	CurrentThrottleBrakeSetPosn = 0;
 
 	ResetTrip = true;
+
 	Log->WriteLogLine("Control - trip state returned to zero.");
 
 }
@@ -466,10 +493,89 @@ void Control::LoadMap(std::string MapFilename) {
 				w++;
 				CurrentMap.Waypoints.push_back(MapPoint);
 			}
+    	}
+    	infile.close();
+    		
+    	timestamp_t t0 = get_timestamp();
 
-    		}
-    		infile.close();
+		PathPlan.points = emxCreateWrapper_real_T(&CurrentMap.Waypoints[0].x, 2, w); //Create waypoint matrix by wrapping Waypoints vector
+		
+		
+		PathPlan.scoefx = emxCreate_real_T(1,1); //Create arc length parameterised x coeficients matrix
+		PathPlan.scoefy = emxCreate_real_T(1,1); //Create arc length parameterised y coeficients matrix
+		PathPlan.si = emxCreate_real_T(1,1); //Create arc length parameterised breaks matrix
+		
+		
+		//Calculate an arc length paramterised path based on the original waypoints with the arc length path matching the original path at PATHESTIMATEGRANULARITY intervals. 
+		arclengthcurve(PathPlan.points, PATHESTIMATEGRANULARITY, EPSILON, 
+						PathPlan.scoefx, PathPlan.scoefy, PathPlan.si);
+						
+		timestamp_t t1 = get_timestamp();
+					
+		emxArray_real_T *sx = emxCreate_real_T(1,1); //Create baseframe x point samples matrix, only used in plotting
+		emxArray_real_T *sy = emxCreate_real_T(1,1); //Create baseframe y point samples matrix, only used in plotting
+		PathPlan.ss = emxCreate_real_T(1,1); //Create baseframe arc length samples matrix
+		
+		//Calculate detailed sample points at a distance GRANULATRITY between each point.
+		builddetailedbf(PathPlan.scoefx, PathPlan.scoefy, PathPlan.si, GRANULARITY,
+						sx, sy, PathPlan.ss);
+		
+		timestamp_t t2 = get_timestamp();
+		
+		//Put calculated detailes baseframe samples into the current map baseframe vector.
+		for(int i = 0; i < sx->size[0]; i++) {
+			MapPoint.x = sx->data[i];
+			MapPoint.y = sy->data[i];
+			PathPlan.BaseFrame.push_back(MapPoint);
+		}
+		Log->WriteLogLine("#Samples: " + boost::lexical_cast<std::string>(PathPlan.ss->size[0]));
+		Log->WriteLogLine("Total Baseframe Path Length: " + boost::lexical_cast<std::string>(PathPlan.si->data[PathPlan.si->size[0]-1]));
+		
+		timestamp_t t3 = get_timestamp();
+		
+		PathPlan.dxds = emxCreate_real_T(1,1); //Create first derivative of x with respect to arc length matrix
+		PathPlan.dyds = emxCreate_real_T(1,1); //Create first derivative of y with respect to arc length matrix
+		emxArray_real_T *dx2ds = emxCreate_real_T(1,1); //Create second derivative of x with respect to arc length matrix
+		emxArray_real_T *dy2ds = emxCreate_real_T(1,1); //Create second derivative of y with respect to arc length matrix
+		
+		emxArray_real_T *dontcare = emxCreate_real_T(1,1); //Create a dontcare matrix because we dont care about the curvn
+		
+		//Calculate derivatives
+		parevalspline(PathPlan.scoefx,PathPlan.si,PathPlan.ss,1,PathPlan.dxds,dontcare);
+		parevalspline(PathPlan.scoefy,PathPlan.si,PathPlan.ss,1,PathPlan.dyds,dontcare);
+		parevalspline(PathPlan.scoefx,PathPlan.si,PathPlan.ss,2,dx2ds,dontcare);
+		parevalspline(PathPlan.scoefy,PathPlan.si,PathPlan.ss,2,dy2ds,dontcare);
+		
+		timestamp_t t4 = get_timestamp();
+		
+		
+		PathPlan.BaseFrameCurvature = emxCreate_real_T(1,1); //Create base frame curvature matrix, store in pathplanning struct
+		
+		//Calculate baseframe curvature
+		buildbfcurvature(PathPlan.dxds, PathPlan.dyds, dx2ds, dy2ds, PathPlan.BaseFrameCurvature);
+		
+		
+		
+		timestamp_t t5 = get_timestamp();
+		
+		
+		double secs1 = (t1 - t0) / 1000000.0L;
+		double secs2 = (t2 - t1) / 1000000.0L;
+		double secs3 = (t3 - t2) / 1000000.0L;
+		double secs4 = (t4 - t3) / 1000000.0L;
+		double secs5 = (t5 - t4) / 1000000.0L;
+		
+		
+		
+		Log->WriteLogLine("#Curvature Samples: " + boost::lexical_cast<std::string>(PathPlan.BaseFrameCurvature->size[0]));
+		TimeLog->WriteLogLine("Time to execute arclengthcurve: " + boost::lexical_cast<std::string>(secs1) + " s");
+		TimeLog->WriteLogLine("Time to execute builddetailedbf: " + boost::lexical_cast<std::string>(secs2) + " s");
+		TimeLog->WriteLogLine("Time to push baseframe onto currentmap: " + boost::lexical_cast<std::string>(secs3) + " s");
+		TimeLog->WriteLogLine("Time to execute parevalspline derivitives: " + boost::lexical_cast<std::string>(secs4) + " s");
+		TimeLog->WriteLogLine("Time to execute buildbfcurvature: " + boost::lexical_cast<std::string>(secs5) + " s");
+		
 		Log->WriteLogLine("Control - loaded " + boost::lexical_cast<std::string>(f) + " fence and " + boost::lexical_cast<std::string>(w) + " waypoints.");
+		
   	}
 	else { Log->WriteLogLine("Control - Couldn't open map"); }
 	
@@ -489,6 +595,8 @@ void Control::ClearMap() {
 	CurrentMap.Fenceposts.clear();
 	CurrentMap.Waypoints.clear();
 	CurrentMap.DetectedFenceposts.clear();
+	PathPlan.BaseFrame.clear();
+	PathPlan.PlannedWaypoints.clear();
 
 }
 
@@ -537,12 +645,204 @@ void Control::DumpMap(std::string MapName) {
 	BOOST_FOREACH( VECTOR_2D MapPoint, CurrentMap.DetectedFenceposts ) {
    		DumpLog->WriteLogLine("I" + boost::lexical_cast<std::string>(i) + "," + boost::lexical_cast<std::string>(MapPoint.x) + "," + boost::lexical_cast<std::string>(MapPoint.y), true);
 		i++;
+	} 
+	
+	int npaths = PathPlan.manxi->size[1];
+	int npoints = PathPlan.manxi->size[0];
+	double x;
+	double y;
+	
+	for (i = 0; i<npaths; i++) {
+		for (int j = 0; j<npoints; j++){
+			x = PathPlan.manxi->data[i*npoints + j];
+			y = PathPlan.manyi->data[i*npoints + j];
+			if (i == PathPlan.selectedpath - 1) {
+				DumpLog->WriteLogLine("S," + boost::lexical_cast<std::string>(x) + "," + boost::lexical_cast<std::string>(y), true);
+			} else {
+				DumpLog->WriteLogLine("P," + boost::lexical_cast<std::string>(x) + "," + boost::lexical_cast<std::string>(y), true);
+			}
+			
+		}
+	}
+	
+	i = 0;
+	/* Dont log best path seperately for now
+	BOOST_FOREACH( VECTOR_2D MapPoint, PathPlan.PlannedWaypoints ) {
+   		DumpLog->WriteLogLine("B," + boost::lexical_cast<std::string>(MapPoint.x) + "," + boost::lexical_cast<std::string>(MapPoint.y), true);
+		i++;
+	}*/
+	
+
+	DumpLog->CloseLog();
+	DumpLog->ClearLock();
+}
+
+/**
+ * Purpose: Saves current baseframe to a text file.
+ * Inputs : None.
+ * Outputs: None.
+ */
+void Control::DumpBaseFrame() {
+
+	// Create a new logger, set a lock and empty the file if it exists.
+	Logger* DumpLog = new Logger("./ramdisk/baseframe.txt");
+	
+
+	DumpLog->WriteLock();
+	DumpLog->ClearLog();
+
+
+	// Dump the baseframe waypoints in lat/long. Re-use Map point datatype...
+	int i = 0;
+	BOOST_FOREACH( VECTOR_2D MapPoint, PathPlan.BaseFrame ) {
+		VECTOR_2D LatLongPoint = XYToLatLong(MapPoint.x, MapPoint.y);
+   		DumpLog->WriteLogLine(boost::lexical_cast<std::string>(i) + "," + boost::lexical_cast<std::string>(LatLongPoint.x) + "," + boost::lexical_cast<std::string>(LatLongPoint.y), true);
+		i++;
 	}
 
 	DumpLog->CloseLog();
 	DumpLog->ClearLock();	
 }
 
+
+void Control::UpdatePathPlan() {
+	while ((AutoRun && PathPlan.active) || true) {
+		
+		PlanLock.lock(); //block until intermediate heading is calculated and sent to PIDs, then lock the mutex
+		Log->WriteLogLine("PathPlan - Updating Plan");
+		
+		NextWaypoint = 0; //reset next waypoint
+		double posx = 40;//Fuser->CurrentPosition.x;
+		double posy = 46;//Fuser->CurrentPosition.y;
+		PathPlan.curvn = 50;
+		
+		//Manouver Parameters
+		double maxlatoffset = 8;
+		double mangran = 1;
+		double manlength = 30;
+		double mincurverad = 2;
+		
+		//Get current Obstacles
+		double ob[] = {22,46.8,1};
+		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob, 3, 1);
+		emxArray_real_T *arcob = emxCreate_real_T(1,1);
+		
+		Log->WriteLogLine("Object Localize");
+		//Log->WriteLogLine("Obstacles Size: " + boost::lexical_cast<std::string>(obstacles->size[0]) + "x" + boost::lexical_cast<std::string>(obstacles->size[1]));
+		//Log->WriteLogLine("Obstacles Data: " + boost::lexical_cast<std::string>(obstacles->data[0]) + "," + boost::lexical_cast<std::string>(obstacles->data[1]));
+		
+		timestamp_t t0 = get_timestamp();
+		oblocalize(PathPlan.scoefx,PathPlan.scoefy,PathPlan.si,obstacles,1,EPSILON,arcob);
+		timestamp_t t1 = get_timestamp();
+		Log->WriteLogLine("Arcob s = " + boost::lexical_cast<std::string>(arcob->data[0]));
+		Log->WriteLogLine("Arcob q = " + boost::lexical_cast<std::string>(arcob->data[1]));
+		
+		double cpdistance;
+		
+		Log->WriteLogLine("Position Localize");
+		timestamp_t t2 = get_timestamp();
+		localize(PathPlan.scoefx,PathPlan.scoefy,PathPlan.si,posx,posy,PathPlan.curvn,EPSILON,&PathPlan.scp,&cpdistance,&PathPlan.curvn);
+		timestamp_t t3 = get_timestamp();
+		Log->WriteLogLine("scp = " + boost::lexical_cast<std::string>(PathPlan.scp));
+		Log->WriteLogLine("cpdistance = " + boost::lexical_cast<std::string>(cpdistance));
+		Log->WriteLogLine("curvn = " + boost::lexical_cast<std::string>(PathPlan.curvn));
+		
+		double sindex;
+		double paththeta;
+		
+		Log->WriteLogLine("Evaluate Heading");
+		timestamp_t t4 = get_timestamp();
+		evalheading(PathPlan.scp,PathPlan.ss,PathPlan.dxds,PathPlan.dyds,&sindex,&paththeta);
+		timestamp_t t5 = get_timestamp();
+		Log->WriteLogLine("sindex = " + boost::lexical_cast<std::string>(sindex));
+		Log->WriteLogLine("paththeta = " + boost::lexical_cast<std::string>(paththeta));
+		
+		double thetadiff = Fuser->CurrentHeading - (paththeta/TwoPi * 360); //+ve is anticlockwise from path heading
+		
+		emxArray_real_T *pathki = emxCreate_real_T(1,1);
+		emxArray_real_T *pathqi = emxCreate_real_T(1,1);
+		emxArray_real_T *dthetai = emxCreate_real_T(1,1);
+		emxArray_real_T *mans = emxCreate_real_T(1,1);
+		
+		
+		Log->WriteLogLine("Build Manouvers");
+		timestamp_t t6 = get_timestamp();
+		buildmanouvers(PathPlan.scp, cpdistance, posx, posy,
+						maxlatoffset, mangran, manlength, mincurverad, thetadiff,
+						PathPlan.ss, sindex, PathPlan.BaseFrameCurvature, paththeta,
+						PathPlan.manxi, PathPlan.manyi, pathki, pathqi, dthetai, mans); //Outputs
+		timestamp_t t7 = get_timestamp();
+						
+		Log->WriteLogLine("pathki size = " + boost::lexical_cast<std::string>(pathki->size[0]) + "x" + boost::lexical_cast<std::string>(pathki->size[1]));				
+		
+		emxArray_boolean_T *pathcollision = emxCreate_boolean_T(1,1);
+		
+		Log->WriteLogLine("Check Path Collision");
+		timestamp_t t8 = get_timestamp();
+		checkpathcollision(arcob, pathqi, mans, pathcollision);
+		timestamp_t t9 = get_timestamp();
+		Log->WriteLogLine("pathcollision size = " + boost::lexical_cast<std::string>(pathcollision->size[0]) + "x" + boost::lexical_cast<std::string>(pathcollision->size[1]));
+		
+		emxArray_real_T *safetycost = emxCreate_real_T(1,1);
+		
+		Log->WriteLogLine("Equate safety cost");
+		timestamp_t t10 = get_timestamp();
+		equatesafetycost(mangran, pathcollision, safetycost);
+		timestamp_t t11 = get_timestamp();
+		
+		emxArray_real_T *offsetcost = emxCreate_real_T(1,1);
+		
+		Log->WriteLogLine("Equate offset cost");
+		timestamp_t t12 = get_timestamp();
+		equateoffsetcost(pathqi, offsetcost);
+		timestamp_t t13 = get_timestamp();
+
+		double bestpath;
+		emxArray_real_T *costs = emxCreate_real_T(1,1);
+		
+		Log->WriteLogLine("Calculate Best Path");
+		timestamp_t t14 = get_timestamp();
+		mincost(1, safetycost, 0.1, offsetcost, costs, &bestpath);
+		timestamp_t t15 = get_timestamp();
+		
+		PathPlan.selectedpath = bestpath;
+		Log->WriteLogLine("BestPath = " + boost::lexical_cast<std::string>(bestpath) + " at a cost = " + boost::lexical_cast<std::string>(costs->data[PathPlan.selectedpath-1]));
+		
+		int npoints = PathPlan.manxi->size[0];
+		PathPlan.PlannedWaypoints.clear();
+		for (int i = 0; i < npoints; i++) {
+			VECTOR_2D MapPoint;
+			MapPoint.x = PathPlan.manxi->data[npoints*(PathPlan.selectedpath-1) + i];
+			MapPoint.y = PathPlan.manyi->data[npoints*(PathPlan.selectedpath-1) + i];
+			
+			PathPlan.PlannedWaypoints.push_back(MapPoint);
+		}
+		
+		
+		PlanLock.unlock(); //Unlock the mutex
+		
+		double secs1 = (t1 - t0) / 1000000.0L;
+		double secs2 = (t3 - t2) / 1000000.0L;
+		double secs3 = (t5 - t4) / 1000000.0L;
+		double secs4 = (t7 - t6) / 1000000.0L;
+		double secs5 = (t9 - t8) / 1000000.0L;
+		double secs6 = (t10 - t11) / 1000000.0L;
+		double secs7 = (t12 - t13) / 1000000.0L;
+		double secs8 = (t14 - t15) / 1000000.0L;
+		
+		TimeLog->WriteLogLine("----Path Planning Time Stats----");
+		TimeLog->WriteLogLine("Time to execute oblozalize: " + boost::lexical_cast<std::string>(secs1) + " s");
+		TimeLog->WriteLogLine("Time to execute localize: " + boost::lexical_cast<std::string>(secs2) + " s");
+		TimeLog->WriteLogLine("Time to execute evalheading: " + boost::lexical_cast<std::string>(secs3) + " s");
+		TimeLog->WriteLogLine("Time to execute buildmanouvers: " + boost::lexical_cast<std::string>(secs4) + " s");
+		TimeLog->WriteLogLine("Time to execute checkpathcollision: " + boost::lexical_cast<std::string>(secs5) + " s");
+		TimeLog->WriteLogLine("Time to execute equatesafetycost: " + boost::lexical_cast<std::string>(secs6) + " s");
+		TimeLog->WriteLogLine("Time to execute equateoffsetcost: " + boost::lexical_cast<std::string>(secs7) + " s");
+		TimeLog->WriteLogLine("Time to execute mincost: " + boost::lexical_cast<std::string>(secs8) + " s");
+		
+		boost::this_thread::sleep(boost::posix_time::milliseconds(10000)); //Plan path every 10 seconds
+	}
+}
 
 /**
  * Purpose: Starts Autonomous driving.
@@ -558,6 +858,9 @@ void Control::AutoStart() {
 	if(! CarNetworkConnection->HasConnection && BrakeILOn) { Log->WriteLogLine("Control - No base connection, can't start auto."); return; }
 
 	NextWaypoint = 0;
+	PathPlan.curvn = 1; //Set path planning curvn to 1
+	PathPlan.active = false; //Start with advanced path planning off
+	
 	ManualOn = false;
 	AutoOn = true;
 	AutoRun = true;
@@ -582,6 +885,10 @@ void Control::AutoStart() {
 
 	SteerController->setSetPoint(0);
 	ThrottleController->setSetPoint(0);
+	
+	boost::thread UpdatePathPlanThread = boost::thread(&Control::UpdatePathPlan, this);
+	UpdatePathPlanThread.detach();
+	
 }
 
 
@@ -610,18 +917,44 @@ void Control::CheckFenceposts(VECTOR_2D CurPosn) {
  * Outputs: None.
  */
 void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
-
-	// Check if we have reached a waypoint.
-	VECTOR_2D DistanceVector = SubtractVector(CurrentMap.Waypoints[NextWaypoint],CurPosn);
-	if(VectorMagnitude(DistanceVector) < MAPPOINT_RADIUS) {
-		Log->WriteLogLine("Control - Reached waypoint " + boost::lexical_cast<std::string>(NextWaypoint));
-		NextWaypoint++;
-		if(NextWaypoint >= CurrentMap.Waypoints.size()) { Log->WriteLogLine("Control - Reached end of map."); Control::AutoStop(); return; }
+	
+	PlanLock.lock(); //block until path planning is complete, lock mutex
+	
+	VECTOR_2D DistanceToBaseFrame = SubtractVector(PathPlan.BaseFrame[0],CurPosn);
+	if(VectorMagnitude(DistanceToBaseFrame) < MAPPOINT_RADIUS) {
+		Log->WriteLogLine("Control - Reached Start of BaseFrame. Activating Advanced Path Planning ");
+		PathPlan.active = true;
 	}
+	
+	VECTOR_2D VectorToNextWp;
+	
+	//Check to see if path planning is active
+	if (PathPlan.active) {
+		// Check if we have reached a waypoint.
+		VECTOR_2D DistanceVector = SubtractVector(PathPlan.PlannedWaypoints[NextWaypoint],CurPosn);
+		if(VectorMagnitude(DistanceVector) < MAPPOINT_RADIUS) {
+			Log->WriteLogLine("Control - Reached PP waypoint " + boost::lexical_cast<std::string>(NextWaypoint));
+			NextWaypoint++;
+			if(NextWaypoint >= PathPlan.PlannedWaypoints.size()) { Log->WriteLogLine("Control - Reached end of path plan."); Control::AutoStop(); return; }
+		}
 
-	// Calculate the vector to the next waypoint.
-	//VECTOR_2D VectorToNextWp = SubtractVector(CurrentMap.Waypoints[NextWaypoint], CurPosn); // Simple
-	VECTOR_2D VectorToNextWp = GetInterpolatedVector(CurPosn);				// Use interpolation
+		// Calculate the vector to the next waypoint.
+		VectorToNextWp = SubtractVector(PathPlan.PlannedWaypoints[NextWaypoint], CurPosn); // Simple
+	} else {
+		// Check if we have reached a waypoint.
+		VECTOR_2D DistanceVector = SubtractVector(CurrentMap.Waypoints[NextWaypoint],CurPosn);
+		if(VectorMagnitude(DistanceVector) < MAPPOINT_RADIUS) {
+			Log->WriteLogLine("Control - Reached waypoint " + boost::lexical_cast<std::string>(NextWaypoint));
+			NextWaypoint++;
+			if(NextWaypoint >= CurrentMap.Waypoints.size()) { Log->WriteLogLine("Control - Reached end of map."); Control::AutoStop(); return; }
+		}
+
+		// Calculate the vector to the next waypoint.
+		//VECTOR_2D VectorToNextWp = SubtractVector(CurrentMap.Waypoints[NextWaypoint], CurPosn); // Simple
+		VectorToNextWp = GetInterpolatedVector(CurPosn);				// Use interpolation
+	}
+	
+	
 
 	// Calculate an angle bearing.
 	if(VectorToNextWp.y > 0 && VectorToNextWp.x < 0) { DesiredBearing = 360 + 90 - 360*atan2(VectorToNextWp.y,VectorToNextWp.x)/TwoPi; }
@@ -642,6 +975,8 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 
 	ThrottleController->setSetPoint(DesiredSpeed); 
 	BrakeController->setSetPoint(DesiredSpeed);
+	
+	PlanLock.unlock(); //Unlock mutex
 
 	if(ExtLogging) { 
 		std::string time = boost::lexical_cast<std::string>(TimeStamp());
@@ -906,12 +1241,26 @@ double Control::TimeStamp() {
 
 }
 
+
 VECTOR_2D Control::LatLongToXY(double lat, double lng) {
 
 	VECTOR_2D MapPoint;
 
 	MapPoint.y = -1*EARTH_RADIUS*TwoPi*(DatumLat - lat)/360;
 	MapPoint.x = -1*EARTH_RADIUS*cos(abs(lat))*TwoPi*(DatumLong - lng)/360;
+
+	return MapPoint;
+
+}
+
+VECTOR_2D Control::XYToLatLong(double x, double y) {
+
+	VECTOR_2D MapPoint;
+
+	//Lat
+	MapPoint.x = 1*y*360/(EARTH_RADIUS*TwoPi) + DatumLat;
+	//Lon
+	MapPoint.y = 1*x*360/(EARTH_RADIUS*TwoPi*cos(abs(MapPoint.x))) + DatumLong;
 
 	return MapPoint;
 

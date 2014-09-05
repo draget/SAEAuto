@@ -1,0 +1,1042 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Code Generation Report</title>
+<link rel="stylesheet" type="text/css" href="file:////Applications/MATLAB_R2012a.app/toolbox/coder/coder/resources/eml_report.css" />
+<link rel="stylesheet" type="text/css" href="file:////Applications/MATLAB_R2012a.app/toolbox/coder/coder/resources/jQuery/ui.resizable.css" />
+<link rel="stylesheet" type="text/css" href="file:////Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/codegeneration/codegen/lib/matlab/html/index.css" />
+
+<script type="text/javascript" src="file:////Applications/MATLAB_R2012a.app/toolbox/coder/coder/resources/jQuery/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="file:////Applications/MATLAB_R2012a.app/toolbox/coder/coder/resources/jQuery/jquery-ui-1.7.custom.min.js"></script>
+<script type="text/javascript" src="file:////Applications/MATLAB_R2012a.app/toolbox/coder/coder/resources/jQuery/jquery.tablesorter.mod.js"></script>
+<script type="text/javascript" src="file:////Applications/MATLAB_R2012a.app/toolbox/coder/coder/resources/jQuery/jquery.hotkeys-0.7.8.js"></script>
+<script type="text/javascript" src="file:////Applications/MATLAB_R2012a.app/toolbox/coder/coder/resources/eml_report_interactions.js"></script>
+<script type="text/javascript" src="file:////Applications/MATLAB_R2012a.app/toolbox/coder/coder/resources/eml_report_layout.js"></script>
+<script type="text/javascript">
+var localizedMessages = {
+    callSelectPrompt: "Select a function call:",
+    callSelectSource: "Calls from this function",
+    callSelectTarget: "Calls to this function",
+    infoForExpression: "Information for the selected expression:",
+    infoForVarHere: "Information for the selected variable:",
+    infoForVarThere: "Information for the selected variable:",
+    infoForVarNone: "This variable does not have information associated with it.",
+    infoForFilter: "Matched {0}/{1} functions, {2}/{3} methods"
+};
+var keyBindings = {
+        selectMCodeTab: "Ctrl+m",
+    selectCallStackTab: "Ctrl+k",
+        selectCCodeTab: "Ctrl+c",
+     selectCenterPanel: "Ctrl+w",
+      selectSummaryTab: "Ctrl+s",
+     selectMessagesTab: "Ctrl+a",
+    selectWatchListTab: "Ctrl+v",
+     selectBuildLogTab: "Ctrl+t"
+};
+var functionInfoTable = {
+ MATLABcode1: "arclengthcurve1_mcode.html",
+ fpath1: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/arclengthcurve.m",
+ lines1: [1, 1, 69],
+ watch1: "arclengthcurve1_watch.html",
+ title1: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/arclengthcurve.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/arclengthcurve.m')\">arclengthcurve</a></span>",
+ tcall1: [  ],
+ scall1: [ [ "From line 10 to cubic_spline3", "257#srcline1" ], [ "From line 16 to adaptivegaus", "262#srcline1" ], [ "From line 31 to evalspline > 1", "275#srcline1" ], [ "From line 32 to evalspline > 1", "275#srcline1" ], [ "From line 47 to bisect", "276#srcline1" ], [ "From line 51 to evalspline > 2", "277#srcline1" ], [ "From line 53 to evalspline > 2", "277#srcline1" ], [ "From line 65 to cubic_spline3", "257#srcline1" ] ],
+ MATLABcode256: "cubic_spline256_mcode.html",
+ fpath256: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/cubic_spline.m",
+ lines256: [1, 1, 31],
+ watch256: "cubic_spline256_watch.html",
+ title256: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/cubic_spline.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/cubic_spline.m')\">cubic_spline</a></span>",
+ tcall256: [ [ "From cubic_spline3 line 2", "257#F256N9:B18" ], [ "From cubic_spline3 line 3", "257#F256N9:B29" ] ],
+ scall256: [  ],
+ MATLABcode257: "cubic_spline3257_mcode.html",
+ fpath257: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/cubic_spline3.m",
+ lines257: [1, 1, 9],
+ watch257: "cubic_spline3257_watch.html",
+ title257: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/cubic_spline3.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/cubic_spline3.m')\">cubic_spline3</a></span>",
+ tcall257: [ [ "From arclengthcurve line 10", "1#F257N10:B44" ], [ "From arclengthcurve line 65", "1#F257N10:B349" ] ],
+ scall257: [ [ "From line 2 to cubic_spline", "256#srcline1" ], [ "From line 3 to cubic_spline", "256#srcline1" ] ],
+ MATLABcode260: "twoptgaus260_mcode.html",
+ fpath260: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/twoptgaus.m",
+ lines260: [1, 1, 19],
+ watch260: "twoptgaus260_watch.html",
+ title260: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/twoptgaus.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/twoptgaus.m')\">twoptgaus</a></span>",
+ tcall260: [ [ "From subdivide line 14", "261#F260N21:B53" ], [ "From subdivide line 15", "261#F260N21:B63" ], [ "From adaptivegaus line 5", "262#F260N21:B16" ] ],
+ scall260: [  ],
+ MATLABcode261: "subdivide261_mcode.html",
+ fpath261: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/subdivide.m",
+ lines261: [1, 1, 41],
+ watch261: "subdivide261_watch.html",
+ title261: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/subdivide.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/subdivide.m')\">subdivide</a></span>",
+ tcall261: [ [ "From adaptivegaus line 7", "262#F261N20:B26" ] ],
+ scall261: [ [ "From line 14 to twoptgaus", "260#srcline1" ], [ "From line 15 to twoptgaus", "260#srcline1" ] ],
+ MATLABcode262: "adaptivegaus262_mcode.html",
+ fpath262: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/adaptivegaus.m",
+ lines262: [1, 1, 11],
+ watch262: "adaptivegaus262_watch.html",
+ title262: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/adaptivegaus.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/adaptivegaus.m')\">adaptivegaus</a></span>",
+ tcall262: [ [ "From arclengthcurve line 16", "1#F262N2:B83" ], [ "From bisect line 12", "276#F262N2:B40" ] ],
+ scall262: [ [ "From line 5 to twoptgaus", "260#srcline1" ], [ "From line 7 to subdivide", "261#srcline1" ] ],
+ MATLABcode275: "evalspline275_mcode.html",
+ fpath275: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/evalspline.m",
+ lines275: [1, 1, 17],
+ watch275: "evalspline275_watch.html",
+ title275: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/evalspline.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/evalspline.m')\">evalspline &gt; 1</a></span>",
+ tcall275: [ [ "From arclengthcurve line 31", "1#F275N15:B153" ], [ "From arclengthcurve line 32", "1#F275N15:B168" ] ],
+ scall275: [  ],
+ MATLABcode276: "bisect276_mcode.html",
+ fpath276: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/bisect.m",
+ lines276: [1, 1, 25],
+ watch276: "bisect276_watch.html",
+ title276: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/bisect.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/bisect.m')\">bisect</a></span>",
+ tcall276: [ [ "From arclengthcurve line 47", "1#F276N4:B255" ] ],
+ scall276: [ [ "From line 12 to adaptivegaus", "262#srcline1" ] ],
+ MATLABcode277: "evalspline277_mcode.html",
+ fpath277: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/evalspline.m",
+ lines277: [1, 1, 17],
+ watch277: "evalspline277_watch.html",
+ title277: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/evalspline.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/evalspline.m')\">evalspline &gt; 2</a></span>",
+ tcall277: [ [ "From arclengthcurve line 51", "1#F277N15:B281" ], [ "From arclengthcurve line 53", "1#F277N15:B300" ] ],
+ scall277: [  ],
+ MATLABcode278: "buildbfcurvature278_mcode.html",
+ fpath278: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/buildbfcurvature.m",
+ lines278: [1, 1, 9],
+ watch278: "buildbfcurvature278_watch.html",
+ title278: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/buildbfcurvature.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/buildbfcurvature.m')\">buildbfcurvature</a></span>",
+ tcall278: [  ],
+ scall278: [  ],
+ MATLABcode283: "builddetailedbf283_mcode.html",
+ fpath283: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/builddetailedbf.m",
+ lines283: [1, 1, 15],
+ watch283: "builddetailedbf283_watch.html",
+ title283: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/builddetailedbf.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/builddetailedbf.m')\">builddetailedbf</a></span>",
+ tcall283: [  ],
+ scall283: [ [ "From line 10 to parevalspline > 1", "298#srcline1" ], [ "From line 11 to parevalspline > 1", "298#srcline1" ] ],
+ MATLABcode298: "parevalspline298_mcode.html",
+ fpath298: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/parevalspline.m",
+ lines298: [1, 1, 24],
+ watch298: "parevalspline298_watch.html",
+ title298: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/parevalspline.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/parevalspline.m')\">parevalspline &gt; 1</a></span>",
+ tcall298: [ [ "From builddetailedbf line 10", "283#F298N19:B53" ], [ "From builddetailedbf line 11", "283#F298N19:B62" ] ],
+ scall298: [  ],
+ MATLABcode299: "buildmanouvers299_mcode.html",
+ fpath299: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/buildmanouvers.m",
+ lines299: [1, 1, 116],
+ watch299: "buildmanouvers299_watch.html",
+ title299: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/buildmanouvers.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/buildmanouvers.m')\">buildmanouvers</a></span>",
+ tcall299: [  ],
+ scall299: [  ],
+ MATLABcode342: "checkpathcollision342_mcode.html",
+ fpath342: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/checkpathcollision.m",
+ lines342: [1, 1, 32],
+ watch342: "checkpathcollision342_watch.html",
+ title342: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/checkpathcollision.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/checkpathcollision.m')\">checkpathcollision</a></span>",
+ tcall342: [  ],
+ scall342: [  ],
+ MATLABcode357: "equateoffsetcost357_mcode.html",
+ fpath357: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/equateoffsetcost.m",
+ lines357: [1, 1, 14],
+ watch357: "equateoffsetcost357_watch.html",
+ title357: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/equateoffsetcost.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/equateoffsetcost.m')\">equateoffsetcost</a></span>",
+ tcall357: [  ],
+ scall357: [  ],
+ MATLABcode373: "equatesafetycost373_mcode.html",
+ fpath373: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/equatesafetycost.m",
+ lines373: [1, 1, 21],
+ watch373: "equatesafetycost373_watch.html",
+ title373: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/equatesafetycost.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/equatesafetycost.m')\">equatesafetycost</a></span>",
+ tcall373: [  ],
+ scall373: [  ],
+ MATLABcode383: "evalheading383_mcode.html",
+ fpath383: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/evalheading.m",
+ lines383: [1, 1, 22],
+ watch383: "evalheading383_watch.html",
+ title383: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/evalheading.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/evalheading.m')\">evalheading</a></span>",
+ tcall383: [  ],
+ scall383: [  ],
+ MATLABcode397: "localize397_mcode.html",
+ fpath397: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/localize.m",
+ lines397: [1, 1, 69],
+ watch397: "localize397_watch.html",
+ title397: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/localize.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/localize.m')\">localize</a></span>",
+ tcall397: [ [ "From oblocalize line 9", "440#F397N16:B43" ] ],
+ scall397: [ [ "From line 22 to dissqrd > 1", "400#srcline1" ], [ "From line 23 to dissqrd > 1", "400#srcline1" ], [ "From line 24 to dissqrd > 1", "400#srcline1" ], [ "From line 38 to dissqrd > 2", "417#srcline1" ], [ "From line 53 to dissqrd > 3", "434#srcline1" ], [ "From line 58 to parevalspline > 3", "399#srcline1" ], [ "From line 59 to parevalspline > 3", "399#srcline1" ], [ "From line 60 to parevalspline > 3", "399#srcline1" ], [ "From line 61 to parevalspline > 3", "399#srcline1" ] ],
+ MATLABcode398: "parevalspline398_mcode.html",
+ fpath398: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/parevalspline.m",
+ lines398: [1, 1, 24],
+ watch398: "parevalspline398_watch.html",
+ title398: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/parevalspline.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/parevalspline.m')\">parevalspline &gt; 2</a></span>",
+ tcall398: [ [ "From dissqrd > 1 line 5", "400#F398N19:B19" ], [ "From dissqrd > 3 line 5", "434#F398N19:B19" ] ],
+ scall398: [  ],
+ MATLABcode399: "parevalspline399_mcode.html",
+ fpath399: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/parevalspline.m",
+ lines399: [1, 1, 24],
+ watch399: "parevalspline399_watch.html",
+ title399: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/parevalspline.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/parevalspline.m')\">parevalspline &gt; 3</a></span>",
+ tcall399: [ [ "From localize line 58", "397#F399N19:B294" ], [ "From localize line 59", "397#F399N19:B305" ], [ "From localize line 60", "397#F399N19:B316" ], [ "From localize line 61", "397#F399N19:B329" ], [ "From dissqrd > 1 line 6", "400#F399N19:B28" ], [ "From dissqrd > 3 line 6", "434#F399N19:B28" ] ],
+ scall399: [  ],
+ MATLABcode400: "dissqrd400_mcode.html",
+ fpath400: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/dissqrd.m",
+ lines400: [1, 1, 11],
+ watch400: "dissqrd400_watch.html",
+ title400: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/dissqrd.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/dissqrd.m')\">dissqrd &gt; 1</a></span>",
+ tcall400: [ [ "From localize line 22", "397#F400N11:B106" ], [ "From localize line 23", "397#F400N11:B117" ], [ "From localize line 24", "397#F400N11:B128" ] ],
+ scall400: [ [ "From line 5 to parevalspline > 2", "398#srcline1" ], [ "From line 6 to parevalspline > 3", "399#srcline1" ] ],
+ MATLABcode415: "parevalspline415_mcode.html",
+ fpath415: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/parevalspline.m",
+ lines415: [1, 1, 24],
+ watch415: "parevalspline415_watch.html",
+ title415: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/parevalspline.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/parevalspline.m')\">parevalspline &gt; 4</a></span>",
+ tcall415: [ [ "From dissqrd > 2 line 5", "417#F415N19:B19" ] ],
+ scall415: [  ],
+ MATLABcode416: "parevalspline416_mcode.html",
+ fpath416: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/parevalspline.m",
+ lines416: [1, 1, 24],
+ watch416: "parevalspline416_watch.html",
+ title416: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/parevalspline.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/parevalspline.m')\">parevalspline &gt; 5</a></span>",
+ tcall416: [ [ "From dissqrd > 2 line 6", "417#F416N19:B28" ] ],
+ scall416: [  ],
+ MATLABcode417: "dissqrd417_mcode.html",
+ fpath417: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/dissqrd.m",
+ lines417: [1, 1, 11],
+ watch417: "dissqrd417_watch.html",
+ title417: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/dissqrd.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/dissqrd.m')\">dissqrd &gt; 2</a></span>",
+ tcall417: [ [ "From localize line 38", "397#F417N11:B195" ] ],
+ scall417: [ [ "From line 5 to parevalspline > 4", "415#srcline1" ], [ "From line 6 to parevalspline > 5", "416#srcline1" ] ],
+ MATLABcode434: "dissqrd434_mcode.html",
+ fpath434: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/dissqrd.m",
+ lines434: [1, 1, 11],
+ watch434: "dissqrd434_watch.html",
+ title434: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/dissqrd.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/dissqrd.m')\">dissqrd &gt; 3</a></span>",
+ tcall434: [ [ "From localize line 53", "397#F434N11:B277" ] ],
+ scall434: [ [ "From line 5 to parevalspline > 2", "398#srcline1" ], [ "From line 6 to parevalspline > 3", "399#srcline1" ] ],
+ MATLABcode436: "mincost436_mcode.html",
+ fpath436: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/mincost.m",
+ lines436: [1, 1, 11],
+ watch436: "mincost436_watch.html",
+ title436: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/mincost.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/mincost.m')\">mincost</a></span>",
+ tcall436: [  ],
+ scall436: [  ],
+ MATLABcode440: "oblocalize440_mcode.html",
+ fpath440: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/oblocalize.m",
+ lines440: [1, 1, 14],
+ watch440: "oblocalize440_watch.html",
+ title440: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/oblocalize.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/oblocalize.m')\">oblocalize</a></span>",
+ tcall440: [  ],
+ scall440: [ [ "From line 9 to localize", "397#srcline1" ] ],
+ MATLABcode441: "parevalspline441_mcode.html",
+ fpath441: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/parevalspline.m",
+ lines441: [1, 1, 24],
+ watch441: "parevalspline441_watch.html",
+ title441: "Function: <span class='functionname'><a title='/Users/martinfrench/Google&nbsp;Drive/FYP&nbsp;-&nbsp;SAE&nbsp;Autonomous/MATLAB&nbsp;Code/parevalspline.m' class='functionlink' href=\"matlab: open('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/parevalspline.m')\">parevalspline &gt; 6</a></span>",
+ tcall441: [  ],
+ scall441: [  ],
+ rootFcnID: "1",
+ htmlRoot: "/Users/martinfrench/Google%20Drive/FYP%20-%20SAE%20Autonomous/MATLAB%20Code/codegeneration/codegen/lib/matlab/html/"
+};
+var scriptInfoTable = {
+ fpath1: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/arclengthcurve.m",
+ fpath2: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_index_class.m",
+ fpath3: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_scalar_eg.m",
+ fpath4: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_const_nonsingleton_dim.m",
+ fpath5: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_index_minus.m",
+ fpath6: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_scalexp_alloc.m",
+ fpath7: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_min_or_max.m",
+ fpath8: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/datafun/min.m",
+ fpath9: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_size_prod.m",
+ fpath10: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_index_times.m",
+ fpath11: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_index_plus.m",
+ fpath12: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elmat/intmax.m",
+ fpath13: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_int_forloop_overflow_check.m",
+ fpath14: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/datafun/diff.m",
+ fpath15: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/eml_scalar_floor.m",
+ fpath16: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/ops/power.m",
+ fpath17: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/ops/mtimes.m",
+ fpath18: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/eml_blas_inline.m",
+ fpath19: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elmat/intmin.m",
+ fpath20: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/refblas/eml_refblas_xgemm.m",
+ fpath21: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/internal/eml_blas_xgemm.m",
+ fpath22: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/eml_xgemm.m",
+ fpath23: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_div.m",
+ fpath24: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/ops/rdivide.m",
+ fpath25: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/ops/mrdivide.p",
+ fpath26: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_error.m",
+ fpath27: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_nonsingleton_dim.m",
+ fpath28: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_matrix_vstride.m",
+ fpath29: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_matrix_npages.m",
+ fpath30: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/datafun/cumsum.m",
+ fpath31: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_isequal_core.m",
+ fpath32: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elmat/isequal.m",
+ fpath33: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elmat/isnan.m",
+ fpath34: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_all_or_any.m",
+ fpath35: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/ops/any.m",
+ fpath36: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/lang/error.m",
+ fpath37: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elmat/length.m",
+ fpath38: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/floor.m",
+ fpath39: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elmat/diag.m",
+ fpath40: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_float_model.m",
+ fpath41: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_realmin.m",
+ fpath42: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elmat/realmin.m",
+ fpath43: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_is_float_class.m",
+ fpath44: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_eps.m",
+ fpath45: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elmat/eps.m",
+ fpath46: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/ops/colon.m",
+ fpath47: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_isa_uint.m",
+ fpath48: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_unsigned_class.m",
+ fpath49: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/eml_scalar_abs.m",
+ fpath50: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/abs.m",
+ fpath51: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/eml_xcabs1.m",
+ fpath52: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/refblas/eml_refblas_ixamax.m",
+ fpath53: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/internal/eml_blas_ixamax.m",
+ fpath54: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/eml_ixamax.m",
+ fpath55: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/refblas/eml_refblas_xswap.m",
+ fpath56: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/internal/eml_blas_xswap.m",
+ fpath57: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/eml_xswap.m",
+ fpath58: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/refblas/eml_refblas_xgerx.m",
+ fpath59: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/refblas/eml_refblas_xger.m",
+ fpath60: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/internal/eml_blas_xger.m",
+ fpath61: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/eml_xger.m",
+ fpath62: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/eml_xgeru.m",
+ fpath63: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/lapack/matlab/eml_matlab_zgetrf.m",
+ fpath64: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/lapack/internal/eml_lapack_xgetrf.m",
+ fpath65: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/lapack/eml_xgetrf.m",
+ fpath66: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_warning.m",
+ fpath67: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_lusolve.m",
+ fpath68: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/refblas/eml_refblas_xtrsm.m",
+ fpath69: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/internal/eml_blas_xtrsm.m",
+ fpath70: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/eml_xtrsm.m",
+ fpath71: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/eml_scalar_sqrt.m",
+ fpath72: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/sqrt.m",
+ fpath73: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/refblas/eml_refblas_xnrm2.m",
+ fpath74: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/internal/eml_blas_xnrm2.m",
+ fpath75: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/eml_xnrm2.m",
+ fpath76: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_dlapy2.m",
+ fpath77: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/refblas/eml_refblas_xscal.m",
+ fpath78: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/internal/eml_blas_xscal.m",
+ fpath79: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/eml_xscal.m",
+ fpath80: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/lapack/matlab/eml_matlab_zlarfg.m",
+ fpath81: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/lapack/matlab/eml_matlab_zlarf.m",
+ fpath82: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_conjtimes.m",
+ fpath83: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/refblas/eml_refblas_xgemv.m",
+ fpath84: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/internal/eml_blas_xgemv.m",
+ fpath85: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/eml_xgemv.m",
+ fpath86: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/blas/eml_xgerc.m",
+ fpath87: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/lapack/matlab/eml_matlab_zgeqp3.m",
+ fpath88: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/lapack/internal/eml_lapack_xgeqp3.m",
+ fpath89: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/lapack/eml_xgeqp3.m",
+ fpath90: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/datafun/max.m",
+ fpath91: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_flt2str.m",
+ fpath92: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_qrsolve.m",
+ fpath93: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/ops/mldivide.p",
+ fpath94: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/cubic_spline.m",
+ fpath95: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/cubic_spline3.m",
+ fpath96: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/ops/mpower.m",
+ fpath97: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/twoptgaus.m",
+ fpath98: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/subdivide.m",
+ fpath99: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/adaptivegaus.m",
+ fpath100: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/datafun/sum.m",
+ fpath101: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/eml_scalar_ceil.m",
+ fpath102: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/ceil.m",
+ fpath103: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/evalspline.m",
+ fpath104: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/bisect.m",
+ fpath105: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/buildbfcurvature.m",
+ fpath106: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/builddetailedbf.m",
+ fpath107: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_realmax.m",
+ fpath108: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elmat/realmax.m",
+ fpath109: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elmat/linspace.m",
+ fpath110: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_bsearch.m",
+ fpath111: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/datafun/histc.m",
+ fpath112: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/parevalspline.m",
+ fpath113: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/buildmanouvers.m",
+ fpath114: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/eml_scalar_tan.m",
+ fpath115: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/tan.m",
+ fpath116: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/eml_scalar_sign.m",
+ fpath117: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/sign.m",
+ fpath118: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/datafun/cumtrapz.m",
+ fpath119: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/eml_scalar_sin.m",
+ fpath120: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/sin.m",
+ fpath121: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/eml_scalar_cos.m",
+ fpath122: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/cos.m",
+ fpath123: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_null_assignment.m",
+ fpath124: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/checkpathcollision.m",
+ fpath125: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/equateoffsetcost.m",
+ fpath126: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_relop.m",
+ fpath127: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/equatesafetycost.m",
+ fpath128: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/eml_scalar_exp.m",
+ fpath129: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/exp.m",
+ fpath130: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/evalheading.m",
+ fpath131: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/eml_scalar_asin.m",
+ fpath132: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/asin.m",
+ fpath133: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/eml_scalar_acos.m",
+ fpath134: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/elfun/acos.m",
+ fpath135: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/localize.m",
+ fpath136: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/dissqrd.m",
+ fpath137: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_assert_valid_dim.m",
+ fpath138: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_sort_le.m",
+ fpath139: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_sort_idx.m",
+ fpath140: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/eml/eml_sort.m",
+ fpath141: "/Applications/MATLAB_R2012a.app/toolbox/eml/lib/matlab/datafun/sort.m",
+ fpath142: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/mincost.m",
+ fpath143: "/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/oblocalize.m"
+};
+</script>
+</head>
+<body>
+
+<div class="west">
+<ul class="ui-tabs-nav">
+<li class="ui-tabs-nav-item ui-tabs-selected"><span class="tab-link" id="MATLABcode"><span>MATLAB code</span></span></li>
+<li class="ui-tabs-nav-item"><span class="tab-link" id="callstack"><span>Call stack</span></span></li>
+<li class="ui-tabs-nav-item"><span class="tab-link" id="ccode"><span>C code</span></span></li>
+</ul>
+<div id="MATLABcodebody" class="ui-tabs-panel">
+<!-- Begin Filter -->
+<div class="grayline methodset" onclick="filterClick(event);">
+<a class="collapsed">Filter</a>
+</div>
+<div id="filterbody" class="hidden">
+<table class="myfunc-filter-tbl">
+<tr>
+<td title="Use this filter to display only functions and methods that contain variables or expressions with the specified attributes." colspan="2" class="checkbox">
+<div class="myfunc-filterby-chk"><input type="checkbox" class="filterenable" />
+<div class="filter-enable-lbl">Filter functions and methods</div></div></td></tr><tr>
+<td class="label"><div class="myfunc-filterby-lbl">Filter by:</div></td>
+<td class="select">
+<div class="filters">
+<select class="myfunc-filterby">
+<option id="size">Size</option>
+<option id="complex">Complexity</option>
+<option id="class">Class</option>
+</select>
+</div>
+</td>
+</tr>
+
+<tr>
+<td class="label"><div class="myfunc-filterstr-lbl">Filter:</div></td>
+<td class="input"><div>
+
+<div class="size">
+<select class="myfunc-filter size">
+<option value="1 256 260 261 262 275 276 277 283 298 299 342 357 373 383 397 398 399 400 415 416 417 434 436 440 441">1 x 1</option>
+<option value="260 261 262 275 276 277">1 x 4</option>
+<option value="283 299 342 357 373 436">1 x <b>:</b>?</option>
+<option value="261">100 x 4</option>
+<option value="299">2 x 1</option>
+<option value="1">2 x <b>:</b>?</option>
+<option value="342 440">3 x <b>:</b>?</option>
+<option value="397 415 416 417">4 x 1</option>
+<option value="397"><b>:</b>7 x 1</option>
+<option value="1 256 257 278 283 298 299 342 383 397 398 399 400 415 416 417 434 440 441"><b>:</b>? x 1</option>
+<option value="1 257 283 298 397 398 399 400 415 416 417 434 440 441"><b>:</b>? x 4</option>
+<option value="256 299 342 357 373"><b>:</b>? x <b>:</b>?</option>
+</select>
+</div>
+
+<div class="complex">
+<select class="myfunc-filter complex">
+<option value="">Complex values</option>
+<option value="1 256 257 260 261 262 275 276 277 278 283 298 299 342 357 373 383 397 398 399 400 415 416 417 434 436 440 441">Real values</option>
+</select>
+</div>
+<!-- Begin Class Filter -->
+<div class="class">
+<select class="myfunc-filter class">
+<option value="1 256 257 260 261 262 275 276 277 278 283 298 299 342 357 373 383 397 398 399 400 415 416 417 434 436 440 441">double</option>
+<option value="299 342 373">logical</option>
+</select>
+</div>
+<!-- End Class Filter -->
+</div>
+</td>
+</tr>
+</table>
+<div class="myfunc-count"></div>
+</div>
+<!-- End Filter -->
+<div class="grayline methodset" onmouseover="callTreeMouseOver(event);" onmouseout="callTreeMouseOut(event);" onclick="functionSetClick(event);">
+<a class="expanded">Functions</a>
+</div>
+<!-- Begin Function Tree -->
+<div id="functiontreebody">
+<div class="functionwrapper" onmouseover="callTreeMouseOver(event);" onmouseout="callTreeMouseOut(event);" onclick="functionTreeClick(event);">
+<ol class="tree">
+<!-- Begin Function Tree Roots -->
+<li class="leaf  passed"><a href="#" class="fcn" id="F262N2:F1">adaptivegaus</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F1N3:F2">arclengthcurve</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F276N4:F3">bisect</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F278N5:F4">buildbfcurvature</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F283N6:F5">builddetailedbf</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F299N7:F6">buildmanouvers</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F342N8:F7">checkpathcollision</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F256N9:F8">cubic_spline</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F257N10:F9">cubic_spline3</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F400N11:F10">dissqrd &gt; 1</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F417N11:F11">dissqrd &gt; 2</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F434N11:F12">dissqrd &gt; 3</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F357N12:F13">equateoffsetcost</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F373N13:F14">equatesafetycost</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F383N14:F15">evalheading</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F275N15:F16">evalspline &gt; 1</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F277N15:F17">evalspline &gt; 2</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F397N16:F18">localize</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F436N17:F19">mincost</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F440N18:F20">oblocalize</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F298N19:F21">parevalspline &gt; 1</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F398N19:F22">parevalspline &gt; 2</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F399N19:F23">parevalspline &gt; 3</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F415N19:F24">parevalspline &gt; 4</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F416N19:F25">parevalspline &gt; 5</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F441N19:F26">parevalspline &gt; 6</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F261N20:F27">subdivide</a></li>
+<li class="leaf  passed"><a href="#" class="fcn" id="F260N21:F28">twoptgaus</a></li>
+<!-- End Function Tree Roots -->
+</ol>
+<!-- Function Tree Nodes -->
+<div class="functiontreenodes hidden">
+</div>
+<!-- End Function Tree Nodes -->
+</div>
+</div>
+<!-- End Function Tree -->
+</div>
+<!-- Begin Call Tree -->
+<div id="callstackbody" class="ui-tabs-panel hidden">
+<div class="treewrapper" onmouseover="callTreeMouseOver(event);" onmouseout="callTreeMouseOut(event);" onclick="callTreeClick(event);">
+<ol class="tree">
+<!-- Call Tree Root -->
+<li class="node collapsed passed"><a href="#" class="fcn" id="F1N3:L1">arclengthcurve</a>
+<ul>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F257N10:L2">cubic_spline3</a></li>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F262N2:L3">adaptivegaus</a></li>
+<li class="leaf passed"><a href="#" class="fcn" id="F275N15:L4">evalspline &gt; 1</a></li>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F276N4:L5">bisect</a></li>
+<li class="leaf passed"><a href="#" class="fcn" id="F277N15:L6">evalspline &gt; 2</a></li>
+</ul>
+</li>
+<!-- Call Tree Root -->
+<li class="leaf passed"><a href="#" class="fcn" id="F278N5:L20">buildbfcurvature</a>
+</li>
+<!-- Call Tree Root -->
+<li class="node collapsed passed"><a href="#" class="fcn" id="F283N6:L21">builddetailedbf</a>
+<ul>
+<li class="leaf passed"><a href="#" class="fcn" id="F298N19:L22">parevalspline &gt; 1</a></li>
+</ul>
+</li>
+<!-- Call Tree Root -->
+<li class="leaf passed"><a href="#" class="fcn" id="F299N7:L24">buildmanouvers</a>
+</li>
+<!-- Call Tree Root -->
+<li class="leaf passed"><a href="#" class="fcn" id="F342N8:L25">checkpathcollision</a>
+</li>
+<!-- Call Tree Root -->
+<li class="leaf passed"><a href="#" class="fcn" id="F357N12:L26">equateoffsetcost</a>
+</li>
+<!-- Call Tree Root -->
+<li class="leaf passed"><a href="#" class="fcn" id="F373N13:L27">equatesafetycost</a>
+</li>
+<!-- Call Tree Root -->
+<li class="leaf passed"><a href="#" class="fcn" id="F383N14:L28">evalheading</a>
+</li>
+<!-- Call Tree Root -->
+<li class="node collapsed passed"><a href="#" class="fcn" id="F397N16:L29">localize</a>
+<ul>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F400N11:L30">dissqrd &gt; 1</a></li>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F417N11:L31">dissqrd &gt; 2</a></li>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F434N11:L32">dissqrd &gt; 3</a></li>
+<li class="leaf passed"><a href="#" class="fcn" id="F399N19:L33">parevalspline &gt; 3</a></li>
+</ul>
+</li>
+<!-- Call Tree Root -->
+<li class="leaf passed"><a href="#" class="fcn" id="F436N17:L47">mincost</a>
+</li>
+<!-- Call Tree Root -->
+<li class="node collapsed passed"><a href="#" class="fcn" id="F440N18:L48">oblocalize</a>
+<ul>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F397N16:L49">localize</a></li>
+</ul>
+</li>
+<!-- Call Tree Root -->
+<li class="leaf passed"><a href="#" class="fcn" id="F441N19:L50">parevalspline &gt; 6</a>
+</li>
+</ol>
+<!-- Call Tree Nodes -->
+<div class="callstacknodes hidden">
+<ol class="callstacknode" id="callstacknode1">
+
+<li class="node collapsed passed"><a href="#" class="fcn" id="F1N3:l1">arclengthcurve</a>
+<ul>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F257N10:l2">cubic_spline3</a></li>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F262N2:l3">adaptivegaus</a></li>
+<li class="leaf passed"><a href="#" class="fcn" id="F275N15:l4">evalspline &gt; 1</a></li>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F276N4:l5">bisect</a></li>
+<li class="leaf passed"><a href="#" class="fcn" id="F277N15:l6">evalspline &gt; 2</a></li>
+</ul>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode256">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F256N9:l7">cubic_spline</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode257">
+
+<li class="node collapsed passed"><a href="#" class="fcn" id="F257N10:l8">cubic_spline3</a>
+<ul>
+<li class="leaf passed"><a href="#" class="fcn" id="F256N9:l9">cubic_spline</a></li>
+</ul>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode260">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F260N21:l10">twoptgaus</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode261">
+
+<li class="node collapsed passed"><a href="#" class="fcn" id="F261N20:l11">subdivide</a>
+<ul>
+<li class="leaf passed"><a href="#" class="fcn" id="F260N21:l12">twoptgaus</a></li>
+</ul>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode262">
+
+<li class="node collapsed passed"><a href="#" class="fcn" id="F262N2:l13">adaptivegaus</a>
+<ul>
+<li class="leaf passed"><a href="#" class="fcn" id="F260N21:l14">twoptgaus</a></li>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F261N20:l15">subdivide</a></li>
+</ul>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode275">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F275N15:l16">evalspline &gt; 1</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode276">
+
+<li class="node collapsed passed"><a href="#" class="fcn" id="F276N4:l17">bisect</a>
+<ul>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F262N2:l18">adaptivegaus</a></li>
+</ul>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode277">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F277N15:l19">evalspline &gt; 2</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode278">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F278N5:l20">buildbfcurvature</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode283">
+
+<li class="node collapsed passed"><a href="#" class="fcn" id="F283N6:l21">builddetailedbf</a>
+<ul>
+<li class="leaf passed"><a href="#" class="fcn" id="F298N19:l22">parevalspline &gt; 1</a></li>
+</ul>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode298">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F298N19:l23">parevalspline &gt; 1</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode299">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F299N7:l24">buildmanouvers</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode342">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F342N8:l25">checkpathcollision</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode357">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F357N12:l26">equateoffsetcost</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode373">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F373N13:l27">equatesafetycost</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode383">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F383N14:l28">evalheading</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode397">
+
+<li class="node collapsed passed"><a href="#" class="fcn" id="F397N16:l29">localize</a>
+<ul>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F400N11:l30">dissqrd &gt; 1</a></li>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F417N11:l31">dissqrd &gt; 2</a></li>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F434N11:l32">dissqrd &gt; 3</a></li>
+<li class="leaf passed"><a href="#" class="fcn" id="F399N19:l33">parevalspline &gt; 3</a></li>
+</ul>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode398">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F398N19:l34">parevalspline &gt; 2</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode399">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F399N19:l35">parevalspline &gt; 3</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode400">
+
+<li class="node collapsed passed"><a href="#" class="fcn" id="F400N11:l36">dissqrd &gt; 1</a>
+<ul>
+<li class="leaf passed"><a href="#" class="fcn" id="F398N19:l37">parevalspline &gt; 2</a></li>
+<li class="leaf passed"><a href="#" class="fcn" id="F399N19:l38">parevalspline &gt; 3</a></li>
+</ul>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode415">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F415N19:l39">parevalspline &gt; 4</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode416">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F416N19:l40">parevalspline &gt; 5</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode417">
+
+<li class="node collapsed passed"><a href="#" class="fcn" id="F417N11:l41">dissqrd &gt; 2</a>
+<ul>
+<li class="leaf passed"><a href="#" class="fcn" id="F415N19:l42">parevalspline &gt; 4</a></li>
+<li class="leaf passed"><a href="#" class="fcn" id="F416N19:l43">parevalspline &gt; 5</a></li>
+</ul>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode434">
+
+<li class="node collapsed passed"><a href="#" class="fcn" id="F434N11:l44">dissqrd &gt; 3</a>
+<ul>
+<li class="leaf passed"><a href="#" class="fcn" id="F398N19:l45">parevalspline &gt; 2</a></li>
+<li class="leaf passed"><a href="#" class="fcn" id="F399N19:l46">parevalspline &gt; 3</a></li>
+</ul>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode436">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F436N17:l47">mincost</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode440">
+
+<li class="node collapsed passed"><a href="#" class="fcn" id="F440N18:l48">oblocalize</a>
+<ul>
+<li class="node collapsed passed"><a href="#" class="fcn" id="F397N16:l49">localize</a></li>
+</ul>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode441">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F441N19:l50">parevalspline &gt; 6</a>
+</li>
+</ol>
+
+</div>
+</div>
+</div>
+<!-- End Call Tree -->
+<div id="ccodebody" class="ui-tabs-panel hidden">
+<table class="myfunc-list" cellspacing="0" cellpadding="0" onclick="cFileClick(event);">
+<tbody>
+<tr class="subtitle"><td><div><b>Target Source Files</b></div></td></tr>
+<tr class="ccode" id="adaptivegaus_cpp.html"><td class="ccode"><a href="#">adaptivegaus.cpp</a></td></tr>
+<tr class="ccode" id="adaptivegaus_h.html"><td class="ccode"><a href="#">adaptivegaus.h</a></td></tr>
+<tr class="ccode" id="arclengthcurve_cpp.html"><td class="ccode"><a href="#">arclengthcurve.cpp</a></td></tr>
+<tr class="ccode" id="arclengthcurve_h.html"><td class="ccode"><a href="#">arclengthcurve.h</a></td></tr>
+<tr class="ccode" id="buildbfcurvature_cpp.html"><td class="ccode"><a href="#">buildbfcurvature.cpp</a></td></tr>
+<tr class="ccode" id="buildbfcurvature_h.html"><td class="ccode"><a href="#">buildbfcurvature.h</a></td></tr>
+<tr class="ccode" id="builddetailedbf_cpp.html"><td class="ccode"><a href="#">builddetailedbf.cpp</a></td></tr>
+<tr class="ccode" id="builddetailedbf_h.html"><td class="ccode"><a href="#">builddetailedbf.h</a></td></tr>
+<tr class="ccode" id="buildmanouvers_cpp.html"><td class="ccode"><a href="#">buildmanouvers.cpp</a></td></tr>
+<tr class="ccode" id="buildmanouvers_h.html"><td class="ccode"><a href="#">buildmanouvers.h</a></td></tr>
+<tr class="ccode" id="checkpathcollision_cpp.html"><td class="ccode"><a href="#">checkpathcollision.cpp</a></td></tr>
+<tr class="ccode" id="checkpathcollision_h.html"><td class="ccode"><a href="#">checkpathcollision.h</a></td></tr>
+<tr class="ccode" id="colon_cpp.html"><td class="ccode"><a href="#">colon.cpp</a></td></tr>
+<tr class="ccode" id="colon_h.html"><td class="ccode"><a href="#">colon.h</a></td></tr>
+<tr class="ccode" id="cubic_spline_cpp.html"><td class="ccode"><a href="#">cubic_spline.cpp</a></td></tr>
+<tr class="ccode" id="cubic_spline_h.html"><td class="ccode"><a href="#">cubic_spline.h</a></td></tr>
+<tr class="ccode" id="cubic_spline3_cpp.html"><td class="ccode"><a href="#">cubic_spline3.cpp</a></td></tr>
+<tr class="ccode" id="cubic_spline3_h.html"><td class="ccode"><a href="#">cubic_spline3.h</a></td></tr>
+<tr class="ccode" id="cumtrapz_cpp.html"><td class="ccode"><a href="#">cumtrapz.cpp</a></td></tr>
+<tr class="ccode" id="cumtrapz_h.html"><td class="ccode"><a href="#">cumtrapz.h</a></td></tr>
+<tr class="ccode" id="diff_cpp.html"><td class="ccode"><a href="#">diff.cpp</a></td></tr>
+<tr class="ccode" id="diff_h.html"><td class="ccode"><a href="#">diff.h</a></td></tr>
+<tr class="ccode" id="equateoffsetcost_cpp.html"><td class="ccode"><a href="#">equateoffsetcost.cpp</a></td></tr>
+<tr class="ccode" id="equateoffsetcost_h.html"><td class="ccode"><a href="#">equateoffsetcost.h</a></td></tr>
+<tr class="ccode" id="equatesafetycost_cpp.html"><td class="ccode"><a href="#">equatesafetycost.cpp</a></td></tr>
+<tr class="ccode" id="equatesafetycost_h.html"><td class="ccode"><a href="#">equatesafetycost.h</a></td></tr>
+<tr class="ccode" id="evalheading_cpp.html"><td class="ccode"><a href="#">evalheading.cpp</a></td></tr>
+<tr class="ccode" id="evalheading_h.html"><td class="ccode"><a href="#">evalheading.h</a></td></tr>
+<tr class="ccode" id="histc_cpp.html"><td class="ccode"><a href="#">histc.cpp</a></td></tr>
+<tr class="ccode" id="histc_h.html"><td class="ccode"><a href="#">histc.h</a></td></tr>
+<tr class="ccode" id="linspace_cpp.html"><td class="ccode"><a href="#">linspace.cpp</a></td></tr>
+<tr class="ccode" id="linspace_h.html"><td class="ccode"><a href="#">linspace.h</a></td></tr>
+<tr class="ccode" id="localize_cpp.html"><td class="ccode"><a href="#">localize.cpp</a></td></tr>
+<tr class="ccode" id="localize_h.html"><td class="ccode"><a href="#">localize.h</a></td></tr>
+<tr class="ccode" id="matlab_emxAPI_cpp.html"><td class="ccode"><a href="#">matlab_emxAPI.cpp</a></td></tr>
+<tr class="ccode" id="matlab_emxAPI_h.html"><td class="ccode"><a href="#">matlab_emxAPI.h</a></td></tr>
+<tr class="ccode" id="matlab_emxutil_cpp.html"><td class="ccode"><a href="#">matlab_emxutil.cpp</a></td></tr>
+<tr class="ccode" id="matlab_emxutil_h.html"><td class="ccode"><a href="#">matlab_emxutil.h</a></td></tr>
+<tr class="ccode" id="matlab_initialize_cpp.html"><td class="ccode"><a href="#">matlab_initialize.cpp</a></td></tr>
+<tr class="ccode" id="matlab_initialize_h.html"><td class="ccode"><a href="#">matlab_initialize.h</a></td></tr>
+<tr class="ccode" id="matlab_rtwutil_cpp.html"><td class="ccode"><a href="#">matlab_rtwutil.cpp</a></td></tr>
+<tr class="ccode" id="matlab_rtwutil_h.html"><td class="ccode"><a href="#">matlab_rtwutil.h</a></td></tr>
+<tr class="ccode" id="matlab_terminate_cpp.html"><td class="ccode"><a href="#">matlab_terminate.cpp</a></td></tr>
+<tr class="ccode" id="matlab_terminate_h.html"><td class="ccode"><a href="#">matlab_terminate.h</a></td></tr>
+<tr class="ccode" id="matlab_types_h.html"><td class="ccode"><a href="#">matlab_types.h</a></td></tr>
+<tr class="ccode" id="mincost_cpp.html"><td class="ccode"><a href="#">mincost.cpp</a></td></tr>
+<tr class="ccode" id="mincost_h.html"><td class="ccode"><a href="#">mincost.h</a></td></tr>
+<tr class="ccode" id="mldivide_cpp.html"><td class="ccode"><a href="#">mldivide.cpp</a></td></tr>
+<tr class="ccode" id="mldivide_h.html"><td class="ccode"><a href="#">mldivide.h</a></td></tr>
+<tr class="ccode" id="oblocalize_cpp.html"><td class="ccode"><a href="#">oblocalize.cpp</a></td></tr>
+<tr class="ccode" id="oblocalize_h.html"><td class="ccode"><a href="#">oblocalize.h</a></td></tr>
+<tr class="ccode" id="parevalspline_cpp.html"><td class="ccode"><a href="#">parevalspline.cpp</a></td></tr>
+<tr class="ccode" id="parevalspline_h.html"><td class="ccode"><a href="#">parevalspline.h</a></td></tr>
+<tr class="ccode" id="power_cpp.html"><td class="ccode"><a href="#">power.cpp</a></td></tr>
+<tr class="ccode" id="power_h.html"><td class="ccode"><a href="#">power.h</a></td></tr>
+<tr class="ccode" id="rdivide_cpp.html"><td class="ccode"><a href="#">rdivide.cpp</a></td></tr>
+<tr class="ccode" id="rdivide_h.html"><td class="ccode"><a href="#">rdivide.h</a></td></tr>
+<tr class="ccode" id="rtGetInf_cpp.html"><td class="ccode"><a href="#">rtGetInf.cpp</a></td></tr>
+<tr class="ccode" id="rtGetInf_h.html"><td class="ccode"><a href="#">rtGetInf.h</a></td></tr>
+<tr class="ccode" id="rtGetNaN_cpp.html"><td class="ccode"><a href="#">rtGetNaN.cpp</a></td></tr>
+<tr class="ccode" id="rtGetNaN_h.html"><td class="ccode"><a href="#">rtGetNaN.h</a></td></tr>
+<tr class="ccode" id="rt_nonfinite_cpp.html"><td class="ccode"><a href="#">rt_nonfinite.cpp</a></td></tr>
+<tr class="ccode" id="rt_nonfinite_h.html"><td class="ccode"><a href="#">rt_nonfinite.h</a></td></tr>
+<tr class="ccode" id="rtwtypes_h.html"><td class="ccode"><a href="#">rtwtypes.h</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="aux hidden">
+<div class="tooltips">
+<div class="tooltip" id="TT1"><table class="tooltip"><tr><th>Size</th><td>2 x <b>:</b>?</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT2"><table class="tooltip"><tr><th>Size</th><td><b>:</b>? x 2</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT3"><table class="tooltip"><tr><th>Size</th><td>1 x 5</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT4"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>cell</td></tr></table></div>
+<div class="tooltip" id="TT5"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT6"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>logical</td></tr></table></div>
+<div class="tooltip" id="TT7"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>coder.internal.indexInt</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT8"><table class="tooltip"><tr><th>Size</th><td>1 x 2</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT9"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>int32</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT10"><table class="tooltip"><tr><th>Size</th><td>1 x 2</td></tr><tr><th>Class</th><td>cell</td></tr></table></div>
+<div class="tooltip" id="TT11"><table class="tooltip"><tr><th>Size</th><td>1 x 3</td></tr><tr><th>Class</th><td>cell</td></tr></table></div>
+<div class="tooltip" id="TT12"><table class="tooltip"><tr><th>Size</th><td>1 x 3</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT13"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>function_handle</td></tr></table></div>
+<div class="tooltip" id="TT14"><table class="tooltip"><tr><th>Size</th><td><b>:</b>? x 1</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT15"><table class="tooltip"><tr><th>Size</th><td><b>:</b>? x <b>:</b>?</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT16"><table class="tooltip"><tr><th>Size</th><td>2 x 1</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT17"><table class="tooltip"><tr><th>Size</th><td>1 x 7</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT18"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT19"><table class="tooltip"><tr><th>Size</th><td>1 x 31</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT20"><table class="tooltip"><tr><th>Size</th><td>1 x 2</td></tr><tr><th>Class</th><td>logical</td></tr></table></div>
+<div class="tooltip" id="TT21"><table class="tooltip"><tr><th>Size</th><td>0 x 0</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT22"><table class="tooltip"><tr><th>Size</th><td>1 x 53</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT23"><table class="tooltip"><tr><th>Size</th><td>1 x 6</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT24"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>uint32</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT25"><table class="tooltip"><tr><th>Size</th><td>1 x <b>:</b>?</td></tr><tr><th>Class</th><td>int32</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT26"><table class="tooltip"><tr><th>Size</th><td>1 x 27</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT27"><table class="tooltip"><tr><th>Size</th><td>1 x 30</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT28"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>function_handle</td></tr></table></div>
+<div class="tooltip" id="TT29"><table class="tooltip"><tr><th>Size</th><td>1 x 0</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT30"><table class="tooltip"><tr><th>Size</th><td>1 x 32</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT31"><table class="tooltip"><tr><th>Size</th><td><b>:</b>? x 4</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT32"><table class="tooltip"><tr><th>Size</th><td>1 x 4</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT33"><table class="tooltip"><tr><th>Size</th><td>100 x 4</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT34"><table class="tooltip"><tr><th>Size</th><td>1 x <b>:</b>?</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT35"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>function_handle</td></tr></table></div>
+<div class="tooltip" id="TT36"><table class="tooltip"><tr><th>Size</th><td>2 x 2</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT37"><table class="tooltip"><tr><th>Size</th><td><b>:</b>? x 1</td></tr><tr><th>Class</th><td>logical</td></tr></table></div>
+<div class="tooltip" id="TT38"><table class="tooltip"><tr><th>Size</th><td>1 x <b>:</b>?</td></tr><tr><th>Class</th><td>logical</td></tr></table></div>
+<div class="tooltip" id="TT39"><table class="tooltip"><tr><th>Size</th><td>3 x <b>:</b>?</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT40"><table class="tooltip"><tr><th>Size</th><td>4 x 1</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT41"><table class="tooltip"><tr><th>Size</th><td>1 x 0</td></tr><tr><th>Class</th><td>cell</td></tr></table></div>
+<div class="tooltip" id="TT42"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>function_handle</td></tr></table></div>
+<div class="tooltip" id="TT43"><table class="tooltip"><tr><th>Size</th><td><b>:</b>? x 1</td></tr><tr><th>Class</th><td>int32</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT44"><table class="tooltip"><tr><th>Size</th><td>1 x 1 *</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT45"><table class="tooltip"><tr><th>Size</th><td><b>:</b>? x 1</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT46"><table class="tooltip"><tr><th>Size</th><td><b>:</b>7 x 1</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT47"><table class="tooltip"><tr><th>Size</th><td><b>:</b>7 x 1</td></tr><tr><th>Class</th><td>int32</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT48"><table class="tooltip"><tr><th>Size</th><td>0 x 2</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT49"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>mxArray</td></tr></table></div>
+<div class="tooltip" id="TT50"><table class="tooltip"><tr><th>Size</th><td>1 x 36</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT51"><table class="tooltip"><tr><th>Size</th><td>1 x 2</td></tr><tr><th>Class</th><td>int32</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT52"><table class="tooltip"><tr><th>Size</th><td>1 x 45</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT53"><table class="tooltip"><tr><th>Size</th><td>1 x 21</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT54"><table class="tooltip"><tr><th>Size</th><td>1 x 3</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT55"><table class="tooltip"><tr><th>Size</th><td>1 x 38</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT56"><table class="tooltip"><tr><th>Size</th><td><b>:</b>1 x 1</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT57"><table class="tooltip"><tr><th>Size</th><td><b>:</b>1 x 1</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT58"><table class="tooltip"><tr><th>Size</th><td><b>:</b>? x <b>:</b>?</td></tr><tr><th>Class</th><td>logical</td></tr></table></div>
+<div class="tooltip" id="TT59"><table class="tooltip"><tr><th>Size</th><td>1 x 39</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT60"><table class="tooltip"><tr><th>Size</th><td><b>:</b>3 x 1</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT61"><table class="tooltip"><tr><th>Size</th><td><b>:</b>4 x 1</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+</div>
+</div>
+
+<div class="south">
+<ul class="ui-tabs-nav">
+<li class="ui-tabs-nav-item ui-tabs-selected"><span class="tab-link" id="summary"><span>Summary</span></span></li>
+<li class="ui-tabs-nav-item"><span class="tab-link" id="messages"><span>All Messages (0)</span></span></li>
+<li class="ui-tabs-nav-item"><span class="tab-link" id="watchlist"><span>Variables</span></span></li>
+<li class="ui-tabs-nav-item hidden"><span class="tab-link" id="watchload"><span>Variables</span></span></li>
+<li class="ui-tabs-nav-item"><span class="tab-link" id="buildlog1"><span>Target Build Log</span></span></li>
+</ul>
+
+<!-- Compilation Summary -->
+<div id="summarybody" class="ui-tabs-panel">
+<table cellpadding="1" cellspacing="4">
+<tr><td>C source code generated on:</td><td>01-Sep-2014 19:20:53</td></tr>
+<tr><td>Coding target:</td><td>Static Library</td></tr>
+<tr><td>Number of errors:</td><td><a href="javascript:selectMessagesTab();">0</a></td></tr>
+<tr><td>Number of warnings:</td><td><a href="javascript:selectMessagesTab();">0</a></td></tr>
+</table>
+<p/><p/><table>
+<tr><td><b>Tell Us What You Think</b></td></tr>
+<tr><td>We value your feedback. Please take a few minutes to answer this short questionnaire regarding the Code Generation Report.</td></tr>
+<tr><td><a href="matlab: web('http://www.customersat3.com/TakeSurvey.asp?si=ELu7GTnTYtk%3D','-browser');">&gt;&gt;Provide Feedback</a></td></tr>
+</table>
+</div>
+
+<!-- Message Table -->
+<div id="messagesbody" class="ui-tabs-panel hidden">
+<div>
+<div class="msgsuccess">Code generation successful. Click here to <a href="javaScript:selectSummaryTab();">view summary</a>.</div>
+</div>
+</div>
+<!-- Watchlist Table -->
+<div id="watchlistbody" class="ui-tabs-panel hidden">
+</div>
+<div id="watchloadbody" class="ui-tabs-panel hidden">
+Loading Variables table ...
+</div>
+
+<!-- Target Build Log -->
+<div id="buildlog1body" class="ui-tabs-panel hidden">
+<div class="grayline"></div>
+<table cellpadding="4" cellspacing="1"><tr>
+<td align="left" class="td-linebottomrt-gray" colspan="2">Build Parameters</td>
+</tr>
+<tr><td align="left" valign="top" class="td-linebottomrt">Build directory</td>
+<td align="left" valign="top" class="td-linebottomrt-link"><a href="matlab: cd('/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/codegeneration/codegen/lib/matlab')">/Users/martinfrench/Google Drive/FYP - SAE Autonomous/MATLAB Code/codegeneration/codegen/lib/matlab</a></td></tr>
+<tr><td align="left" valign="top" class="td-linebottomrt">Make wrapper</td>
+<td align="left" valign="top" class="td-linebottomrt-link">/Applications/MATLAB_R2012a.app/bin/maci64/gmake -f matlab_rtw.mk  GENERATE_REPORT=1 ADD_MDL_NAME_TO_GLOBALS=0</td></tr>
+<tr><td align="left" valign="top" class="td-linebottomrt">Make command</td>
+<td align="left" valign="top" class="td-linebottomrt-link">/Applications/MATLAB_R2012a.app/bin/maci64/gmake -f matlab_rtw.mk  GENERATE_REPORT=1 ADD_MDL_NAME_TO_GLOBALS=0</td></tr>
+</table>
+<br/>
+<table border="1" cellpadding="4" cellspacing="1" width="100%">
+<tr><td align="left" class="td-linebottomrt-gray">Build Log</td></tr>
+<tr><td valign="top" class="td-script">
+<pre>
+<span class="td-line-number">    1   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "matlab_rtwutil.cpp"</span>
+<span class="td-line-number">    2   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "matlab_initialize.cpp"</span>
+<span class="td-line-number">    3   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "matlab_terminate.cpp"</span>
+<span class="td-line-number">    4   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "arclengthcurve.cpp"</span>
+<span class="td-line-number">    5   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "diff.cpp"</span>
+<span class="td-line-number">    6   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "power.cpp"</span>
+<span class="td-line-number">    7   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "rdivide.cpp"</span>
+<span class="td-line-number">    8   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "cubic_spline3.cpp"</span>
+<span class="td-line-number">    9   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "cubic_spline.cpp"</span>
+<span class="td-line-number">   10   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "mldivide.cpp"</span>
+<span class="td-line-number">   11   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "colon.cpp"</span>
+<span class="td-line-number">   12   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "adaptivegaus.cpp"</span>
+<span class="td-line-number">   13   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "buildbfcurvature.cpp"</span>
+<span class="td-line-number">   14   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "builddetailedbf.cpp"</span>
+<span class="td-line-number">   15   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "linspace.cpp"</span>
+<span class="td-line-number">   16   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "parevalspline.cpp"</span>
+<span class="td-line-number">   17   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "histc.cpp"</span>
+<span class="td-line-number">   18   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "buildmanouvers.cpp"</span>
+<span class="td-line-number">   19   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "cumtrapz.cpp"</span>
+<span class="td-line-number">   20   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "checkpathcollision.cpp"</span>
+<span class="td-line-number">   21   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "equateoffsetcost.cpp"</span>
+<span class="td-line-number">   22   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "equatesafetycost.cpp"</span>
+<span class="td-line-number">   23   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "evalheading.cpp"</span>
+<span class="td-line-number">   24   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "localize.cpp"</span>
+<span class="td-line-number">   25   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "mincost.cpp"</span>
+<span class="td-line-number">   26   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "oblocalize.cpp"</span>
+<span class="td-line-number">   27   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "matlab_emxutil.cpp"</span>
+<span class="td-line-number">   28   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "matlab_emxAPI.cpp"</span>
+<span class="td-line-number">   29   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "rt_nonfinite.cpp"</span>
+<span class="td-line-number">   30   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "rtGetNaN.cpp"</span>
+<span class="td-line-number">   31   </span><span class="td-line-normal">g++ -arch x86_64 -c     -DUSE_RTMODEL -O0 -DMODEL=matlab -DRT -DNUMST=1 -DTID01EQ=0 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO  -I. -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration -I/Applications/MATLAB_R2012a.app/simulink/include -I/Applications/MATLAB_R2012a.app/extern/include -I/Applications/MATLAB_R2012a.app/rtw/c/src -I/Applications/MATLAB_R2012a.app/rtw/c/src/ext_mode/common -I. -I/Users/martinfrench/Google -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/- -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Autonomous/MATLAB -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Code -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/Drive/FYP -I/Users/martinfrench/Google\ Drive/FYP\ -\ SAE\ Autonomous/MATLAB\ Code/codegeneration/SAE        "rtGetInf.cpp"</span>
+<span class="td-line-number">   32   </span><span class="td-line-normal">ar ruvs matlab.a matlab_rtwutil.o matlab_initialize.o matlab_terminate.o arclengthcurve.o diff.o power.o rdivide.o cubic_spline3.o cubic_spline.o mldivide.o colon.o adaptivegaus.o buildbfcurvature.o builddetailedbf.o linspace.o parevalspline.o histc.o buildmanouvers.o cumtrapz.o checkpathcollision.o equateoffsetcost.o equatesafetycost.o evalheading.o localize.o mincost.o oblocalize.o matlab_emxutil.o matlab_emxAPI.o rt_nonfinite.o rtGetNaN.o rtGetInf.o </span>
+<span class="td-line-number">   33   </span><span class="td-line-normal">ar: creating archive matlab.a</span>
+<span class="td-line-number">   34   </span><span class="td-line-normal">a - matlab_rtwutil.o</span>
+<span class="td-line-number">   35   </span><span class="td-line-normal">a - matlab_initialize.o</span>
+<span class="td-line-number">   36   </span><span class="td-line-normal">a - matlab_terminate.o</span>
+<span class="td-line-number">   37   </span><span class="td-line-normal">a - arclengthcurve.o</span>
+<span class="td-line-number">   38   </span><span class="td-line-normal">a - diff.o</span>
+<span class="td-line-number">   39   </span><span class="td-line-normal">a - power.o</span>
+<span class="td-line-number">   40   </span><span class="td-line-normal">a - rdivide.o</span>
+<span class="td-line-number">   41   </span><span class="td-line-normal">a - cubic_spline3.o</span>
+<span class="td-line-number">   42   </span><span class="td-line-normal">a - cubic_spline.o</span>
+<span class="td-line-number">   43   </span><span class="td-line-normal">a - mldivide.o</span>
+<span class="td-line-number">   44   </span><span class="td-line-normal">a - colon.o</span>
+<span class="td-line-number">   45   </span><span class="td-line-normal">a - adaptivegaus.o</span>
+<span class="td-line-number">   46   </span><span class="td-line-normal">a - buildbfcurvature.o</span>
+<span class="td-line-number">   47   </span><span class="td-line-normal">a - builddetailedbf.o</span>
+<span class="td-line-number">   48   </span><span class="td-line-normal">a - linspace.o</span>
+<span class="td-line-number">   49   </span><span class="td-line-normal">a - parevalspline.o</span>
+<span class="td-line-number">   50   </span><span class="td-line-normal">a - histc.o</span>
+<span class="td-line-number">   51   </span><span class="td-line-normal">a - buildmanouvers.o</span>
+<span class="td-line-number">   52   </span><span class="td-line-normal">a - cumtrapz.o</span>
+<span class="td-line-number">   53   </span><span class="td-line-normal">a - checkpathcollision.o</span>
+<span class="td-line-number">   54   </span><span class="td-line-normal">a - equateoffsetcost.o</span>
+<span class="td-line-number">   55   </span><span class="td-line-normal">a - equatesafetycost.o</span>
+<span class="td-line-number">   56   </span><span class="td-line-normal">a - evalheading.o</span>
+<span class="td-line-number">   57   </span><span class="td-line-normal">a - localize.o</span>
+<span class="td-line-number">   58   </span><span class="td-line-normal">a - mincost.o</span>
+<span class="td-line-number">   59   </span><span class="td-line-normal">a - oblocalize.o</span>
+<span class="td-line-number">   60   </span><span class="td-line-normal">a - matlab_emxutil.o</span>
+<span class="td-line-number">   61   </span><span class="td-line-normal">a - matlab_emxAPI.o</span>
+<span class="td-line-number">   62   </span><span class="td-line-normal">a - rt_nonfinite.o</span>
+<span class="td-line-number">   63   </span><span class="td-line-normal">a - rtGetNaN.o</span>
+<span class="td-line-number">   64   </span><span class="td-line-normal">a - rtGetInf.o</span>
+<span class="td-line-number">   65   </span><span class="td-line-normal">### Created matlab.a</span>
+<span class="td-line-number">   66   </span><span class="td-line-normal">### Created static library: matlab.a</span>
+</pre>
+</td></tr></table>
+
+</div>
+</div>
+<!-- Begin MATLAB Code Panel -->
+<div class="center">
+<div class="center-title">
+<div class="ui-tabs-nav-item ui-tabs-selected">
+<span class="functiontitle">
+</span>
+<!-- Begin Call Sites -->
+<span id="callsiteselecttable" class="call-sites-tbl">
+<span id="callsiteselectlabel" class="filtered">Calls:</span>
+<select id="callsiteselect" onchange="callSiteChange(event)">
+<option value="callsiteprompt">Select a function call:</option>
+</select>
+</span>
+<!-- End Call Sites -->
+</div>
+</div>
+<div class="ui-tabs-panel">
+<div class="code" onmouseover="mcodeMouseOver(event);" onmouseout="mcodeMouseOut(event);"onclick="mcodeClick(event);">
+</div>
+</div>
+</div>
+<!-- End MATLAB Code Panel -->
+</body>
+
+</html>

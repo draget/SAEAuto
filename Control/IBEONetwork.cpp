@@ -77,7 +77,7 @@ bool IBEONetwork::Connect(char * ip_addr, int port) {
       		return false;
     	}
  
-    	if (-1 == connect(socketFD, (struct sockaddr *)&stSockAddr, sizeof(stSockAddr))) {
+    	if (-1 == connect(socketFD, (struct sockaddr *)&stSockAddr, sizeof(stSockAddr))) { 
       		perror("connect failed");
       		close(socketFD);
       		return false;

@@ -13,10 +13,19 @@
 #define EARTH_RADIUS 6371000
 #define MAPPOINT_RADIUS 2.75
 
+//Path planning constants
+#define PATHESTIMATEGRANULARITY 1
+#define GRANULARITY 0.5 //Set this with consideration to mappoint radius above
+#define EPSILON 0.01
+
 #include <vector>
 #include <string>
 
+#include <boost/thread.hpp>
+
 #include "PID.h"
+
+#include "matlab/matlab_emxAPI.h"
 
 class CarNetwork;
 class Logger;
@@ -42,7 +51,25 @@ struct MAP {
 	std::vector<VECTOR_2D> Fenceposts;
 	std::vector<VECTOR_2D> Waypoints;
 	std::vector<VECTOR_2D> DetectedFenceposts;
+};
 
+struct PATHPLANNING {
+	std::vector<VECTOR_2D> BaseFrame;
+	emxArray_real_T *points;
+	emxArray_real_T *scoefx;
+	emxArray_real_T *scoefy;
+	emxArray_real_T *si;
+	emxArray_real_T *ss;
+	emxArray_real_T *BaseFrameCurvature;
+	emxArray_real_T *dxds;
+	emxArray_real_T *dyds;
+	double scp;
+	double curvn;
+	emxArray_real_T *manxi;
+	emxArray_real_T *manyi;
+	int selectedpath;
+	std::vector<VECTOR_2D> PlannedWaypoints;
+	bool active;
 };
 
 class Control {
@@ -65,6 +92,7 @@ public:
 	void LoadMap(std::string MapFilename);
 	void DumpMap();
 	void DumpMap(std::string MapName);
+	void DumpBaseFrame();
 	void ClearMap();
 
 	bool HeartbeatState;
@@ -112,6 +140,7 @@ public:
 	static double TimeStamp();
 
 	VECTOR_2D LatLongToXY(double lat, double lng);
+	VECTOR_2D XYToLatLong(double x, double y);
 	
 	static double VectorMagnitude(VECTOR_2D MapPoint);
 	static VECTOR_2D SubtractVector(VECTOR_2D Point1, VECTOR_2D Point2);
@@ -121,6 +150,10 @@ public:
 	Fusion* Fuser;
 
 	MAP CurrentMap;
+	
+	PATHPLANNING PathPlan;
+	
+	void UpdatePathPlan();
 
 private:
 
@@ -146,6 +179,7 @@ private:
 	
 	CarNetwork* CarNetworkConnection;
 	Logger* Log;
+	Logger* TimeLog;
 	SafetySerialOut* SafetySerial;
 	LowLevelSerialOut* LowLevelSerial;
 	IBEO* Lux;
@@ -154,6 +188,8 @@ private:
 	Logger* WebLogger;
 
 	Logger* AutoLogger;
+	
+	boost::mutex PlanLock;
 
 };
 

@@ -93,7 +93,7 @@ IBEO::~IBEO() {
 bool IBEO::Open(char * ip_addr, int port) {
     Log->WriteLogLine("IBEO scanner - attempting to connect to " + boost::lexical_cast<std::string>(ip_addr) + ":" + boost::lexical_cast<std::string>(port) + ".");
     if (!connection->Connect(ip_addr, port)) {
-	Log->WriteLogLine("IBEO scanner - Connecting failed.");
+	Log->WriteLogLine("IBEO scanner - Connecting failed...");
         return false;
     }
     inUse = true;
