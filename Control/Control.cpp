@@ -706,6 +706,8 @@ void Control::DumpBaseFrame() {
 
 
 void Control::UpdatePathPlan() {
+	if (!PathPlan.active) {Log->WriteLogLine("PathPlan - Planning Not Active. Waiting...");}
+	while (!PathPlan.active) {boost::this_thread::sleep(boost::posix_time::milliseconds(100));}
 	while ((AutoRun && PathPlan.active)) {
 		
 		PlanLock.lock(); //block until intermediate heading is calculated and sent to PIDs, then lock the mutex
@@ -714,7 +716,6 @@ void Control::UpdatePathPlan() {
 		NextWaypoint = 0; //reset next waypoint
 		double posx = Fuser->CurrentPosition.x;
 		double posy = Fuser->CurrentPosition.y;
-		PathPlan.curvn = 1;
 		
 		//Manouver Parameters
 		double maxlatoffset = 8;
@@ -920,11 +921,6 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 	
 	PlanLock.lock(); //block until path planning is complete, lock mutex
 	
-	VECTOR_2D DistanceToBaseFrame = SubtractVector(PathPlan.BaseFrame[0],CurPosn);
-	if(VectorMagnitude(DistanceToBaseFrame) < MAPPOINT_RADIUS) {
-		Log->WriteLogLine("Control - Reached Start of BaseFrame. Activating Advanced Path Planning ");
-		PathPlan.active = true;
-	}
 	
 	VECTOR_2D VectorToNextWp;
 	
@@ -932,15 +928,23 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 	if (PathPlan.active) {
 		// Check if we have reached a waypoint.
 		VECTOR_2D DistanceVector = SubtractVector(PathPlan.PlannedWaypoints[NextWaypoint],CurPosn);
-		if(VectorMagnitude(DistanceVector) < MAPPOINT_RADIUS) {
+		while(VectorMagnitude(DistanceVector) < MAPPOINT_RADIUS) {
 			Log->WriteLogLine("Control - Reached PP waypoint " + boost::lexical_cast<std::string>(NextWaypoint));
 			NextWaypoint++;
 			if(NextWaypoint >= PathPlan.PlannedWaypoints.size()) { Log->WriteLogLine("Control - Reached end of path plan."); Control::AutoStop(); return; }
+			DistanceVector = SubtractVector(PathPlan.PlannedWaypoints[NextWaypoint],CurPosn);
 		}
 
 		// Calculate the vector to the next waypoint.
 		VectorToNextWp = SubtractVector(PathPlan.PlannedWaypoints[NextWaypoint], CurPosn); // Simple
 	} else {
+		
+		VECTOR_2D DistanceToBaseFrame = SubtractVector(PathPlan.BaseFrame[0],CurPosn);
+		if(VectorMagnitude(DistanceToBaseFrame) < MAPPOINT_RADIUS) {
+			Log->WriteLogLine("Control - Reached Start of BaseFrame. Activating Advanced Path Planning ");
+			PathPlan.active = true;
+		}
+		
 		// Check if we have reached a waypoint.
 		VECTOR_2D DistanceVector = SubtractVector(CurrentMap.Waypoints[NextWaypoint],CurPosn);
 		if(VectorMagnitude(DistanceVector) < MAPPOINT_RADIUS) {
@@ -999,7 +1003,7 @@ void Control::AutoSpeedUpdate(double CurSpeed) {
 	
 	double SpeedIncrement = ThrottleController->compute();
 	double BrakeValue = BrakeController->compute();
-Log->WriteLogLine(boost::lexical_cast<std::string>(BrakeValue));
+	Log->WriteLogLine("BV:" + boost::lexical_cast<std::string>(BrakeValue));
 	std::string time;
 	
 	if(ExtLogging) { 
