@@ -238,8 +238,10 @@ ISR(WDT_vect)             //Code to execute when watchdog timer not reset in tim
 
 void EmergencyBrakeFunction()
 {
+  Serial.print(F("Interrupt From Safety Supervisor\n"));
   EmergencyBrake=true;
   EmergencyTime=millis();
+  
 }
 
 void MotorCoast()
