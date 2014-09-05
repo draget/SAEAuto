@@ -389,6 +389,7 @@ void Control::Untrip() {
 	TripState = 0;
 	CurrentThrottleBrakeSetPosn = 0;
 
+	ResetTrip = true;
 	Log->WriteLogLine("Control - trip state returned to zero.");
 
 }

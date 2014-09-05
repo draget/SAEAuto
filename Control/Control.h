@@ -69,6 +69,7 @@ public:
 
 	bool HeartbeatState;
 	int TripState;
+	bool ResetTrip;
 	bool ManualOn;
 	bool AutoOn;
 	bool AutoRun;
