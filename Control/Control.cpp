@@ -707,7 +707,7 @@ void Control::DumpBaseFrame() {
 
 void Control::UpdatePathPlan() {
 	while ((AutoRun && PathPlan.active)) {
-		
+
 		PlanLock.lock(); //block until intermediate heading is calculated and sent to PIDs, then lock the mutex
 		Log->WriteLogLine("PathPlan - Updating Plan");
 		
@@ -923,7 +923,7 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 	VECTOR_2D DistanceToBaseFrame = SubtractVector(PathPlan.BaseFrame[0],CurPosn);
 	if(VectorMagnitude(DistanceToBaseFrame) < MAPPOINT_RADIUS) {
 		Log->WriteLogLine("Control - Reached Start of BaseFrame. Activating Advanced Path Planning ");
-		PathPlan.active = true;
+		//PathPlan.active = true;
 	}
 	
 	VECTOR_2D VectorToNextWp;

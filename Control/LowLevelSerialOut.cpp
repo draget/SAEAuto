@@ -219,7 +219,7 @@ void LowLevelSerialOut::Monitor() {
 
 	while(Run) {
 
-		if(CarControl->TimeStamp() - LastAckTime > 0.3 && LastAckTime > 0) { 
+		if((CarControl->TimeStamp() - LastAckTime > 0.3 && LastAckTime > 0) && CarControl->TripState != 10) { 
 			Log->WriteLogLine("LowLevelSerial - No acks in 300ms!");
 			CarControl->Trip(10);
 		}	
