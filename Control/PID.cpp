@@ -49,7 +49,10 @@
  */
 #include "PID.h"
 
-PID::PID(float Kc, float tauI, float tauD, float interval) {
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+
+PID::PID(float Kc, float tauI, float tauD, float interval, Logger* Logger) {
 
     usingFeedForward = false;
     inAuto           = false;
@@ -74,6 +77,8 @@ PID::PID(float Kc, float tauI, float tauD, float interval) {
     bias_     = 0.0;
     
     realOutput_ = 0.0;
+    
+    Log = Logger;
 
 }
 
@@ -230,6 +235,8 @@ float PID::compute() {
     } else if (scaledPV < 0.0) {
         scaledPV = 0.0;
     }
+    
+    Log->WriteLogLine("PID scaledPV: " + boost::lexical_cast<std::string>(scaledPV), true);
 
     float scaledSP = (setPoint_ - inMin_) / inSpan_;
     if (scaledSP > 1.0) {
@@ -237,8 +244,12 @@ float PID::compute() {
     } else if (scaledSP < 0.0) {
         scaledSP = 0;
     }
+    
+    Log->WriteLogLine("PID scaledSP: " + boost::lexical_cast<std::string>(scaledSP), true);
 
     float error = scaledSP - scaledPV;
+    
+    Log->WriteLogLine("PID error: " + boost::lexical_cast<std::string>(error), true);
 
     //Check and see if the output is pegged at a limit and only
     //integrate if it is not. This is to prevent reset-windup.
@@ -257,6 +268,8 @@ float PID::compute() {
 
     //Perform the PID calculation.
     controllerOutput_ = scaledBias + Kc_ * (error + (tauR_ * accError_) - (tauD_ * dMeas));
+    
+    Log->WriteLogLine("PID controllerOutput: " + boost::lexical_cast<std::string>(controllerOutput_), true);
 
     //Make sure the computed output is within output constraints.
     if (controllerOutput_ < 0.0) {
@@ -271,7 +284,14 @@ float PID::compute() {
     prevProcessVariable_  = scaledPV;
 
     //Scale the output from percent span back out to a real world number.
-    return ((controllerOutput_ * outSpan_) + outMin_);
+    
+    float scaledControllerOutput = ((controllerOutput_ * outSpan_) + outMin_);
+    
+    Log->WriteLogLine("PID scaledControllerOutput: " + boost::lexical_cast<std::string>(scaledControllerOutput), true);
+    
+    return scaledControllerOutput;
+    
+    
 
 }
 

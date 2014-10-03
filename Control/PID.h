@@ -50,6 +50,8 @@
 /**
  * Includes
  */
+ 
+#include "Logger.h"
 
 
 /**
@@ -76,7 +78,8 @@ public:
      * @param tauD - Tuning parameter
      * @param interval PID calculation performed every interval seconds.
      */
-    PID(float Kc, float tauI, float tauD, float interval);
+    PID(float Kc, float tauI, float tauD, float interval, Logger* Logger);
+    
 
     /**
      * Scale from inputs to 0-100%.
@@ -207,6 +210,8 @@ private:
 
     //Controller output as a real world value.
     volatile float realOutput_;
+    
+    Logger* Log;
 
 };
 
