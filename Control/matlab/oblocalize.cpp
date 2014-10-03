@@ -3,7 +3,7 @@
  *
  * Code generation for function 'oblocalize'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -14,9 +14,11 @@
 #include "builddetailedbf.h"
 #include "buildmanouvers.h"
 #include "checkpathcollision.h"
+#include "equateconscost.h"
 #include "equateoffsetcost.h"
 #include "equatesafetycost.h"
 #include "evalheading.h"
+#include "genprevpathq.h"
 #include "localize.h"
 #include "mincost.h"
 #include "oblocalize.h"
@@ -44,12 +46,13 @@ void oblocalize(const emxArray_real_T *scoefx, const emxArray_real_T *scoefy,
 {
   int32_T i;
   int32_T loop_ub;
+  real_T unusedU2;
   real_T unusedU1;
   real_T d0;
 
   /* UNTITLED4 Summary of this function goes here */
   /*    Detailed explanation goes here */
-  /* 'oblocalize:5' [~,c] = size(ob) */
+  /* 'oblocalize:5' [~,c] = size(ob); */
   /* 'oblocalize:6' arcob = ob; */
   i = arcob->size[0] * arcob->size[1];
   arcob->size[0] = 3;
@@ -62,10 +65,10 @@ void oblocalize(const emxArray_real_T *scoefx, const emxArray_real_T *scoefy,
 
   /* 'oblocalize:8' for i=1:c */
   for (i = 0; i <= ob->size[1] - 1; i++) {
-    /* 'oblocalize:9' [arcob(1,i),arcob(2,i), ~] = localize(scoefx,scoefy,si,ob(1,i),ob(2,i),sguess,epsilon); */
+    /* 'oblocalize:9' [arcob(1,i),arcob(2,i), ~, ~] = localize(scoefx,scoefy,si,ob(1,i),ob(2,i),sguess,epsilon); */
     localize(scoefx, scoefy, si, ob->data[ob->size[0] * i], ob->data[1 +
              ob->size[0] * i], sguess, epsilon, &arcob->data[arcob->size[0] * i],
-             &d0, &unusedU1);
+             &d0, &unusedU1, &unusedU2);
     arcob->data[1 + arcob->size[0] * i] = d0;
   }
 }

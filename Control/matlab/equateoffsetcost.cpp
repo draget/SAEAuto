@@ -3,7 +3,7 @@
  *
  * Code generation for function 'equateoffsetcost'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -14,9 +14,11 @@
 #include "builddetailedbf.h"
 #include "buildmanouvers.h"
 #include "checkpathcollision.h"
+#include "equateconscost.h"
 #include "equateoffsetcost.h"
 #include "equatesafetycost.h"
 #include "evalheading.h"
+#include "genprevpathq.h"
 #include "localize.h"
 #include "mincost.h"
 #include "oblocalize.h"
@@ -46,7 +48,7 @@ void equateoffsetcost(const emxArray_real_T *pathqi, emxArray_real_T *offsetcost
   int32_T ixstart;
   uint32_T uv0[2];
   int32_T k;
-  emxArray_int32_T *r75;
+  emxArray_int32_T *r26;
   int32_T exitg3;
   real_T mtmp;
   real_T b_mtmp;
@@ -56,7 +58,7 @@ void equateoffsetcost(const emxArray_real_T *pathqi, emxArray_real_T *offsetcost
 
   /* UNTITLED2 Summary of this function goes here */
   /*    Detailed explanation goes here */
-  /* 'equateoffsetcost:6' pathoffsetcost = abs(pathqi(end,:)); */
+  /* 'equateoffsetcost:6' pathoffsetcost = abs(pathqi(end,:)) */
   n = pathqi->size[1];
   c_pathqi = pathqi->size[0];
   ixstart = b_pathqi->size[0] * b_pathqi->size[1];
@@ -80,19 +82,19 @@ void equateoffsetcost(const emxArray_real_T *pathqi, emxArray_real_T *offsetcost
   offsetcost->size[1] = (int32_T)uv0[1];
   emxEnsureCapacity((emxArray__common *)offsetcost, n, (int32_T)sizeof(real_T));
   k = 0;
-  b_emxInit_int32_T(&r75, 1);
+  b_emxInit_int32_T(&r26, 1);
   do {
     exitg3 = 0;
     n = pathqi->size[1];
-    ixstart = r75->size[0];
-    r75->size[0] = n;
-    emxEnsureCapacity((emxArray__common *)r75, ixstart, (int32_T)sizeof(int32_T));
+    ixstart = r26->size[0];
+    r26->size[0] = n;
+    emxEnsureCapacity((emxArray__common *)r26, ixstart, (int32_T)sizeof(int32_T));
     ixstart = n - 1;
     for (n = 0; n <= ixstart; n++) {
-      r75->data[n] = 1 + n;
+      r26->data[n] = 1 + n;
     }
 
-    if (k <= r75->size[0] - 1) {
+    if (k <= r26->size[0] - 1) {
       c_pathqi = pathqi->size[0];
       mtmp = pathqi->data[(c_pathqi + pathqi->size[0] * k) - 1];
       offsetcost->data[k] = fabs(mtmp);
@@ -102,7 +104,7 @@ void equateoffsetcost(const emxArray_real_T *pathqi, emxArray_real_T *offsetcost
     }
   } while (exitg3 == 0U);
 
-  emxFree_int32_T(&r75);
+  emxFree_int32_T(&r26);
 
   /* 'equateoffsetcost:8' minoffsetcost = min(pathoffsetcost); */
   ixstart = 1;

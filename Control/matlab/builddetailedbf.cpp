@@ -3,7 +3,7 @@
  *
  * Code generation for function 'builddetailedbf'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -14,9 +14,11 @@
 #include "builddetailedbf.h"
 #include "buildmanouvers.h"
 #include "checkpathcollision.h"
+#include "equateconscost.h"
 #include "equateoffsetcost.h"
 #include "equatesafetycost.h"
 #include "evalheading.h"
+#include "genprevpathq.h"
 #include "localize.h"
 #include "mincost.h"
 #include "oblocalize.h"
@@ -46,7 +48,7 @@ void builddetailedbf(const emxArray_real_T *scoefx, const emxArray_real_T
 {
   emxArray_real_T *b_ss;
   real_T distance;
-  int32_T i6;
+  int32_T i7;
   int32_T loop_ub;
   b_emxInit_real_T(&b_ss, 2);
 
@@ -59,12 +61,12 @@ void builddetailedbf(const emxArray_real_T *scoefx, const emxArray_real_T
   linspace(si->data[0], si->data[si->size[0] - 1], ceil(distance / gran), b_ss);
 
   /* 'builddetailedbf:8' ss = ss'; */
-  i6 = ss->size[0];
+  i7 = ss->size[0];
   ss->size[0] = b_ss->size[1];
-  emxEnsureCapacity((emxArray__common *)ss, i6, (int32_T)sizeof(real_T));
+  emxEnsureCapacity((emxArray__common *)ss, i7, (int32_T)sizeof(real_T));
   loop_ub = b_ss->size[1] - 1;
-  for (i6 = 0; i6 <= loop_ub; i6++) {
-    ss->data[i6] = b_ss->data[i6];
+  for (i7 = 0; i7 <= loop_ub; i7++) {
+    ss->data[i7] = b_ss->data[i7];
   }
 
   emxFree_real_T(&b_ss);

@@ -19,4 +19,4 @@ sudo chmod 777 /dev/serial/by-id/usb-Xsens_Xsens_USB-serial_converter_XST8R2K9-i
 
 User=`whoami`
 
-sudo nice -n -19 sudo -u $User ./Control $1
+sudo nice -n -19 sudo -u $User ./Control $1 2> stderr.txt

@@ -3,7 +3,7 @@
  *
  * Code generation for function 'histc'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -14,9 +14,11 @@
 #include "builddetailedbf.h"
 #include "buildmanouvers.h"
 #include "checkpathcollision.h"
+#include "equateconscost.h"
 #include "equateoffsetcost.h"
 #include "equatesafetycost.h"
 #include "evalheading.h"
+#include "genprevpathq.h"
 #include "localize.h"
 #include "mincost.h"
 #include "oblocalize.h"
@@ -146,82 +148,6 @@ void b_histc(real_T X, const emxArray_real_T *edges, emxArray_real_T *N, real_T 
     }
 
     *BIN = (real_T)bin;
-  }
-}
-
-/*
- *
- */
-void c_histc(const real_T X[4], const emxArray_real_T *edges, emxArray_real_T *N,
-             real_T BIN[4])
-{
-  uint32_T outsize[2];
-  int32_T i;
-  int32_T loop_ub;
-  boolean_T guard1 = FALSE;
-  int32_T exitg1;
-  int32_T bin;
-  for (i = 0; i < 2; i++) {
-    outsize[i] = (uint32_T)(4 + -3 * i);
-  }
-
-  outsize[0] = (uint32_T)edges->size[0];
-  outsize[1] = 1U;
-  i = N->size[0];
-  N->size[0] = (int32_T)outsize[0];
-  emxEnsureCapacity((emxArray__common *)N, i, (int32_T)sizeof(real_T));
-  loop_ub = (int32_T)outsize[0] - 1;
-  for (i = 0; i <= loop_ub; i++) {
-    N->data[i] = 0.0;
-  }
-
-  for (i = 0; i < 4; i++) {
-    BIN[i] = 0.0;
-  }
-
-  guard1 = FALSE;
-  if (edges->size[0] > 1) {
-    i = 0;
-    do {
-      exitg1 = 0;
-      if (i <= edges->size[0] - 2) {
-        if (edges->data[i + 1] < edges->data[i]) {
-          i = N->size[0];
-          N->size[0] = (int32_T)outsize[0];
-          emxEnsureCapacity((emxArray__common *)N, i, (int32_T)sizeof(real_T));
-          loop_ub = (int32_T)outsize[0] - 1;
-          for (i = 0; i <= loop_ub; i++) {
-            N->data[i] = rtNaN;
-          }
-
-          for (i = 0; i < 4; i++) {
-            BIN[i] = rtNaN;
-          }
-
-          exitg1 = 1;
-        } else {
-          i++;
-        }
-      } else {
-        guard1 = TRUE;
-        exitg1 = 1;
-      }
-    } while (exitg1 == 0U);
-  } else {
-    guard1 = TRUE;
-  }
-
-  if (guard1 == TRUE) {
-    i = 0;
-    for (loop_ub = 0; loop_ub < 4; loop_ub++) {
-      bin = findbin(X[i], edges);
-      if (bin > 0) {
-        N->data[bin - 1]++;
-      }
-
-      BIN[i] = (real_T)bin;
-      i++;
-    }
   }
 }
 

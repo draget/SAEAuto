@@ -3,7 +3,7 @@
  *
  * Code generation for function 'parevalspline'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -31,6 +31,8 @@
 extern void b_parevalspline(const emxArray_real_T *coefs, const emxArray_real_T *breaks, const emxArray_real_T *t, emxArray_real_T *result);
 extern void c_parevalspline(const emxArray_real_T *coefs, const emxArray_real_T *breaks, real_T t, real_T *result, real_T *curvn);
 extern real_T d_parevalspline(const emxArray_real_T *coefs, const emxArray_real_T *breaks, real_T t);
+extern void e_parevalspline(const emxArray_real_T *coefs, const emxArray_real_T *breaks, real_T t, real_T *result, real_T *curvn);
+extern void f_parevalspline(const emxArray_real_T *coefs, const emxArray_real_T *breaks, real_T t, real_T *result, real_T *curvn);
 extern void parevalspline(const emxArray_real_T *coefs, const emxArray_real_T *breaks, const emxArray_real_T *t, real_T d, emxArray_real_T *result, emxArray_real_T *curvn);
 #endif
 /* End of code generation (parevalspline.h) */

@@ -3,7 +3,7 @@
  *
  * Code generation for function 'linspace'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -14,9 +14,11 @@
 #include "builddetailedbf.h"
 #include "buildmanouvers.h"
 #include "checkpathcollision.h"
+#include "equateconscost.h"
 #include "equateoffsetcost.h"
 #include "equatesafetycost.h"
 #include "evalheading.h"
+#include "genprevpathq.h"
 #include "localize.h"
 #include "mincost.h"
 #include "oblocalize.h"
@@ -41,7 +43,7 @@
  */
 void linspace(real_T d1, real_T d2, real_T n1, emxArray_real_T *y)
 {
-  int32_T i7;
+  int32_T i8;
   real_T delta1;
   real_T delta2;
   int32_T k;
@@ -49,10 +51,10 @@ void linspace(real_T d1, real_T d2, real_T n1, emxArray_real_T *y)
     n1 = 0.0;
   }
 
-  i7 = y->size[0] * y->size[1];
+  i8 = y->size[0] * y->size[1];
   y->size[0] = 1;
   y->size[1] = (int32_T)n1;
-  emxEnsureCapacity((emxArray__common *)y, i7, (int32_T)sizeof(real_T));
+  emxEnsureCapacity((emxArray__common *)y, i8, (int32_T)sizeof(real_T));
   if (y->size[1] >= 1) {
     y->data[y->size[1] - 1] = d2;
     if (y->size[1] >= 2) {
@@ -63,15 +65,15 @@ void linspace(real_T d1, real_T d2, real_T n1, emxArray_real_T *y)
         {
           delta1 = d1 / ((real_T)y->size[1] - 1.0);
           delta2 = d2 / ((real_T)y->size[1] - 1.0);
-          i7 = y->size[1];
-          for (k = 0; k <= i7 - 3; k++) {
+          i8 = y->size[1];
+          for (k = 0; k <= i8 - 3; k++) {
             y->data[k + 1] = (d1 + delta2 * (1.0 + (real_T)k)) - delta1 * (1.0 +
               (real_T)k);
           }
         } else {
           delta1 = (d2 - d1) / ((real_T)y->size[1] - 1.0);
-          i7 = y->size[1];
-          for (k = 0; k <= i7 - 3; k++) {
+          i8 = y->size[1];
+          for (k = 0; k <= i8 - 3; k++) {
             y->data[k + 1] = d1 + (1.0 + (real_T)k) * delta1;
           }
         }

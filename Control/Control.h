@@ -14,9 +14,9 @@
 #define MAPPOINT_RADIUS 2.75
 
 //Path planning constants
-#define PATHESTIMATEGRANULARITY 1
+#define PATHESTIMATEGRANULARITY 0.5
 #define GRANULARITY 0.5 //Set this with consideration to mappoint radius above
-#define EPSILON 0.01
+#define EPSILON 0.001
 
 #include <vector>
 #include <string>
@@ -70,6 +70,7 @@ struct PATHPLANNING {
 	int selectedpath;
 	std::vector<VECTOR_2D> PlannedWaypoints;
 	bool active;
+	emxArray_real_T *prevpathq;
 };
 
 class Control {
@@ -103,6 +104,11 @@ public:
 	bool AutoRun;
 	bool RecordActive;
 	bool BrakeILOn; // If this is off we don't require a heartbeat or network connection for auto!
+	
+	bool Simulate;
+	FILE *RXpipeSim;
+	FILE *TXpipeSim;
+	void ProcessSimMessages();
 
 	double DatumLat;
 	double DatumLong;
@@ -188,6 +194,8 @@ private:
 	Logger* WebLogger;
 
 	Logger* AutoLogger;
+	
+	Logger* JunkLogger;
 	
 	boost::mutex PlanLock;
 

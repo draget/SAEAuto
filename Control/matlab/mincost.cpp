@@ -3,7 +3,7 @@
  *
  * Code generation for function 'mincost'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -14,9 +14,11 @@
 #include "builddetailedbf.h"
 #include "buildmanouvers.h"
 #include "checkpathcollision.h"
+#include "equateconscost.h"
 #include "equateoffsetcost.h"
 #include "equatesafetycost.h"
 #include "evalheading.h"
+#include "genprevpathq.h"
 #include "localize.h"
 #include "mincost.h"
 #include "oblocalize.h"
@@ -36,11 +38,11 @@
 /* Function Definitions */
 
 /*
- * function [totalcosts,bestpath] = mincost(Ks, safetycost, Kpo, pathoffsetcost)
+ * function [totalcosts,bestpath] = mincost(Ks, safetycost, Kpo, pathoffsetcost, Kc, conscost)
  */
 void mincost(real_T Ks, const emxArray_real_T *safetycost, real_T Kpo, const
-             emxArray_real_T *pathoffsetcost, emxArray_real_T *totalcosts,
-             real_T *bestpath)
+             emxArray_real_T *pathoffsetcost, real_T Kc, const emxArray_real_T
+             *conscost, emxArray_real_T *totalcosts, real_T *bestpath)
 {
   int32_T ixstart;
   int32_T n;
@@ -51,7 +53,7 @@ void mincost(real_T Ks, const emxArray_real_T *safetycost, real_T Kpo, const
 
   /* UNTITLED Summary of this function goes here */
   /*    Detailed explanation goes here */
-  /* 'mincost:5' totalcosts = Ks.*safetycost + Kpo.*pathoffsetcost; */
+  /* 'mincost:5' totalcosts = Ks.*safetycost + Kpo.*pathoffsetcost + Kc.*conscost; */
   ixstart = totalcosts->size[0] * totalcosts->size[1];
   totalcosts->size[0] = 1;
   totalcosts->size[1] = safetycost->size[1];
@@ -59,8 +61,8 @@ void mincost(real_T Ks, const emxArray_real_T *safetycost, real_T Kpo, const
                     (real_T));
   n = safetycost->size[0] * safetycost->size[1] - 1;
   for (ixstart = 0; ixstart <= n; ixstart++) {
-    totalcosts->data[ixstart] = Ks * safetycost->data[ixstart] + Kpo *
-      pathoffsetcost->data[ixstart];
+    totalcosts->data[ixstart] = (Ks * safetycost->data[ixstart] + Kpo *
+      pathoffsetcost->data[ixstart]) + Kc * conscost->data[ixstart];
   }
 
   /* 'mincost:7' [cost,bestpath] = min(totalcosts); */

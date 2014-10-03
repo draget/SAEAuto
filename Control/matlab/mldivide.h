@@ -3,7 +3,7 @@
  *
  * Code generation for function 'mldivide'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -28,6 +28,7 @@
 /* Variable Definitions */
 
 /* Function Declarations */
-extern void mldivide(const emxArray_real_T *A, emxArray_real_T *B);
+extern void b_mldivide(const emxArray_real_T *A, emxArray_real_T *B);
+extern void mldivide(const real_T A[4], const real_T B[2], real_T Y[2]);
 #endif
 /* End of code generation (mldivide.h) */

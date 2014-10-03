@@ -3,7 +3,7 @@
  *
  * Code generation for function 'matlab_rtwutil'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:01 2014
  *
  */
 
@@ -14,9 +14,11 @@
 #include "builddetailedbf.h"
 #include "buildmanouvers.h"
 #include "checkpathcollision.h"
+#include "equateconscost.h"
 #include "equateoffsetcost.h"
 #include "equatesafetycost.h"
 #include "evalheading.h"
+#include "genprevpathq.h"
 #include "localize.h"
 #include "mincost.h"
 #include "oblocalize.h"
@@ -75,6 +77,24 @@ real_T rt_powd_snf(real_T u0, real_T u1)
     } else {
       y = pow(u0, u1);
     }
+  }
+
+  return y;
+}
+
+real_T rt_roundd_snf(real_T u)
+{
+  real_T y;
+  if (fabs(u) < 4.503599627370496E+15) {
+    if (u >= 0.5) {
+      y = floor(u + 0.5);
+    } else if (u > -0.5) {
+      y = -0.0;
+    } else {
+      y = ceil(u - 0.5);
+    }
+  } else {
+    y = u;
   }
 
   return y;

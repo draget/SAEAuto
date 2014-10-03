@@ -3,7 +3,7 @@
  *
  * Code generation for function 'rdivide'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -14,9 +14,11 @@
 #include "builddetailedbf.h"
 #include "buildmanouvers.h"
 #include "checkpathcollision.h"
+#include "equateconscost.h"
 #include "equateoffsetcost.h"
 #include "equatesafetycost.h"
 #include "evalheading.h"
+#include "genprevpathq.h"
 #include "localize.h"
 #include "mincost.h"
 #include "oblocalize.h"
@@ -35,6 +37,22 @@
 /* Function Declarations */
 
 /* Function Definitions */
+
+/*
+ *
+ */
+void b_rdivide(const emxArray_real_T *x, real_T y, emxArray_real_T *z)
+{
+  int32_T i4;
+  int32_T loop_ub;
+  i4 = z->size[0];
+  z->size[0] = x->size[0];
+  emxEnsureCapacity((emxArray__common *)z, i4, (int32_T)sizeof(real_T));
+  loop_ub = x->size[0] - 1;
+  for (i4 = 0; i4 <= loop_ub; i4++) {
+    z->data[i4] = x->data[i4] / y;
+  }
+}
 
 /*
  *

@@ -3,7 +3,7 @@
  *
  * Code generation for function 'rdivide'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -28,6 +28,7 @@
 /* Variable Definitions */
 
 /* Function Declarations */
+extern void b_rdivide(const emxArray_real_T *x, real_T y, emxArray_real_T *z);
 extern void rdivide(const emxArray_real_T *x, const emxArray_real_T *y, emxArray_real_T *z);
 #endif
 /* End of code generation (rdivide.h) */

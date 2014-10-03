@@ -3,7 +3,7 @@
  *
  * Code generation for function 'evalheading'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -28,6 +28,6 @@
 /* Variable Definitions */
 
 /* Function Declarations */
-extern void evalheading(real_T scp, const emxArray_real_T *ss, const emxArray_real_T *dxds, const emxArray_real_T *dyds, real_T *sindex, real_T *paththeta);
+extern void evalheading(real_T scp, const emxArray_real_T *ss, emxArray_real_T *dxds, emxArray_real_T *dyds, real_T *sindex, real_T *paththeta);
 #endif
 /* End of code generation (evalheading.h) */

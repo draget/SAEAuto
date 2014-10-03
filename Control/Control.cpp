@@ -50,6 +50,8 @@
 #include "matlab/equatesafetycost.h"
 #include "matlab/equateoffsetcost.h"
 #include "matlab/mincost.h"
+#include "matlab/equateconscost.h"
+#include "matlab/genprevpathq.h"
 
 static timestamp_t get_timestamp()
 {
@@ -124,6 +126,11 @@ Control::Control(std::string LogDir, bool ExtLog) {
 	Fuser = new Fusion(this,Log);
 
 	WebLogger = new Logger("./ramdisk/weblog.txt");
+	
+	if(ExtLogging) { AutoLogger = new Logger(LogDir + "/autolog.txt"); }
+	
+	JunkLogger = new Logger("./ramdisk/junklog.txt");
+	
 
 }
 
@@ -142,14 +149,42 @@ void Control::Setup() {
 
 	WebIPC->Open();
 	CarNetworkConnection->Open();
-	SafetySerial->Open();
-	LowLevelSerial->Open();
-	GPS->Open();
+	//SafetySerial->Open();
+	//LowLevelSerial->Open();
+	//GPS->Open();
 	if(access("noibeo", F_OK ) == -1) { Lux->Open(); }
-	IMU->Open();
+	//IMU->Open();
+	
+	//Set up simulator CAR RX
+	bool OpenStateSim = false;	
+	boost::thread s_Thread;
+
+	mode_t process_mask = umask(0);
+	int resSim = mkfifo("./CAR_IPC_FIFO_RX", S_IRWXU | S_IRWXG | S_IRWXO);
+	umask(process_mask);
+
+	if(resSim != 0) { Log->WriteLogLine("SIM - Couldn't create fifo!"); }
+	
+	OpenStateSim = true;
+
+	RXpipeSim = fopen("./CAR_IPC_FIFO_RX", "r+");
+	if(RXpipeSim == NULL) { Log->WriteLogLine("SIM - RX Pipe open failed..."); OpenStateSim = false; }
+	else { Log->WriteLogLine("SIM - Pipe open okay."); }
+	
+	if(OpenStateSim) {	
+
+		s_Thread = boost::thread(&Control::ProcessSimMessages, this);
+		s_Thread.detach();
+
+	}
+	
+	TXpipeSim = fopen("/home/martinfrench/Desktop/ode-0.13/ode/demo/SIM_IPC_FIFO_RX", "w");
+	if(TXpipeSim == NULL) { Log->WriteLogLine("SIM - TX Pipe open failed..."); OpenStateSim = false; }
 	
 	PathPlan.manxi = emxCreate_real_T(1,1);
 	PathPlan.manyi = emxCreate_real_T(1,1);
+	
+	
 
 }
 
@@ -191,16 +226,16 @@ void Control::Run() {
 	// Start all sensors/interfaces.
 	WebIPC->Start();
 	CarNetworkConnection->StartProcessMessages();
-	GPS->Start();
-	Lux->Start();
-	IMU->Start();
-	SafetySerial->Start();
+	//GPS->Start();
+	//Lux->Start();
+	//IMU->Start();
+	//SafetySerial->Start();
 
 	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 	SendAlarm();
 	boost::this_thread::sleep(boost::posix_time::milliseconds(400));
 
-	LowLevelSerial->Start();
+	//LowLevelSerial->Start();
 
 
 	// Loop through updating terminal and information output file.
@@ -433,7 +468,7 @@ void Control::ToggleBrakeIL() {
 	if(! this->BrakeILOn) { Success = SafetySerial->Send('B'); }
 	else { Success = SafetySerial->Send('H'); }
 
-	if(Success) {
+	if(true) {
 		this->BrakeILOn = ! this->BrakeILOn;
 		Log->WriteLogLine("Control - Brake IL toggled " + this->BrakeILOn);
 	}
@@ -510,6 +545,13 @@ void Control::LoadMap(std::string MapFilename) {
 		arclengthcurve(PathPlan.points, PATHESTIMATEGRANULARITY, EPSILON, 
 						PathPlan.scoefx, PathPlan.scoefy, PathPlan.si);
 						
+		Log->WriteLogLine("#Curves: " + boost::lexical_cast<std::string>(PathPlan.si->size[0]));
+		Log->WriteLogLine("si[0]: " + boost::lexical_cast<std::string>(PathPlan.si->data[0]));
+		Log->WriteLogLine("si[1]: " + boost::lexical_cast<std::string>(PathPlan.si->data[1]));
+		Log->WriteLogLine("si[2]: " + boost::lexical_cast<std::string>(PathPlan.si->data[2]));
+		Log->WriteLogLine("si[3]: " + boost::lexical_cast<std::string>(PathPlan.si->data[3]));
+		Log->WriteLogLine("si[4]: " + boost::lexical_cast<std::string>(PathPlan.si->data[4]));
+						
 		timestamp_t t1 = get_timestamp();
 					
 		emxArray_real_T *sx = emxCreate_real_T(1,1); //Create baseframe x point samples matrix, only used in plotting
@@ -558,6 +600,8 @@ void Control::LoadMap(std::string MapFilename) {
 		
 		timestamp_t t5 = get_timestamp();
 		
+		//Create prev path offset matrix and set to 0
+		PathPlan.prevpathq = emxCreate_real_T(0,0);
 		
 		double secs1 = (t1 - t0) / 1000000.0L;
 		double secs2 = (t2 - t1) / 1000000.0L;
@@ -657,9 +701,9 @@ void Control::DumpMap(std::string MapName) {
 			x = PathPlan.manxi->data[i*npoints + j];
 			y = PathPlan.manyi->data[i*npoints + j];
 			if (i == PathPlan.selectedpath - 1) {
-				DumpLog->WriteLogLine("S," + boost::lexical_cast<std::string>(x) + "," + boost::lexical_cast<std::string>(y), true);
+				DumpLog->WriteLogLine("S," + boost::lexical_cast<std::string>(j) + "," + boost::lexical_cast<std::string>(x) + "," + boost::lexical_cast<std::string>(y), true);
 			} else {
-				DumpLog->WriteLogLine("P," + boost::lexical_cast<std::string>(x) + "," + boost::lexical_cast<std::string>(y), true);
+				DumpLog->WriteLogLine("P," + boost::lexical_cast<std::string>(j) + "," + boost::lexical_cast<std::string>(x) + "," + boost::lexical_cast<std::string>(y), true);
 			}
 			
 		}
@@ -696,6 +740,7 @@ void Control::DumpBaseFrame() {
 	int i = 0;
 	BOOST_FOREACH( VECTOR_2D MapPoint, PathPlan.BaseFrame ) {
 		VECTOR_2D LatLongPoint = XYToLatLong(MapPoint.x, MapPoint.y);
+		//VECTOR_2D LatLongPoint = MapPoint;
    		DumpLog->WriteLogLine(boost::lexical_cast<std::string>(i) + "," + boost::lexical_cast<std::string>(LatLongPoint.x) + "," + boost::lexical_cast<std::string>(LatLongPoint.y), true);
 		i++;
 	}
@@ -707,7 +752,7 @@ void Control::DumpBaseFrame() {
 
 void Control::UpdatePathPlan() {
 	if (!PathPlan.active) {Log->WriteLogLine("PathPlan - Planning Not Active. Waiting...");}
-	while (!PathPlan.active) {boost::this_thread::sleep(boost::posix_time::milliseconds(100));}
+	while (!PathPlan.active && AutoRun) {boost::this_thread::sleep(boost::posix_time::milliseconds(100));}
 	while ((AutoRun && PathPlan.active)) {
 		
 		PlanLock.lock(); //block until intermediate heading is calculated and sent to PIDs, then lock the mutex
@@ -724,30 +769,35 @@ void Control::UpdatePathPlan() {
 		double mincurverad = 2;
 		
 		//Get current Obstacles
-		double ob[] = {22,46.8,1};
-		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob, 3, 0);
+		double ob[] = {30,70,2.5,18,64,2.5};
+		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob, 3, 1);
 		emxArray_real_T *arcob = emxCreate_real_T(1,1);
 		
 		Log->WriteLogLine("Object Localize");
 		//Log->WriteLogLine("Obstacles Size: " + boost::lexical_cast<std::string>(obstacles->size[0]) + "x" + boost::lexical_cast<std::string>(obstacles->size[1]));
 		//Log->WriteLogLine("Obstacles Data: " + boost::lexical_cast<std::string>(obstacles->data[0]) + "," + boost::lexical_cast<std::string>(obstacles->data[1]));
 		
+		
 		timestamp_t t0 = get_timestamp();
-		oblocalize(PathPlan.scoefx,PathPlan.scoefy,PathPlan.si,obstacles,1,EPSILON,arcob);
+		oblocalize(PathPlan.scoefx,PathPlan.scoefy,PathPlan.si,obstacles,241,EPSILON,arcob);
 		timestamp_t t1 = get_timestamp();
 		Log->WriteLogLine("Arcob s = " + boost::lexical_cast<std::string>(arcob->data[0]));
 		Log->WriteLogLine("Arcob q = " + boost::lexical_cast<std::string>(arcob->data[1]));
 		
 		double cpdistance;
+		double newcurven;
+		double count;
 		
-		Log->WriteLogLine("Position Localize");
+		Log->WriteLogLine("Position Localize x = " + boost::lexical_cast<std::string>(posx) + ", y = " + boost::lexical_cast<std::string>(posy));
+		Log->WriteLogLine("With curvn = " + boost::lexical_cast<std::string>(PathPlan.curvn));
 		timestamp_t t2 = get_timestamp();
-		localize(PathPlan.scoefx,PathPlan.scoefy,PathPlan.si,posx,posy,PathPlan.curvn,EPSILON,&PathPlan.scp,&cpdistance,&PathPlan.curvn);
+		localize(PathPlan.scoefx,PathPlan.scoefy,PathPlan.si,posx,posy,PathPlan.curvn,EPSILON,&PathPlan.scp,&cpdistance,&newcurven,&count);
 		timestamp_t t3 = get_timestamp();
 		Log->WriteLogLine("scp = " + boost::lexical_cast<std::string>(PathPlan.scp));
 		Log->WriteLogLine("cpdistance = " + boost::lexical_cast<std::string>(cpdistance));
-		Log->WriteLogLine("curvn = " + boost::lexical_cast<std::string>(PathPlan.curvn));
-		
+		Log->WriteLogLine("New curvn = " + boost::lexical_cast<std::string>(newcurven));
+		Log->WriteLogLine("count = " + boost::lexical_cast<std::string>(count));
+		PathPlan.curvn = newcurven;
 		double sindex;
 		double paththeta;
 		
@@ -756,9 +806,23 @@ void Control::UpdatePathPlan() {
 		evalheading(PathPlan.scp,PathPlan.ss,PathPlan.dxds,PathPlan.dyds,&sindex,&paththeta);
 		timestamp_t t5 = get_timestamp();
 		Log->WriteLogLine("sindex = " + boost::lexical_cast<std::string>(sindex));
-		Log->WriteLogLine("paththeta = " + boost::lexical_cast<std::string>(paththeta));
+		Log->WriteLogLine("paththeta = " + boost::lexical_cast<std::string>(paththeta/TwoPi * 360));
 		
-		double thetadiff = Fuser->CurrentHeading - (paththeta/TwoPi * 360); //+ve is anticlockwise from path heading
+		double algorithmCarHeading; //This is needed because 0 degrees is positive x-axis in the matlab algorithm
+		
+		if (Fuser->CurrentHeading > 90) {
+			algorithmCarHeading = 450 - Fuser->CurrentHeading;
+		} else {
+			algorithmCarHeading = 90 - Fuser->CurrentHeading;
+		}
+	
+		Log->WriteLogLine("FusionCarHeading = " + boost::lexical_cast<std::string>(Fuser->CurrentHeading));
+		Log->WriteLogLine("algorithmCarHeading = " + boost::lexical_cast<std::string>(algorithmCarHeading));
+		
+		double thetadiff = algorithmCarHeading - (paththeta/TwoPi * 360); //+ve is anticlockwise from path heading
+		
+		Log->WriteLogLine("Thetadiff = " + boost::lexical_cast<std::string>(thetadiff));
+		
 		
 		emxArray_real_T *pathki = emxCreate_real_T(1,1);
 		emxArray_real_T *pathqi = emxCreate_real_T(1,1);
@@ -797,17 +861,29 @@ void Control::UpdatePathPlan() {
 		timestamp_t t12 = get_timestamp();
 		equateoffsetcost(pathqi, offsetcost);
 		timestamp_t t13 = get_timestamp();
+		
+		emxArray_real_T *conscost = emxCreate_real_T(1,1);
+		
+		
+		Log->WriteLogLine("Equate consistency cost");
+		timestamp_t t16 = get_timestamp();
+		equateconscost(PathPlan.prevpathq, pathqi, mans, conscost);
+		timestamp_t t17 = get_timestamp();
 
 		double bestpath;
 		emxArray_real_T *costs = emxCreate_real_T(1,1);
 		
 		Log->WriteLogLine("Calculate Best Path");
 		timestamp_t t14 = get_timestamp();
-		mincost(1, safetycost, 0.1, offsetcost, costs, &bestpath);
+		mincost(5, safetycost, 0.5, offsetcost, 0.08, conscost, costs, &bestpath);
 		timestamp_t t15 = get_timestamp();
 		
 		PathPlan.selectedpath = bestpath;
 		Log->WriteLogLine("BestPath = " + boost::lexical_cast<std::string>(bestpath) + " at a cost = " + boost::lexical_cast<std::string>(costs->data[PathPlan.selectedpath-1]));
+		
+		Log->WriteLogLine("Save Selected Path For Next Plan");
+		genprevpathq(PathPlan.selectedpath, pathqi, mans, PathPlan.prevpathq);
+
 		
 		int npoints = PathPlan.manxi->size[0];
 		PathPlan.PlannedWaypoints.clear();
@@ -827,9 +903,10 @@ void Control::UpdatePathPlan() {
 		double secs3 = (t5 - t4) / 1000000.0L;
 		double secs4 = (t7 - t6) / 1000000.0L;
 		double secs5 = (t9 - t8) / 1000000.0L;
-		double secs6 = (t10 - t11) / 1000000.0L;
-		double secs7 = (t12 - t13) / 1000000.0L;
-		double secs8 = (t14 - t15) / 1000000.0L;
+		double secs6 = (t11 - t10) / 1000000.0L;
+		double secs7 = (t13 - t12) / 1000000.0L;
+		double secs8 = (t15 - t14) / 1000000.0L;
+		double secs9 = (t17 - t16) / 1000000.0L;
 		
 		TimeLog->WriteLogLine("----Path Planning Time Stats----");
 		TimeLog->WriteLogLine("Time to execute oblozalize: " + boost::lexical_cast<std::string>(secs1) + " s");
@@ -839,9 +916,54 @@ void Control::UpdatePathPlan() {
 		TimeLog->WriteLogLine("Time to execute checkpathcollision: " + boost::lexical_cast<std::string>(secs5) + " s");
 		TimeLog->WriteLogLine("Time to execute equatesafetycost: " + boost::lexical_cast<std::string>(secs6) + " s");
 		TimeLog->WriteLogLine("Time to execute equateoffsetcost: " + boost::lexical_cast<std::string>(secs7) + " s");
+		TimeLog->WriteLogLine("Time to execute equateconscost: " + boost::lexical_cast<std::string>(secs9) + " s");
 		TimeLog->WriteLogLine("Time to execute mincost: " + boost::lexical_cast<std::string>(secs8) + " s");
 		
-		boost::this_thread::sleep(boost::posix_time::milliseconds(10000)); //Plan path every 10 seconds
+		boost::this_thread::sleep(boost::posix_time::milliseconds(2000)); //Plan path every 2 seconds
+	}
+}
+
+void Control::ProcessSimMessages() {
+	char readbuf[150];
+
+	while(true) {
+
+		bzero(readbuf,sizeof(readbuf));
+
+		fgets(readbuf,150,RXpipeSim); // Block here waiting for a message.
+	
+		std::string Message = readbuf;
+		
+		boost::algorithm::trim(Message);
+
+		//Log->WriteLogLine("SIM - Received " + Message);
+
+		std::vector<std::string> MessageParts;
+
+		boost::algorithm::split(MessageParts, Message,  boost::algorithm::is_any_of(","));
+
+		if(MessageParts[0].compare(0,1,"P") == 0) {
+			Fuser->CurrentPosition.x = strtod(MessageParts[1].c_str(),NULL);
+			Fuser->CurrentPosition.y = strtod(MessageParts[2].c_str(),NULL);
+			
+			if(ExtLogging) { AutoLogger->WriteLogLine("CX," + boost::lexical_cast<std::string>(TimeStamp()) + "," + boost::lexical_cast<std::string>(Fuser->CurrentPosition.x), true); }
+			if(ExtLogging) { AutoLogger->WriteLogLine("CY," + boost::lexical_cast<std::string>(TimeStamp()) + "," + boost::lexical_cast<std::string>(Fuser->CurrentPosition.y), true); }
+			
+			if(AutoRun) { 
+				AutoPosUpdate(Fuser->CurrentPosition); 
+			}
+		}
+		else if(MessageParts[0].compare(0,1,"S") == 0) { 
+			Fuser->CurrentSpeed = strtod(MessageParts[1].c_str(),NULL);
+			if(AutoRun) {  
+				AutoSpeedUpdate(Fuser->CurrentSpeed);
+			}
+		}
+		else if(MessageParts[0].compare(0,1,"B") == 0) { 
+			Fuser->CurrentHeading = strtod(MessageParts[1].c_str(),NULL);
+			if(ExtLogging) { AutoLogger->WriteLogLine("CB," + boost::lexical_cast<std::string>(TimeStamp()) + "," + boost::lexical_cast<std::string>(Fuser->CurrentHeading), true); }
+			if(AutoRun) { AutoTrackUpdate(Fuser->CurrentHeading); }
+		}
 	}
 }
 
@@ -851,8 +973,6 @@ void Control::UpdatePathPlan() {
  * Outputs: None.
  */
 void Control::AutoStart() {
-
-	if(ExtLogging) { AutoLogger = new Logger(LogDir + "/autolog.txt"); }
 
 	if(CurrentMap.Waypoints.size() == 0) { Log->WriteLogLine("Control - No map loaded, can't start auto."); return; }
 
@@ -869,23 +989,25 @@ void Control::AutoStart() {
 
 	//Initialise the three PID controllers.
 
-	ThrottleController = new PID(10.0,3.0,0,0.1);
+	ThrottleController = new PID(10.0,3.0,0,0.1, JunkLogger);
 	ThrottleController->setInputLimits(0.0, 30);
 	ThrottleController->setOutputLimits(-255,255);
 	ThrottleController->setMode(AUTO_MODE);
 
-	BrakeController = new PID(20.0,4.0,0,0.1);
+	BrakeController = new PID(20.0,4.0,0,0.1, JunkLogger);
 	BrakeController->setInputLimits(0.0, 30);
 	BrakeController->setOutputLimits(-255,255);
 	BrakeController->setMode(AUTO_MODE);
 
-	SteerController = new PID(6.3,0.5,0.0,0.1);
+	SteerController = new PID(35,0.0,0.0,0.01, JunkLogger);
 	SteerController->setInputLimits(-360, 720);
 	SteerController->setOutputLimits(-127,127);
 	SteerController->setMode(AUTO_MODE);
+	SteerController->setBias(0);
 
 	SteerController->setSetPoint(0);
 	ThrottleController->setSetPoint(0);
+	
 	
 	boost::thread UpdatePathPlanThread = boost::thread(&Control::UpdatePathPlan, this);
 	UpdatePathPlanThread.detach();
@@ -1003,7 +1125,7 @@ void Control::AutoSpeedUpdate(double CurSpeed) {
 	
 	double SpeedIncrement = ThrottleController->compute();
 	double BrakeValue = BrakeController->compute();
-	Log->WriteLogLine("BV:" + boost::lexical_cast<std::string>(BrakeValue));
+	//Log->WriteLogLine("BV:" + boost::lexical_cast<std::string>(BrakeValue));
 	std::string time;
 	
 	if(ExtLogging) { 
@@ -1055,6 +1177,12 @@ void Control::AutoTrackUpdate(double CurTrack) {
 
 	SteerController->setProcessValue(CurTrack);
 	CurrentSteeringSetPosn = SteerController->compute();
+	
+	//Log->WriteLogLine("CurTrack," + boost::lexical_cast<std::string>(CurTrack), true);
+	//Log->WriteLogLine("DesiredBearing," + boost::lexical_cast<std::string>(DesiredBearing), true);
+	
+	fprintf(TXpipeSim,"S,%i\n",CurrentSteeringSetPosn);
+	fflush(TXpipeSim);
 
 	if(ExtLogging) { AutoLogger->WriteLogLine("SS," + boost::lexical_cast<std::string>(TimeStamp()) + "," + boost::lexical_cast<std::string>(CurrentSteeringSetPosn), true); }
 
@@ -1311,7 +1439,7 @@ int main(int argc, char *argv[]) {
 		else { LogDir = "./RunFiles/" + Arg; }
 	}
 	else { system("rm -rf ./RunFiles/0"); LogDir = "./RunFiles/0"; }
-
+	
 
 	// Set up the ncurses terminal display.
 	initscr();

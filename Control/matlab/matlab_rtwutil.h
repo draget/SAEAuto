@@ -3,7 +3,7 @@
  *
  * Code generation for function 'matlab_rtwutil'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -29,5 +29,6 @@
 
 /* Function Declarations */
 extern real_T rt_powd_snf(real_T u0, real_T u1);
+extern real_T rt_roundd_snf(real_T u);
 #endif
 /* End of code generation (matlab_rtwutil.h) */

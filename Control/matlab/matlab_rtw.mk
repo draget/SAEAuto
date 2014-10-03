@@ -75,7 +75,7 @@ COMPILER_TOOL_CHAIN = unix
 #  MODELREFS           - List of referenced models
 
 MODEL                = matlab
-MODULES              = matlab_rtwutil.cpp matlab_initialize.cpp matlab_terminate.cpp arclengthcurve.cpp diff.cpp power.cpp rdivide.cpp cubic_spline3.cpp cubic_spline.cpp mldivide.cpp colon.cpp adaptivegaus.cpp buildbfcurvature.cpp builddetailedbf.cpp linspace.cpp parevalspline.cpp histc.cpp buildmanouvers.cpp cumtrapz.cpp checkpathcollision.cpp equateoffsetcost.cpp equatesafetycost.cpp evalheading.cpp localize.cpp mincost.cpp oblocalize.cpp matlab_emxutil.cpp matlab_emxAPI.cpp rt_nonfinite.cpp rtGetNaN.cpp rtGetInf.cpp 
+MODULES              = matlab_rtwutil.cpp matlab_initialize.cpp matlab_terminate.cpp arclengthcurve.cpp diff.cpp power.cpp rdivide.cpp cubic_spline3.cpp cubic_spline.cpp mldivide.cpp colon.cpp adaptivegaus.cpp buildbfcurvature.cpp builddetailedbf.cpp linspace.cpp parevalspline.cpp histc.cpp buildmanouvers.cpp cumtrapz.cpp checkpathcollision.cpp equateconscost.cpp ismember.cpp equateoffsetcost.cpp equatesafetycost.cpp evalheading.cpp genprevpathq.cpp localize.cpp mincost.cpp oblocalize.cpp matlab_emxutil.cpp matlab_emxAPI.cpp rt_nonfinite.cpp rtGetNaN.cpp rtGetInf.cpp 
 MAKEFILE             = matlab_rtw.mk
 MATLAB_ROOT          = /Applications/MATLAB_R2012a.app
 ALT_MATLAB_ROOT      = /Applications/MATLAB_R2012a.app

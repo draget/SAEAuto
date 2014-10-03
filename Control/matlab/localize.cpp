@@ -3,7 +3,7 @@
  *
  * Code generation for function 'localize'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -14,15 +14,15 @@
 #include "builddetailedbf.h"
 #include "buildmanouvers.h"
 #include "checkpathcollision.h"
+#include "equateconscost.h"
 #include "equateoffsetcost.h"
 #include "equatesafetycost.h"
 #include "evalheading.h"
+#include "genprevpathq.h"
 #include "localize.h"
 #include "mincost.h"
 #include "oblocalize.h"
 #include "parevalspline.h"
-#include "histc.h"
-#include "matlab_emxutil.h"
 #include "matlab_rtwutil.h"
 
 /* Type Definitions */
@@ -187,37 +187,34 @@ static void eml_sort(const real_T x_data[7], const int32_T x_size[1], real_T
 }
 
 /*
- * function [value, distance, curvn] = localize(coefx,coefy,breaks,x0,y0,sguess,epsilon)
+ * function [value, distance, loccurvn, count] = localize(coefx,coefy,breaks,x0,y0,sguess,epsilon)
  */
 void localize(const emxArray_real_T *coefx, const emxArray_real_T *coefy, const
               emxArray_real_T *breaks, real_T x0, real_T b_y0, real_T sguess,
-              real_T epsilon, real_T *value, real_T *distance, real_T *curvn)
+              real_T epsilon, real_T *value, real_T *distance, real_T *loccurvn,
+              real_T *count)
 {
   real_T error1;
   real_T error2;
   real_T s1;
   real_T s3;
-  emxArray_real_T *hist;
-  emxArray_real_T *b_hist;
-  emxArray_real_T *c_hist;
+  real_T Ay;
   real_T xs;
   real_T ys;
   real_T Bx;
+  real_T By;
+  real_T Ds3;
+  real_T Ax;
   real_T ss[4];
-  int32_T i12;
-  int32_T ixstart;
-  real_T b_curvn[4];
   real_T distances[4];
-  real_T y[4];
-  real_T b_y[4];
-  real_T b_xs[4];
-  real_T b_ys[4];
+  int32_T ixstart;
   int32_T itmp;
   int32_T ix;
   boolean_T exitg1;
+  int32_T i17;
   real_T ss_data[7];
   int32_T ss_size[1];
-  int32_T i13;
+  int32_T i18;
   int32_T b_ss_size[1];
   real_T b_ss_data[7];
 
@@ -229,322 +226,336 @@ void localize(const emxArray_real_T *coefx, const emxArray_real_T *coefy, const
   /* 'localize:6' error2 = 10; */
   error2 = 10.0;
 
-  /* 'localize:8' s1 = breaks(sguess); */
+  /* 'localize:8' s1 = breaks(sguess) */
   s1 = breaks->data[(int32_T)sguess - 1];
 
-  /* 'localize:9' s3 = breaks(sguess + 1); */
+  /* 'localize:9' s3 = breaks(sguess + 1) */
   s3 = breaks->data[(int32_T)(uint32_T)sguess];
 
-  /* 'localize:10' s2 = (s1+s3)/2; */
+  /* 'localize:10' s2 = (s1+s3)/2 */
   *value = (breaks->data[(int32_T)sguess - 1] + breaks->data[(int32_T)(sguess +
              1.0) - 1]) / 2.0;
 
-  /* 'localize:12' while error1 > epsilon || error2 > epsilon */
-  emxInit_real_T(&hist, 1);
-  emxInit_real_T(&b_hist, 1);
-  emxInit_real_T(&c_hist, 1);
-  while ((error1 > epsilon) || (error2 > epsilon)) {
-    /* 'localize:14' y23 = s2^2-s3^2; */
-    /* 'localize:15' y31 = s3^2-s1^2; */
-    /* 'localize:16' y12 = s1^2-s2^2; */
-    /* 'localize:18' s23 = s2-s3; */
-    /* 'localize:19' s31 = s3-s1; */
-    /* 'localize:20' s12 = s1-s2; */
-    /* 'localize:22' Ds1 = dissqrd(coefx,coefy,breaks,s1,x0,y0); */
-    /* UNTITLED2 Summary of this function goes here */
-    /*    Detailed explanation goes here */
-    /* 'dissqrd:5' [xs, curvn] = parevalspline(coefx,breaks,s,0); */
-    c_parevalspline(coefx, breaks, s1, &xs, curvn);
+  /* 'localize:12' count = 0; */
+  *count = 0.0;
 
-    /* 'dissqrd:6' ys = parevalspline(coefy,breaks,s,0); */
-    ys = d_parevalspline(coefy, breaks, s1);
+  /* 'localize:14' while (error1 > epsilon || error2 > epsilon) && count < 50 */
+  while (((error1 > epsilon) || (error2 > epsilon)) && (*count < 50.0)) {
+    /* 'localize:16' if count < 7 */
+    if (*count < 7.0) {
+      /* 'localize:17' y23 = s2^2-s3^2; */
+      /* 'localize:18' y31 = s3^2-s1^2; */
+      /* 'localize:19' y12 = s1^2-s2^2; */
+      /* 'localize:21' s23 = s2-s3; */
+      /* 'localize:22' s31 = s3-s1; */
+      /* 'localize:23' s12 = s1-s2; */
+      /* 'localize:25' Ds1 = dissqrd(coefx,coefy,breaks,s1,x0,y0) */
+      /* UNTITLED2 Summary of this function goes here */
+      /*    Detailed explanation goes here */
+      /* 'dissqrd:5' [xs, curvn] = parevalspline(coefx,breaks,s,0); */
+      c_parevalspline(coefx, breaks, s1, &xs, &Ay);
 
-    /* 'dissqrd:8' distance = (xs - x0).^2 + (ys - y0).^2; */
-    error2 = rt_powd_snf(xs - x0, 2.0) + rt_powd_snf(ys - b_y0, 2.0);
+      /* 'dissqrd:6' ys = parevalspline(coefy,breaks,s,0); */
+      ys = d_parevalspline(coefy, breaks, s1);
 
-    /* 'localize:23' Ds2 = dissqrd(coefx,coefy,breaks,s2,x0,y0); */
-    /* UNTITLED2 Summary of this function goes here */
-    /*    Detailed explanation goes here */
-    /* 'dissqrd:5' [xs, curvn] = parevalspline(coefx,breaks,s,0); */
-    c_parevalspline(coefx, breaks, *value, &xs, curvn);
+      /* 'dissqrd:8' distance = (xs - x0).^2 + (ys - y0).^2; */
+      Bx = rt_powd_snf(xs - x0, 2.0) + rt_powd_snf(ys - b_y0, 2.0);
 
-    /* 'dissqrd:6' ys = parevalspline(coefy,breaks,s,0); */
-    ys = d_parevalspline(coefy, breaks, *value);
+      /* 'localize:26' Ds2 = dissqrd(coefx,coefy,breaks,s2,x0,y0) */
+      /* UNTITLED2 Summary of this function goes here */
+      /*    Detailed explanation goes here */
+      /* 'dissqrd:5' [xs, curvn] = parevalspline(coefx,breaks,s,0); */
+      c_parevalspline(coefx, breaks, *value, &xs, &Ay);
 
-    /* 'dissqrd:8' distance = (xs - x0).^2 + (ys - y0).^2; */
-    Bx = rt_powd_snf(xs - x0, 2.0) + rt_powd_snf(ys - b_y0, 2.0);
+      /* 'dissqrd:6' ys = parevalspline(coefy,breaks,s,0); */
+      ys = d_parevalspline(coefy, breaks, *value);
 
-    /* 'localize:24' Ds3 = dissqrd(coefx,coefy,breaks,s3,x0,y0); */
-    /* UNTITLED2 Summary of this function goes here */
-    /*    Detailed explanation goes here */
-    /* 'dissqrd:5' [xs, curvn] = parevalspline(coefx,breaks,s,0); */
-    c_parevalspline(coefx, breaks, s3, &xs, curvn);
+      /* 'dissqrd:8' distance = (xs - x0).^2 + (ys - y0).^2; */
+      By = rt_powd_snf(xs - x0, 2.0) + rt_powd_snf(ys - b_y0, 2.0);
 
-    /* 'dissqrd:6' ys = parevalspline(coefy,breaks,s,0); */
-    ys = d_parevalspline(coefy, breaks, s3);
+      /* 'localize:27' Ds3 = dissqrd(coefx,coefy,breaks,s3,x0,y0) */
+      /* UNTITLED2 Summary of this function goes here */
+      /*    Detailed explanation goes here */
+      /* 'dissqrd:5' [xs, curvn] = parevalspline(coefx,breaks,s,0); */
+      c_parevalspline(coefx, breaks, s3, &xs, &Ay);
 
-    /* 'dissqrd:8' distance = (xs - x0).^2 + (ys - y0).^2; */
-    error1 = rt_powd_snf(xs - x0, 2.0) + rt_powd_snf(ys - b_y0, 2.0);
+      /* 'dissqrd:6' ys = parevalspline(coefy,breaks,s,0); */
+      ys = d_parevalspline(coefy, breaks, s3);
 
-    /* 'localize:27' sstar = 0.5 *( (y23*Ds1 + y31*Ds2 + y12*Ds3)/... */
-    /* 'localize:28'                   (s23*Ds1 + s31*Ds2 + s12*Ds3)); */
-    error1 = 0.5 * ((((rt_powd_snf(*value, 2.0) - rt_powd_snf(s3, 2.0)) * error2
-                      + (rt_powd_snf(s3, 2.0) - rt_powd_snf(s1, 2.0)) * Bx) +
-                     (rt_powd_snf(s1, 2.0) - rt_powd_snf(*value, 2.0)) * error1)
-                    / (((*value - s3) * error2 + (s3 - s1) * Bx) + (s1 - *value)
-                       * error1));
+      /* 'dissqrd:8' distance = (xs - x0).^2 + (ys - y0).^2; */
+      Ds3 = rt_powd_snf(xs - x0, 2.0) + rt_powd_snf(ys - b_y0, 2.0);
 
-    /* sometimes when looking s=0 it gives negative or NaN which cannot be */
-    /* computed obviously. Thus change them to 0. */
-    /* 'localize:32' if sstar < 0 || isnan(sstar) */
-    if ((error1 < 0.0) || rtIsNaN(error1)) {
-      /* 'localize:33' sstar = 0; */
-      error1 = 0.0;
-    }
+      /* 'localize:30' sstar = 0.5 *( (y23*Ds1 + y31*Ds2 + y12*Ds3)/... */
+      /* 'localize:31'                       (s23*Ds1 + s31*Ds2 + s12*Ds3)) */
+      Ax = 0.5 * ((((rt_powd_snf(*value, 2.0) - rt_powd_snf(s3, 2.0)) * Bx +
+                    (rt_powd_snf(s3, 2.0) - rt_powd_snf(s1, 2.0)) * By) +
+                   (rt_powd_snf(s1, 2.0) - rt_powd_snf(*value, 2.0)) * Ds3) /
+                  (((*value - s3) * Bx + (s3 - s1) * By) + (s1 - *value) * Ds3));
 
-    /* 'localize:36' ss = [s1;s2;s3;sstar]; */
-    ss[0] = s1;
-    ss[1] = *value;
-    ss[2] = s3;
-    ss[3] = error1;
+      /* sometimes when looking s=0 it gives negative or NaN which cannot be */
+      /* computed obviously. Thus change them to 0. */
+      /* 'localize:35' if sstar < 0 || isnan(sstar) */
+      if ((Ax < 0.0) || rtIsNaN(Ax)) {
+        /* 'localize:36' sstar = 0; */
+        Ax = 0.0;
+      }
 
-    /* 'localize:38' distances = dissqrd(coefx,coefy,breaks,ss,x0,y0); */
-    /* UNTITLED2 Summary of this function goes here */
-    /*    Detailed explanation goes here */
-    /* 'dissqrd:5' [xs, curvn] = parevalspline(coefx,breaks,s,0); */
-    /* UNTITLED16 Summary of this function goes here */
-    /*    Detailed explanation goes here */
-    /* 'parevalspline:4' hist = breaks; */
-    i12 = hist->size[0];
-    hist->size[0] = breaks->size[0];
-    emxEnsureCapacity((emxArray__common *)hist, i12, (int32_T)sizeof(real_T));
-    ixstart = breaks->size[0] - 1;
-    for (i12 = 0; i12 <= ixstart; i12++) {
-      hist->data[i12] = breaks->data[i12];
-    }
+      /* 'localize:39' if sstar > breaks(end) */
+      if (Ax > breaks->data[breaks->size[0] - 1]) {
+        /* 'localize:40' sstar = breaks(end); */
+        Ax = breaks->data[breaks->size[0] - 1];
+      }
 
-    /* 'parevalspline:5' hist(end) = hist(end) + 1; */
-    hist->data[breaks->size[0] - 1] = breaks->data[breaks->size[0] - 1] + 1.0;
+      /* 'localize:43' if sstar > breaks(sguess + 1) */
+      if (Ax > breaks->data[(int32_T)(uint32_T)sguess]) {
+        /* 'localize:44' sguess = sguess + 1 */
+        sguess++;
 
-    /* increase the last bin to include the last value */
-    /* 'parevalspline:6' [~,curvn] = histc(t,hist); */
-    i12 = c_hist->size[0];
-    c_hist->size[0] = hist->size[0];
-    emxEnsureCapacity((emxArray__common *)c_hist, i12, (int32_T)sizeof(real_T));
-    ixstart = hist->size[0] - 1;
-    for (i12 = 0; i12 <= ixstart; i12++) {
-      c_hist->data[i12] = hist->data[i12];
-    }
+        /* 'localize:45' s1 = breaks(sguess) */
+        s1 = breaks->data[(int32_T)sguess - 1];
 
-    c_histc(ss, c_hist, hist, b_curvn);
+        /* 'localize:46' s3 = breaks(sguess + 1) */
+        s3 = breaks->data[(int32_T)(uint32_T)sguess];
 
-    /* 'parevalspline:9' if d == 0 */
-    /* 'parevalspline:10' result = coefs(curvn,1).*(t-breaks(curvn)).^3 + coefs(curvn,2).*(t-breaks(curvn)).^2 + ... */
-    /* 'parevalspline:11'         coefs(curvn,3).*(t-breaks(curvn)) + coefs(curvn,4); */
-    for (i12 = 0; i12 < 4; i12++) {
-      distances[i12] = ss[i12] - breaks->data[(int32_T)b_curvn[i12] - 1];
-    }
+        /* 'localize:47' s2 = (s1+s3)/2 */
+        *value = (breaks->data[(int32_T)sguess - 1] + breaks->data[(int32_T)
+                  (sguess + 1.0) - 1]) / 2.0;
 
-    for (ixstart = 0; ixstart < 4; ixstart++) {
-      y[ixstart] = rt_powd_snf(distances[ixstart], 3.0);
-    }
+        /* 'localize:48' count = count + 1 */
+        (*count)++;
+      } else {
+        /* 'localize:52' if sstar < breaks(sguess) */
+        if (Ax < breaks->data[(int32_T)sguess - 1]) {
+          /* 'localize:53' sguess = sguess - 1 */
+          sguess--;
 
-    for (i12 = 0; i12 < 4; i12++) {
-      distances[i12] = ss[i12] - breaks->data[(int32_T)b_curvn[i12] - 1];
-    }
+          /* 'localize:54' s1 = breaks(sguess) */
+          s1 = breaks->data[(int32_T)sguess - 1];
 
-    for (ixstart = 0; ixstart < 4; ixstart++) {
-      b_y[ixstart] = rt_powd_snf(distances[ixstart], 2.0);
-    }
+          /* 'localize:55' s3 = breaks(sguess + 1) */
+          s3 = breaks->data[(int32_T)sguess];
 
-    for (i12 = 0; i12 < 4; i12++) {
-      b_xs[i12] = ((coefx->data[(int32_T)b_curvn[i12] - 1] * y[i12] +
-                    coefx->data[((int32_T)b_curvn[i12] + coefx->size[0]) - 1] *
-                    b_y[i12]) + coefx->data[((int32_T)b_curvn[i12] +
-        (coefx->size[0] << 1)) - 1] * (ss[i12] - breaks->data[(int32_T)
-        b_curvn[i12] - 1])) + coefx->data[((int32_T)b_curvn[i12] + coefx->size[0]
-        * 3) - 1];
-    }
+          /* 'localize:56' s2 = (s1+s3)/2 */
+          *value = (breaks->data[(int32_T)sguess - 1] + breaks->data[(int32_T)
+                    sguess]) / 2.0;
 
-    /* 'dissqrd:6' ys = parevalspline(coefy,breaks,s,0); */
-    /* UNTITLED16 Summary of this function goes here */
-    /*    Detailed explanation goes here */
-    /* 'parevalspline:4' hist = breaks; */
-    i12 = hist->size[0];
-    hist->size[0] = breaks->size[0];
-    emxEnsureCapacity((emxArray__common *)hist, i12, (int32_T)sizeof(real_T));
-    ixstart = breaks->size[0] - 1;
-    for (i12 = 0; i12 <= ixstart; i12++) {
-      hist->data[i12] = breaks->data[i12];
-    }
-
-    /* 'parevalspline:5' hist(end) = hist(end) + 1; */
-    hist->data[breaks->size[0] - 1] = breaks->data[breaks->size[0] - 1] + 1.0;
-
-    /* increase the last bin to include the last value */
-    /* 'parevalspline:6' [~,curvn] = histc(t,hist); */
-    i12 = b_hist->size[0];
-    b_hist->size[0] = hist->size[0];
-    emxEnsureCapacity((emxArray__common *)b_hist, i12, (int32_T)sizeof(real_T));
-    ixstart = hist->size[0] - 1;
-    for (i12 = 0; i12 <= ixstart; i12++) {
-      b_hist->data[i12] = hist->data[i12];
-    }
-
-    c_histc(ss, b_hist, hist, b_curvn);
-
-    /* 'parevalspline:9' if d == 0 */
-    /* 'parevalspline:10' result = coefs(curvn,1).*(t-breaks(curvn)).^3 + coefs(curvn,2).*(t-breaks(curvn)).^2 + ... */
-    /* 'parevalspline:11'         coefs(curvn,3).*(t-breaks(curvn)) + coefs(curvn,4); */
-    for (i12 = 0; i12 < 4; i12++) {
-      distances[i12] = ss[i12] - breaks->data[(int32_T)b_curvn[i12] - 1];
-    }
-
-    for (ixstart = 0; ixstart < 4; ixstart++) {
-      y[ixstart] = rt_powd_snf(distances[ixstart], 3.0);
-    }
-
-    for (i12 = 0; i12 < 4; i12++) {
-      distances[i12] = ss[i12] - breaks->data[(int32_T)b_curvn[i12] - 1];
-    }
-
-    for (ixstart = 0; ixstart < 4; ixstart++) {
-      b_y[ixstart] = rt_powd_snf(distances[ixstart], 2.0);
-    }
-
-    for (i12 = 0; i12 < 4; i12++) {
-      b_ys[i12] = ((coefy->data[(int32_T)b_curvn[i12] - 1] * y[i12] +
-                    coefy->data[((int32_T)b_curvn[i12] + coefy->size[0]) - 1] *
-                    b_y[i12]) + coefy->data[((int32_T)b_curvn[i12] +
-        (coefy->size[0] << 1)) - 1] * (ss[i12] - breaks->data[(int32_T)
-        b_curvn[i12] - 1])) + coefy->data[((int32_T)b_curvn[i12] + coefy->size[0]
-        * 3) - 1];
-    }
-
-    /* 'dissqrd:8' distance = (xs - x0).^2 + (ys - y0).^2; */
-    for (i12 = 0; i12 < 4; i12++) {
-      distances[i12] = rt_powd_snf(b_xs[i12] - x0, 2.0) + rt_powd_snf(b_ys[i12]
-        - b_y0, 2.0);
-    }
-
-    /* 'localize:40' [~, index] = max(distances); */
-    ixstart = 1;
-    error1 = distances[0];
-    itmp = 0;
-    if (rtIsNaN(distances[0])) {
-      ix = 2;
-      exitg1 = FALSE;
-      while ((exitg1 == 0U) && (ix < 5)) {
-        ixstart = ix;
-        if (!rtIsNaN(distances[ix - 1])) {
-          error1 = distances[ix - 1];
-          exitg1 = TRUE;
+          /* 'localize:57' count - count + 1 */
         } else {
-          ix++;
+          /* 'localize:61' ss = [s1;s2;s3;sstar]; */
+          ss[0] = s1;
+          ss[1] = *value;
+          ss[2] = s3;
+          ss[3] = Ax;
+
+          /* 'localize:63' Dsstar = dissqrd(coefx,coefy,breaks,sstar,x0,y0) */
+          /* UNTITLED2 Summary of this function goes here */
+          /*    Detailed explanation goes here */
+          /* 'dissqrd:5' [xs, curvn] = parevalspline(coefx,breaks,s,0); */
+          c_parevalspline(coefx, breaks, Ax, &xs, &Ay);
+
+          /* 'dissqrd:6' ys = parevalspline(coefy,breaks,s,0); */
+          ys = d_parevalspline(coefy, breaks, Ax);
+
+          /* 'dissqrd:8' distance = (xs - x0).^2 + (ys - y0).^2; */
+          /* 'localize:65' distances = [Ds1;Ds2;Ds3;Dsstar]; */
+          distances[0] = Bx;
+          distances[1] = By;
+          distances[2] = Ds3;
+          distances[3] = rt_powd_snf(xs - x0, 2.0) + rt_powd_snf(ys - b_y0, 2.0);
+
+          /* 'localize:67' [~, index] = max(distances); */
+          ixstart = 1;
+          Ax = distances[0];
+          itmp = 0;
+          if (rtIsNaN(distances[0])) {
+            ix = 2;
+            exitg1 = FALSE;
+            while ((exitg1 == 0U) && (ix < 5)) {
+              ixstart = ix;
+              if (!rtIsNaN(distances[ix - 1])) {
+                Ax = distances[ix - 1];
+                exitg1 = TRUE;
+              } else {
+                ix++;
+              }
+            }
+          }
+
+          if (ixstart < 4) {
+            while (ixstart + 1 < 5) {
+              if (distances[ixstart] > Ax) {
+                Ax = distances[ixstart];
+                itmp = ixstart;
+              }
+
+              ixstart++;
+            }
+          }
+
+          /* 'localize:69' ss = sort([ss(1:index-1);ss(index+1:end)]); */
+          if (1 > itmp) {
+            i17 = 0;
+          } else {
+            i17 = itmp;
+          }
+
+          if (itmp + 2 > 4) {
+            ixstart = 0;
+            ix = -1;
+          } else {
+            ixstart = itmp + 1;
+            ix = 3;
+          }
+
+          ss_size[0] = ((i17 + ix) - ixstart) + 1;
+          itmp = i17 - 1;
+          for (i18 = 0; i18 <= itmp; i18++) {
+            ss_data[i18] = ss[i18];
+          }
+
+          itmp = ix - ixstart;
+          for (ix = 0; ix <= itmp; ix++) {
+            ss_data[ix + i17] = ss[ixstart + ix];
+          }
+
+          eml_sort(ss_data, ss_size, b_ss_data, b_ss_size);
+
+          /* 'localize:71' s1 = ss(1) */
+          s1 = b_ss_data[0];
+
+          /* 'localize:72' s2 = ss(2) */
+          *value = b_ss_data[1];
+
+          /* 'localize:73' s3 = ss(3) */
+          s3 = b_ss_data[2];
+
+          /* 'localize:75' error1 = abs(s1-s2); */
+          error1 = fabs(b_ss_data[0] - b_ss_data[1]);
+
+          /* 'localize:76' error2 = abs(s2-s3); */
+          error2 = fabs(b_ss_data[1] - b_ss_data[2]);
+
+          /* 'localize:77' count = count + 1 */
+          (*count)++;
+        }
+      }
+    } else {
+      /* 'localize:80' else */
+      /* 'localize:82' [xs, ~] = parevalspline(coefx,breaks,s2,0); */
+      c_parevalspline(coefx, breaks, *value, &xs, &Ax);
+
+      /* 'localize:83' [x1s, ~] = parevalspline(coefx,breaks,s2,1); */
+      e_parevalspline(coefx, breaks, *value, &Ds3, &Ax);
+
+      /* 'localize:84' [x2s, ~] = parevalspline(coefx,breaks,s2,2); */
+      f_parevalspline(coefx, breaks, *value, &By, &Ax);
+
+      /* 'localize:85' [ys, ~] = parevalspline(coefy,breaks,s2,0); */
+      c_parevalspline(coefy, breaks, *value, &ys, &Ax);
+
+      /* 'localize:86' [y1s, ~] = parevalspline(coefy,breaks,s2,1); */
+      e_parevalspline(coefy, breaks, *value, &Bx, &Ax);
+
+      /* 'localize:87' [y2s, ~] = parevalspline(coefy,breaks,s2,2); */
+      f_parevalspline(coefy, breaks, *value, &Ax, &Ay);
+
+      /* 'localize:89' D1 = 2*(-x0+xs)*x1s + 2*(-y0+ys)*y1s */
+      /* 'localize:90' D2 = 2*x1s^2 + 2*y1s^2 + 2*(-x0 + xs)*x2s + 2*(-y0 + ys)*y2s */
+      /* 'localize:92' sstar = s2 - D1/D2 */
+      Ax = *value - (2.0 * (-x0 + xs) * Ds3 + 2.0 * (-b_y0 + ys) * Bx) / (((2.0 *
+        rt_powd_snf(Ds3, 2.0) + 2.0 * rt_powd_snf(Bx, 2.0)) + 2.0 * (-x0 + xs) *
+        By) + 2.0 * (-b_y0 + ys) * Ax);
+
+      /* 'localize:94' if sstar > breaks(sguess + 1) */
+      if (Ax > breaks->data[(int32_T)(uint32_T)sguess]) {
+        /* 'localize:95' sguess = sguess + 1; */
+        sguess++;
+
+        /* 'localize:96' s2 = breaks(sguess); */
+        *value = breaks->data[(int32_T)sguess - 1];
+
+        /* 'localize:97' count = count + 1; */
+        (*count)++;
+      } else {
+        /* 'localize:101' if sstar < breaks(sguess) */
+        if (Ax < breaks->data[(int32_T)sguess - 1]) {
+          /* 'localize:102' sguess = sguess - 1; */
+          sguess--;
+
+          /* 'localize:103' s2 = breaks(sguess); */
+          *value = breaks->data[(int32_T)sguess - 1];
+
+          /* 'localize:104' count - count + 1; */
+        } else {
+          /* 'localize:108' Dsstar = dissqrd(coefx,coefy,breaks,sstar,x0,y0) */
+          /* UNTITLED2 Summary of this function goes here */
+          /*    Detailed explanation goes here */
+          /* 'dissqrd:5' [xs, curvn] = parevalspline(coefx,breaks,s,0); */
+          /* 'dissqrd:6' ys = parevalspline(coefy,breaks,s,0); */
+          /* 'dissqrd:8' distance = (xs - x0).^2 + (ys - y0).^2; */
+          /* 'localize:110' distances = [Dsstar; dissqrd(coefx,coefy,breaks,sstar,x0,y0)]; */
+          /* UNTITLED2 Summary of this function goes here */
+          /*    Detailed explanation goes here */
+          /* 'dissqrd:5' [xs, curvn] = parevalspline(coefx,breaks,s,0); */
+          /* 'dissqrd:6' ys = parevalspline(coefy,breaks,s,0); */
+          /* 'dissqrd:8' distance = (xs - x0).^2 + (ys - y0).^2; */
+          /* 'localize:112' error1 = abs(sstar - s2); */
+          error1 = fabs(Ax - *value);
+
+          /* 'localize:113' error2 = error1; */
+          error2 = error1;
+
+          /* 'localize:115' s2 = sstar; */
+          *value = Ax;
+
+          /* 'localize:117' count = count + 1 */
+          (*count)++;
         }
       }
     }
-
-    if (ixstart < 4) {
-      while (ixstart + 1 < 5) {
-        if (distances[ixstart] > error1) {
-          error1 = distances[ixstart];
-          itmp = ixstart;
-        }
-
-        ixstart++;
-      }
-    }
-
-    /* 'localize:42' ss = sort([ss(1:index-1);ss(index+1:end)]); */
-    if (1 > itmp) {
-      i12 = 0;
-    } else {
-      i12 = itmp;
-    }
-
-    if (itmp + 2 > 4) {
-      ix = 0;
-      itmp = -1;
-    } else {
-      ix = itmp + 1;
-      itmp = 3;
-    }
-
-    ss_size[0] = ((i12 + itmp) - ix) + 1;
-    ixstart = i12 - 1;
-    for (i13 = 0; i13 <= ixstart; i13++) {
-      ss_data[i13] = ss[i13];
-    }
-
-    ixstart = itmp - ix;
-    for (itmp = 0; itmp <= ixstart; itmp++) {
-      ss_data[itmp + i12] = ss[ix + itmp];
-    }
-
-    eml_sort(ss_data, ss_size, b_ss_data, b_ss_size);
-
-    /* 'localize:44' s1 = ss(1); */
-    s1 = b_ss_data[0];
-
-    /* 'localize:45' s2 = ss(2); */
-    *value = b_ss_data[1];
-
-    /* 'localize:46' s3 = ss(3); */
-    s3 = b_ss_data[2];
-
-    /* 'localize:48' error1 = abs(s1-s2); */
-    error1 = fabs(b_ss_data[0] - b_ss_data[1]);
-
-    /* 'localize:49' error2 = abs(s2-s3); */
-    error2 = fabs(b_ss_data[1] - b_ss_data[2]);
   }
 
-  emxFree_real_T(&c_hist);
-  emxFree_real_T(&b_hist);
-  emxFree_real_T(&hist);
-
-  /* 'localize:52' value = s2; */
-  /* 'localize:53' [distance, curvn] = dissqrd(coefx,coefy,breaks,s2,x0,y0); */
+  /* 'localize:121' value = s2; */
+  /* disp('localize'); */
+  /* 'localize:123' [distance, loccurvn] = dissqrd(coefx,coefy,breaks,s2,x0,y0) */
   /* UNTITLED2 Summary of this function goes here */
   /*    Detailed explanation goes here */
   /* 'dissqrd:5' [xs, curvn] = parevalspline(coefx,breaks,s,0); */
-  c_parevalspline(coefx, breaks, *value, &xs, curvn);
+  c_parevalspline(coefx, breaks, *value, &xs, loccurvn);
 
   /* 'dissqrd:6' ys = parevalspline(coefy,breaks,s,0); */
   ys = d_parevalspline(coefy, breaks, *value);
 
   /* 'dissqrd:8' distance = (xs - x0).^2 + (ys - y0).^2; */
-  /* 'localize:54' distance = sqrt(distance); */
+  /* 'localize:124' distance = sqrt(distance); */
   /* calculate whether point is to the left of right of the line. */
   /* -ve = right, +ve = left */
-  /* 'localize:58' Ax = parevalspline(coefx,breaks,breaks(curvn),0); */
-  error1 = d_parevalspline(coefx, breaks, breaks->data[(int32_T)*curvn - 1]);
+  /* 'localize:128' Ax = parevalspline(coefx,breaks,breaks(loccurvn),0); */
+  Ax = d_parevalspline(coefx, breaks, breaks->data[(int32_T)*loccurvn - 1]);
 
-  /* 'localize:59' Ay = parevalspline(coefy,breaks,breaks(curvn),0); */
-  error2 = d_parevalspline(coefy, breaks, breaks->data[(int32_T)*curvn - 1]);
+  /* 'localize:129' Ay = parevalspline(coefy,breaks,breaks(loccurvn),0); */
+  Ay = d_parevalspline(coefy, breaks, breaks->data[(int32_T)*loccurvn - 1]);
 
-  /* 'localize:60' Bx = parevalspline(coefx,breaks,breaks(curvn+1),0); */
-  Bx = d_parevalspline(coefx, breaks, breaks->data[(int32_T)(uint32_T)*curvn]);
+  /* 'localize:130' Bx = parevalspline(coefx,breaks,breaks(loccurvn+1),0); */
+  Bx = d_parevalspline(coefx, breaks, breaks->data[(int32_T)(uint32_T)*loccurvn]);
 
-  /* 'localize:61' By = parevalspline(coefy,breaks,breaks(curvn+1),0); */
-  s1 = d_parevalspline(coefy, breaks, breaks->data[(int32_T)(uint32_T)*curvn]);
+  /* 'localize:131' By = parevalspline(coefy,breaks,breaks(loccurvn+1),0); */
+  By = d_parevalspline(coefy, breaks, breaks->data[(int32_T)(uint32_T)*loccurvn]);
 
-  /* 'localize:63' position = sign( (Bx-Ax)*(y0-Ay) - (By-Ay)*(x0-Ax) ); */
-  /* 'localize:65' distance = position*distance; */
-  error1 = (Bx - error1) * (b_y0 - error2) - (s1 - error2) * (x0 - error1);
-  if (error1 < 0.0) {
-    error1 = -1.0;
-  } else if (error1 > 0.0) {
-    error1 = 1.0;
+  /* 'localize:133' position = sign( (Bx-Ax)*(y0-Ay) - (By-Ay)*(x0-Ax) ); */
+  /* 'localize:135' distance = position*distance; */
+  Ax = (Bx - Ax) * (b_y0 - Ay) - (By - Ay) * (x0 - Ax);
+  if (Ax < 0.0) {
+    Ax = -1.0;
+  } else if (Ax > 0.0) {
+    Ax = 1.0;
   } else {
-    if (error1 == 0.0) {
-      error1 = 0.0;
+    if (Ax == 0.0) {
+      Ax = 0.0;
     }
   }
 
-  *distance = error1 * sqrt(rt_powd_snf(xs - x0, 2.0) + rt_powd_snf(ys - b_y0,
-    2.0));
+  *distance = Ax * sqrt(rt_powd_snf(xs - x0, 2.0) + rt_powd_snf(ys - b_y0, 2.0));
 }
 
 /* End of code generation (localize.cpp) */

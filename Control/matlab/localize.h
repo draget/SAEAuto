@@ -3,7 +3,7 @@
  *
  * Code generation for function 'localize'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -28,6 +28,6 @@
 /* Variable Definitions */
 
 /* Function Declarations */
-extern void localize(const emxArray_real_T *coefx, const emxArray_real_T *coefy, const emxArray_real_T *breaks, real_T x0, real_T b_y0, real_T sguess, real_T epsilon, real_T *value, real_T *distance, real_T *curvn);
+extern void localize(const emxArray_real_T *coefx, const emxArray_real_T *coefy, const emxArray_real_T *breaks, real_T x0, real_T b_y0, real_T sguess, real_T epsilon, real_T *value, real_T *distance, real_T *loccurvn, real_T *count);
 #endif
 /* End of code generation (localize.h) */

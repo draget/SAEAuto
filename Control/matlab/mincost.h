@@ -3,7 +3,7 @@
  *
  * Code generation for function 'mincost'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -28,6 +28,6 @@
 /* Variable Definitions */
 
 /* Function Declarations */
-extern void mincost(real_T Ks, const emxArray_real_T *safetycost, real_T Kpo, const emxArray_real_T *pathoffsetcost, emxArray_real_T *totalcosts, real_T *bestpath);
+extern void mincost(real_T Ks, const emxArray_real_T *safetycost, real_T Kpo, const emxArray_real_T *pathoffsetcost, real_T Kc, const emxArray_real_T *conscost, emxArray_real_T *totalcosts, real_T *bestpath);
 #endif
 /* End of code generation (mincost.h) */

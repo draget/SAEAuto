@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-I. -I./xsens `pkg-config --cflags opencv` -c -Wall #-g -O0
+CFLAGS=-I. -I./xsens `pkg-config --cflags opencv` -c -Wall -g -O0
 LDFLAGS=-lrt -lboost_thread -lncurses -lpthread -lboost_system -lgps -Lmatlab -lmatlab `pkg-config --libs opencv`
 SOURCES=Control.cpp  CarNetwork.cpp Logger.cpp AsyncSerial.cpp SafetySerialOut.cpp LowLevelSerialOut.cpp GPSConnection.cpp IBEO.cpp IBEONetwork.cpp IPC.cpp PID.cpp  Xsens.cpp Fusion.cpp BoeingKalman.cpp
 DEPS = cmt1.h 

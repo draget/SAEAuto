@@ -3,7 +3,7 @@
  *
  * Code generation for function 'cubic_spline'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -14,9 +14,11 @@
 #include "builddetailedbf.h"
 #include "buildmanouvers.h"
 #include "checkpathcollision.h"
+#include "equateconscost.h"
 #include "equateoffsetcost.h"
 #include "equatesafetycost.h"
 #include "evalheading.h"
+#include "genprevpathq.h"
 #include "localize.h"
 #include "mincost.h"
 #include "oblocalize.h"
@@ -50,7 +52,6 @@ void cubic_spline(const emxArray_real_T *x, const emxArray_real_T *y,
   emxArray_real_T *h;
   int32_T m;
   emxArray_real_T *b_y;
-  emxArray_real_T *d;
   emxArray_int32_T *r0;
   emxArray_int32_T *r1;
   emxArray_real_T *main;
@@ -61,9 +62,12 @@ void cubic_spline(const emxArray_real_T *x, const emxArray_real_T *y,
   emxArray_real_T *r5;
   emxArray_real_T *c_h;
   emxArray_real_T *r6;
+  emxArray_real_T *b_m;
   emxArray_real_T *r7;
   emxArray_real_T *r8;
-  emxArray_real_T *b_main;
+  emxArray_real_T *d_h;
+  emxArray_real_T *c_m;
+  emxArray_real_T *d_m;
   emxArray_real_T *r9;
 
   /* 'cubic_spline:3' if any(size(x) ~= size(y)) || size(x,2) ~= 1 */
@@ -104,8 +108,7 @@ void cubic_spline(const emxArray_real_T *x, const emxArray_real_T *y,
     b_y->data[nv] = y->data[i2 + nv] - y->data[nv];
   }
 
-  emxInit_real_T(&d, 1);
-  rdivide(b_y, h, d);
+  rdivide(b_y, h, s1);
 
   /* 'cubic_spline:12' lower = h(2:end-1); */
   emxFree_real_T(&b_y);
@@ -271,21 +274,23 @@ void cubic_spline(const emxArray_real_T *x, const emxArray_real_T *y,
   emxFree_int32_T(&r3);
 
   /* 'cubic_spline:18' rhs = 6*(d(2:end)-d(1:end-1)); */
-  if (2 > d->size[0]) {
+  if (2 > s1->size[0]) {
     i2 = 0;
     nv = 0;
   } else {
     i2 = 1;
-    nv = d->size[0];
+    nv = s1->size[0];
   }
 
+  emxInit_real_T(&b_m, 1);
+
   /* 'cubic_spline:20' m = T\rhs; */
-  m = main->size[0];
-  main->size[0] = nv - i2;
-  emxEnsureCapacity((emxArray__common *)main, m, (int32_T)sizeof(real_T));
+  m = b_m->size[0];
+  b_m->size[0] = nv - i2;
+  emxEnsureCapacity((emxArray__common *)b_m, m, (int32_T)sizeof(real_T));
   m = (nv - i2) - 1;
   for (nv = 0; nv <= m; nv++) {
-    main->data[nv] = 6.0 * (d->data[i2 + nv] - d->data[nv]);
+    b_m->data[nv] = 6.0 * (s1->data[i2 + nv] - s1->data[nv]);
   }
 
   b_emxInit_real_T(&r7, 2);
@@ -302,28 +307,28 @@ void cubic_spline(const emxArray_real_T *x, const emxArray_real_T *y,
   emxFree_real_T(&r5);
   emxFree_real_T(&r4);
   emxInit_real_T(&r8, 1);
-  mldivide(r7, main);
+  b_mldivide(r7, b_m);
 
   /*  Use natural boundary conditions where second derivative */
   /*  is zero at the endpoints */
   /* 'cubic_spline:25' m = [ 0; m; 0]; */
   i2 = r8->size[0];
-  r8->size[0] = 2 + main->size[0];
+  r8->size[0] = 2 + b_m->size[0];
   emxEnsureCapacity((emxArray__common *)r8, i2, (int32_T)sizeof(real_T));
   r8->data[0] = 0.0;
   emxFree_real_T(&r7);
-  m = main->size[0] - 1;
+  m = b_m->size[0] - 1;
   for (i2 = 0; i2 <= m; i2++) {
-    r8->data[i2 + 1] = main->data[i2];
+    r8->data[i2 + 1] = b_m->data[i2];
   }
 
-  r8->data[1 + main->size[0]] = 0.0;
-  i2 = main->size[0];
-  main->size[0] = r8->size[0];
-  emxEnsureCapacity((emxArray__common *)main, i2, (int32_T)sizeof(real_T));
+  r8->data[1 + b_m->size[0]] = 0.0;
+  i2 = b_m->size[0];
+  b_m->size[0] = r8->size[0];
+  emxEnsureCapacity((emxArray__common *)b_m, i2, (int32_T)sizeof(real_T));
   m = r8->size[0] - 1;
   for (i2 = 0; i2 <= m; i2++) {
-    main->data[i2] = r8->data[i2];
+    b_m->data[i2] = r8->data[i2];
   }
 
   emxFree_real_T(&r8);
@@ -342,39 +347,53 @@ void cubic_spline(const emxArray_real_T *x, const emxArray_real_T *y,
     s0->data[nv] = y->data[nv];
   }
 
+  emxInit_real_T(&d_h, 1);
+
   /* 'cubic_spline:28' s1 = d - h.*(2*m(1:end-1) + m(2:end))/6; */
-  i2 = s1->size[0];
-  s1->size[0] = d->size[0];
-  emxEnsureCapacity((emxArray__common *)s1, i2, (int32_T)sizeof(real_T));
-  m = d->size[0] - 1;
+  i2 = d_h->size[0];
+  d_h->size[0] = h->size[0];
+  emxEnsureCapacity((emxArray__common *)d_h, i2, (int32_T)sizeof(real_T));
+  m = h->size[0] - 1;
   for (i2 = 0; i2 <= m; i2++) {
-    s1->data[i2] = d->data[i2] - h->data[i2] * (2.0 * main->data[i2] +
-      main->data[1 + i2]) / 6.0;
+    d_h->data[i2] = h->data[i2] * (2.0 * b_m->data[i2] + b_m->data[1 + i2]);
   }
 
-  emxFree_real_T(&d);
-
-  /* 'cubic_spline:29' s2 = m(1:end-1)/2; */
-  i2 = main->size[0] - 2;
-  nv = s2->size[0];
-  s2->size[0] = i2 + 1;
-  emxEnsureCapacity((emxArray__common *)s2, nv, (int32_T)sizeof(real_T));
-  for (nv = 0; nv <= i2; nv++) {
-    s2->data[nv] = main->data[nv] / 2.0;
-  }
-
-  emxInit_real_T(&b_main, 1);
-
-  /* 'cubic_spline:30' s3 =(m(2:end)-m(1:end-1))./(6*h); */
-  i2 = main->size[0] - 2;
-  nv = b_main->size[0];
-  b_main->size[0] = i2 + 1;
-  emxEnsureCapacity((emxArray__common *)b_main, nv, (int32_T)sizeof(real_T));
-  for (nv = 0; nv <= i2; nv++) {
-    b_main->data[nv] = main->data[1 + nv] - main->data[nv];
+  b_rdivide(d_h, 6.0, main);
+  i2 = s1->size[0];
+  s1->size[0] = s1->size[0];
+  emxEnsureCapacity((emxArray__common *)s1, i2, (int32_T)sizeof(real_T));
+  emxFree_real_T(&d_h);
+  m = s1->size[0] - 1;
+  for (i2 = 0; i2 <= m; i2++) {
+    s1->data[i2] -= main->data[i2];
   }
 
   emxFree_real_T(&main);
+  emxInit_real_T(&c_m, 1);
+
+  /* 'cubic_spline:29' s2 = m(1:end-1)/2; */
+  i2 = b_m->size[0] - 2;
+  nv = c_m->size[0];
+  c_m->size[0] = i2 + 1;
+  emxEnsureCapacity((emxArray__common *)c_m, nv, (int32_T)sizeof(real_T));
+  for (nv = 0; nv <= i2; nv++) {
+    c_m->data[nv] = b_m->data[nv];
+  }
+
+  emxInit_real_T(&d_m, 1);
+  b_rdivide(c_m, 2.0, s2);
+
+  /* 'cubic_spline:30' s3 =(m(2:end)-m(1:end-1))./(6*h); */
+  i2 = b_m->size[0] - 2;
+  nv = d_m->size[0];
+  d_m->size[0] = i2 + 1;
+  emxEnsureCapacity((emxArray__common *)d_m, nv, (int32_T)sizeof(real_T));
+  emxFree_real_T(&c_m);
+  for (nv = 0; nv <= i2; nv++) {
+    d_m->data[nv] = b_m->data[1 + nv] - b_m->data[nv];
+  }
+
+  emxFree_real_T(&b_m);
   emxInit_real_T(&r9, 1);
   i2 = r9->size[0];
   r9->size[0] = h->size[0];
@@ -385,9 +404,9 @@ void cubic_spline(const emxArray_real_T *x, const emxArray_real_T *y,
   }
 
   emxFree_real_T(&h);
-  rdivide(b_main, r9, s3);
+  rdivide(d_m, r9, s3);
   emxFree_real_T(&r9);
-  emxFree_real_T(&b_main);
+  emxFree_real_T(&d_m);
 }
 
 /* End of code generation (cubic_spline.cpp) */

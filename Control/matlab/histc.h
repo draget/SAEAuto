@@ -3,7 +3,7 @@
  *
  * Code generation for function 'histc'
  *
- * C source code generated on: Mon Sep  1 19:20:44 2014
+ * C source code generated on: Fri Sep 26 14:14:02 2014
  *
  */
 
@@ -29,7 +29,6 @@
 
 /* Function Declarations */
 extern void b_histc(real_T X, const emxArray_real_T *edges, emxArray_real_T *N, real_T *BIN);
-extern void c_histc(const real_T X[4], const emxArray_real_T *edges, emxArray_real_T *N, real_T BIN[4]);
 extern void histc(const emxArray_real_T *X, const emxArray_real_T *edges, emxArray_real_T *N, emxArray_real_T *BIN);
 #endif
 /* End of code generation (histc.h) */
