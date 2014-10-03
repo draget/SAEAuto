@@ -1014,7 +1014,7 @@ void Control::AutoStart() {
 	BrakeController->setOutputLimits(-255,255);
 	BrakeController->setMode(AUTO_MODE);
 
-	SteerController = new PID(6.5,0.0,0.0,0.01, JunkLogger);
+	SteerController = new PID(6.5,0.5,0.0,0.01, JunkLogger);
 	SteerController->setInputLimits(-360, 720);
 	SteerController->setOutputLimits(-127,127);
 	SteerController->setMode(AUTO_MODE);
