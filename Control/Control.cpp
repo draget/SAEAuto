@@ -151,11 +151,11 @@ void Control::Setup() {
 
 	WebIPC->Open();
 	CarNetworkConnection->Open();
-	//SafetySerial->Open();
-	//LowLevelSerial->Open();
-	//GPS->Open();
+	SafetySerial->Open();
+	LowLevelSerial->Open();
+	GPS->Open();
 	if(access("noibeo", F_OK ) == -1) { Lux->Open(); }
-	//IMU->Open();
+	IMU->Open();
 	
 	//Set up simulator CAR RX
 	if (simulator) {
@@ -453,8 +453,19 @@ void Control::Untrip() {
 
 	TripState = 0;
 	CurrentThrottleBrakeSetPosn = 0;
+	if (LowLevelSerial->SerialState == false) {
+		LowLevelSerial->Open();
+		LowLevelSerial->Start();
+	}
+
+	if (SafetySerial->SerialState == false) {
+		SafetySerial->Open();
+		SafetySerial->Start();
+	}
 
 	ResetTrip = true;
+	SafetySerial->Send('R');
+
 
 	Log->WriteLogLine("Control - trip state returned to zero.");
 
