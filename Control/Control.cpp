@@ -415,8 +415,18 @@ void Control::Untrip() {
 	TripState = 0;
 	CurrentThrottleBrakeSetPosn = 0;
 
-	ResetTrip = true;
+	if (LowLevelSerial->SerialState == false) {
+		LowLevelSerial->Open();
+		LowLevelSerial->Start();
+	}
 
+	if (SafetySerial->SerialState == false) {
+                SafetySerial->Open();
+                SafetySerial->Start();
+        }
+
+	ResetTrip = true;
+	SafetySerial->Send('R');
 	Log->WriteLogLine("Control - trip state returned to zero.");
 
 }
@@ -879,10 +889,11 @@ void Control::AutoStart() {
 	BrakeController->setOutputLimits(-255,255);
 	BrakeController->setMode(AUTO_MODE);
 
-	SteerController = new PID(6.3,0.5,0.0,0.1);
+	SteerController = new PID(6.5,0.5,0.0,0.1);
 	SteerController->setInputLimits(-360, 720);
 	SteerController->setOutputLimits(-127,127);
 	SteerController->setMode(AUTO_MODE);
+	//SteerController->setBias(0);
 
 	SteerController->setSetPoint(0);
 	ThrottleController->setSetPoint(0);
@@ -921,11 +932,11 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 	
 	PlanLock.lock(); //block until path planning is complete, lock mutex
 	
-	VECTOR_2D DistanceToBaseFrame = SubtractVector(PathPlan.BaseFrame[0],CurPosn);
-	if(VectorMagnitude(DistanceToBaseFrame) < MAPPOINT_RADIUS) {
-		Log->WriteLogLine("Control - Reached Start of BaseFrame. Activating Advanced Path Planning ");
+	//VECTOR_2D DistanceToBaseFrame = SubtractVector(PathPlan.BaseFrame[0],CurPosn);
+	//if(VectorMagnitude(DistanceToBaseFrame) < MAPPOINT_RADIUS) {
+	//	Log->WriteLogLine("Control - Reached Start of BaseFrame. Activating Advanced Path Planning ");
 		//PathPlan.active = true;
-	}
+	//}
 	
 	VECTOR_2D VectorToNextWp;
 	
@@ -947,7 +958,7 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 		VECTOR_2D DistanceToBaseFrame = SubtractVector(PathPlan.BaseFrame[0],CurPosn);
 		if(VectorMagnitude(DistanceToBaseFrame) < MAPPOINT_RADIUS) {
 			Log->WriteLogLine("Control - Reached Start of BaseFrame. Activating Advanced Path Planning ");
-			PathPlan.active = true;
+			//PathPlan.active = true;
 		}
 		
 		// Check if we have reached a waypoint.
@@ -1206,11 +1217,12 @@ void Control::StopMapRecord() {
 void Control::StopMapRecord(std::string MapName) {
 
 	RecordActive = false;
-
-	DumpMap("../FrontEnd/Maps/maps/" + MapName + ".wyp");
-	
-	Log->WriteLogLine("Control - Finished recording " + boost::lexical_cast<std::string>(CurrentMap.Waypoints.size()) + " map points.");
-
+	if(MapName != "DELETERECORDING") {
+		DumpMap("../FrontEnd/Maps/maps/" + MapName + ".wyp");
+		Log->WriteLogLine("Control - Finished recording " + boost::lexical_cast<std::string>(CurrentMap.Waypoints.size()) + " map points.");
+	} else {
+		Log->WriteLogLine("Control - Finished recording - No map saved.");
+	}
 }
 
 /**
