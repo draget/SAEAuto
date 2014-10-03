@@ -90,6 +90,8 @@ Control::Control(std::string LogDir, bool ExtLog) {
 	BrakeILOn = true;
 	RecordActive = false;
 
+	simulator = false;
+
 	FencepostRadius = MAPPOINT_RADIUS;
 
 	DatumLat = -31.980569;
@@ -156,6 +158,7 @@ void Control::Setup() {
 	//IMU->Open();
 	
 	//Set up simulator CAR RX
+	if (simulator) {
 	bool OpenStateSim = false;	
 	boost::thread s_Thread;
 
@@ -180,7 +183,8 @@ void Control::Setup() {
 	
 	TXpipeSim = fopen("/home/martinfrench/Desktop/ode-0.13/ode/demo/SIM_IPC_FIFO_RX", "w");
 	if(TXpipeSim == NULL) { Log->WriteLogLine("SIM - TX Pipe open failed..."); OpenStateSim = false; }
-	
+	}
+
 	PathPlan.manxi = emxCreate_real_T(1,1);
 	PathPlan.manyi = emxCreate_real_T(1,1);
 	
@@ -226,16 +230,16 @@ void Control::Run() {
 	// Start all sensors/interfaces.
 	WebIPC->Start();
 	CarNetworkConnection->StartProcessMessages();
-	//GPS->Start();
-	//Lux->Start();
-	//IMU->Start();
-	//SafetySerial->Start();
+	GPS->Start();
+	Lux->Start();
+	IMU->Start();
+	SafetySerial->Start();
 
 	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 	SendAlarm();
 	boost::this_thread::sleep(boost::posix_time::milliseconds(400));
 
-	//LowLevelSerial->Start();
+	LowLevelSerial->Start();
 
 
 	// Loop through updating terminal and information output file.
@@ -468,7 +472,7 @@ void Control::ToggleBrakeIL() {
 	if(! this->BrakeILOn) { Success = SafetySerial->Send('B'); }
 	else { Success = SafetySerial->Send('H'); }
 
-	if(true) {
+	if(Success) {
 		this->BrakeILOn = ! this->BrakeILOn;
 		Log->WriteLogLine("Control - Brake IL toggled " + this->BrakeILOn);
 	}
@@ -770,7 +774,7 @@ void Control::UpdatePathPlan() {
 		
 		//Get current Obstacles
 		double ob[] = {30,70,2.5,18,64,2.5};
-		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob, 3, 1);
+		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob, 3, 0);
 		emxArray_real_T *arcob = emxCreate_real_T(1,1);
 		
 		Log->WriteLogLine("Object Localize");
@@ -923,7 +927,7 @@ void Control::UpdatePathPlan() {
 	}
 }
 
-void Control::ProcessSimMessages() {
+void Control::ProcessSimMessages() { 
 	char readbuf[150];
 
 	while(true) {
@@ -999,11 +1003,11 @@ void Control::AutoStart() {
 	BrakeController->setOutputLimits(-255,255);
 	BrakeController->setMode(AUTO_MODE);
 
-	SteerController = new PID(35,0.0,0.0,0.01, JunkLogger);
+	SteerController = new PID(6.5,0.0,0.0,0.01, JunkLogger);
 	SteerController->setInputLimits(-360, 720);
 	SteerController->setOutputLimits(-127,127);
 	SteerController->setMode(AUTO_MODE);
-	SteerController->setBias(0);
+	//SteerController->setBias(0);
 
 	SteerController->setSetPoint(0);
 	ThrottleController->setSetPoint(0);
@@ -1181,8 +1185,10 @@ void Control::AutoTrackUpdate(double CurTrack) {
 	//Log->WriteLogLine("CurTrack," + boost::lexical_cast<std::string>(CurTrack), true);
 	//Log->WriteLogLine("DesiredBearing," + boost::lexical_cast<std::string>(DesiredBearing), true);
 	
-	fprintf(TXpipeSim,"S,%i\n",CurrentSteeringSetPosn);
-	fflush(TXpipeSim);
+	if (simulator) {
+		fprintf(TXpipeSim,"S,%i\n",CurrentSteeringSetPosn);
+		fflush(TXpipeSim);
+	}
 
 	if(ExtLogging) { AutoLogger->WriteLogLine("SS," + boost::lexical_cast<std::string>(TimeStamp()) + "," + boost::lexical_cast<std::string>(CurrentSteeringSetPosn), true); }
 

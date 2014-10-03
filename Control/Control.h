@@ -76,6 +76,7 @@ struct PATHPLANNING {
 class Control {
 public:
 
+	bool simulator;
 	double TwoPi;
 
 	Control(std::string LogDir, bool ExtLog);
