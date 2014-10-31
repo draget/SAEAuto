@@ -778,14 +778,14 @@ void Control::UpdatePathPlan() {
 		double posy = Fuser->CurrentPosition.y;
 		
 		//Manouver Parameters
-		double maxlatoffset = 8;
+		double maxlatoffset = 3;
 		double mangran = 1;
-		double manlength = 30;
+		double manlength = 10;
 		double mincurverad = 2;
 		
 		//Get current Obstacles
-		double ob[] = {30,70,2.5,18,64,2.5};
-		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob, 3, 0);
+		double ob[] = {30.1313752988435,8.58599744996662,1};
+		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob, 3, 1);
 		emxArray_real_T *arcob = emxCreate_real_T(1,1);
 		
 		Log->WriteLogLine("Object Localize");
@@ -794,7 +794,7 @@ void Control::UpdatePathPlan() {
 		
 		
 		timestamp_t t0 = get_timestamp();
-		oblocalize(PathPlan.scoefx,PathPlan.scoefy,PathPlan.si,obstacles,241,EPSILON,arcob);
+		oblocalize(PathPlan.scoefx,PathPlan.scoefy,PathPlan.si,obstacles,74,EPSILON,arcob);
 		timestamp_t t1 = get_timestamp();
 		Log->WriteLogLine("Arcob s = " + boost::lexical_cast<std::string>(arcob->data[0]));
 		Log->WriteLogLine("Arcob q = " + boost::lexical_cast<std::string>(arcob->data[1]));
@@ -1014,7 +1014,7 @@ void Control::AutoStart() {
 	BrakeController->setOutputLimits(-255,255);
 	BrakeController->setMode(AUTO_MODE);
 
-	SteerController = new PID(6.5,0.5,0.0,0.01, JunkLogger);
+	SteerController = new PID(10.5,2.5,0.0,0.01, AutoLogger);
 	SteerController->setInputLimits(-360, 720);
 	SteerController->setOutputLimits(-127,127);
 	SteerController->setMode(AUTO_MODE);
@@ -1062,7 +1062,7 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 	VECTOR_2D VectorToNextWp;
 	
 	//Check to see if path planning is active
-	if (PathPlan.active) {
+	if (PathPlan.active && PathPlan.PlannedWaypoints.size() > 0) {
 		// Check if we have reached a waypoint.
 		VECTOR_2D DistanceVector = SubtractVector(PathPlan.PlannedWaypoints[NextWaypoint],CurPosn);
 		while(VectorMagnitude(DistanceVector) < MAPPOINT_RADIUS) {
