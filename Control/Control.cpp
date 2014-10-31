@@ -90,7 +90,7 @@ Control::Control(std::string LogDir, bool ExtLog) {
 	BrakeILOn = true;
 	RecordActive = false;
 
-	simulator = false;
+	simulator = true;
 
 	FencepostRadius = MAPPOINT_RADIUS;
 
@@ -153,7 +153,7 @@ void Control::Setup() {
 	CarNetworkConnection->Open();
 	SafetySerial->Open();
 	LowLevelSerial->Open();
-	GPS->Open();
+	//GPS->Open();
 	if(access("noibeo", F_OK ) == -1) { Lux->Open(); }
 	IMU->Open();
 	
@@ -230,7 +230,7 @@ void Control::Run() {
 	// Start all sensors/interfaces.
 	WebIPC->Start();
 	CarNetworkConnection->StartProcessMessages();
-	GPS->Start();
+	//GPS->Start();
 	Lux->Start();
 	IMU->Start();
 	SafetySerial->Start();
@@ -483,7 +483,7 @@ void Control::ToggleBrakeIL() {
 	if(! this->BrakeILOn) { Success = SafetySerial->Send('B'); }
 	else { Success = SafetySerial->Send('H'); }
 
-	if(Success) {
+	if(true) {
 		this->BrakeILOn = ! this->BrakeILOn;
 		Log->WriteLogLine("Control - Brake IL toggled " + this->BrakeILOn);
 	}
@@ -890,7 +890,7 @@ void Control::UpdatePathPlan() {
 		
 		Log->WriteLogLine("Calculate Best Path");
 		timestamp_t t14 = get_timestamp();
-		mincost(5, safetycost, 0.5, offsetcost, 0.08, conscost, costs, &bestpath);
+		mincost(5, safetycost, 0.5, offsetcost, 0.1, conscost, costs, &bestpath);
 		timestamp_t t15 = get_timestamp();
 		
 		PathPlan.selectedpath = bestpath;
@@ -1014,11 +1014,11 @@ void Control::AutoStart() {
 	BrakeController->setOutputLimits(-255,255);
 	BrakeController->setMode(AUTO_MODE);
 
-	SteerController = new PID(6.5,0.0,0.0,0.01, JunkLogger);
+	SteerController = new PID(20.5,0.0,0.0,0.01, JunkLogger);
 	SteerController->setInputLimits(-360, 720);
 	SteerController->setOutputLimits(-127,127);
 	SteerController->setMode(AUTO_MODE);
-	//SteerController->setBias(0);
+	SteerController->setBias(0);
 
 	SteerController->setSetPoint(0);
 	ThrottleController->setSetPoint(0);
