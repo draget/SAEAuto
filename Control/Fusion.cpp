@@ -19,6 +19,7 @@
 #include "Control.h"
 #include "Xsens.h"
 #include "Logger.h"
+#include "GPSConnection.h"
 
 
 /**
@@ -101,7 +102,7 @@ void Fusion::GPSTrackAngleUpdate(double GPSTrackAngle) {
 	}
 	
 
-	// Perform the averaging.
+	// Work out which sensors to calculate heading from based on the current velocity. 
 	if(CurVel > 5.0) { CurrentHeading = GPSTrackAngle; }
 	else { 
 		if(CurVel > 2.0)  { CurrentHeading = (IMUHeading)*(5.0/3.0 - CurVel/3.0) + GPSTrackAngle*(-2.0/3.0 + CurVel/3.0); }
@@ -152,22 +153,17 @@ void Fusion::TrackAngleActions() {
 	}
 }
 
-void Fusion::GPSUpdate(VECTOR_2D GPSPosition, double GPSSpeed) {
-
-	VECTOR_2D GPSVelocity;
-
-	GPSVelocity.x = sin(CarControl->TwoPi*CurrentHeading/360)*GPSSpeed;
-	GPSVelocity.y = cos(CarControl->TwoPi*CurrentHeading/360)*GPSSpeed;
+void Fusion::GPSUpdate(NED baselinePosNED, NED baselineVelNED) {
 
 	if(CarControl->ExtLogging) {
-		FusionLog->WriteLogLine("UP," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(GPSPosition.x) + "," + boost::lexical_cast<std::string>(GPSPosition.y), true);
-		FusionLog->WriteLogLine("UV," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(GPSVelocity.x) + "," + boost::lexical_cast<std::string>(GPSVelocity.y), true);
+		FusionLog->WriteLogLine("UP," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(baselinePosNED.e) + "," + boost::lexical_cast<std::string>(baselinePosNED.n), true);
+		FusionLog->WriteLogLine("UV," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(baselineVelNED.e) + "," + boost::lexical_cast<std::string>(baselineVelNED.n), true);
 	}
 
 	VECTOR_2D Acceleration = CarControl->IMU->GetAverageAccel(20);
 
-	VAKlmX->SetMeasurements(0,GPSVelocity.x, Acceleration.x);
-	VAKlmY->SetMeasurements(0,GPSVelocity.y, Acceleration.y);
+	VAKlmX->SetMeasurements(0,baselineVelNED.e, Acceleration.x);
+	VAKlmY->SetMeasurements(0,baselineVelNED.n, Acceleration.y);
 
 	VAKlmX->Update();
 	VAKlmY->Update();
@@ -177,14 +173,17 @@ void Fusion::GPSUpdate(VECTOR_2D GPSPosition, double GPSSpeed) {
 	
 	CurrentSpeed = CarControl->VectorMagnitude(CurrentVelocity);
 
-	PVKlmX->SetMeasurements(GPSPosition.x, CurrentVelocity.x,0);
-	PVKlmY->SetMeasurements(GPSPosition.y, CurrentVelocity.y,0);
+	PVKlmX->SetMeasurements(baselinePosNED.e, CurrentVelocity.x,0);
+	PVKlmY->SetMeasurements(baselinePosNED.n, CurrentVelocity.y,0);
 
 	PVKlmX->Update();
 	PVKlmY->Update();
 	
-	CurrentPosition.x = PVKlmX->GetPositionEstimate();
-	CurrentPosition.y = PVKlmY->GetPositionEstimate();
+	//~ CurrentPosition.x = PVKlmX->GetPositionEstimate();
+	//~ CurrentPosition.y = PVKlmY->GetPositionEstimate();
+	
+	CurrentPosition.x = baselinePosNED.e;
+	CurrentPosition.y = baselinePosNED.n;
 
 	PVActions();
 

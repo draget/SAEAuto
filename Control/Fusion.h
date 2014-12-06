@@ -9,6 +9,7 @@
 #include <fstream>
 
 #include "Control.h"
+#include "GPSConnection.h"
 
 class KalmanPVA;
 
@@ -26,7 +27,7 @@ public:
 	double CurrentHeading;
 	double CurrentSpeed;
 
-	void GPSUpdate(VECTOR_2D GPSPosition, double GPSSpeed);
+	void GPSUpdate(NED baselinePosNED, NED baselineVelNED);
 	void GPSTrackAngleUpdate(double GPSTrackAngle);
 
 private:

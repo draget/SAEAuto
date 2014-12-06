@@ -1,16 +1,61 @@
+//
+//  GPSConnection.h
+//  
+//
+//  Created by Ruvan Muthu-Krishna on 15/09/2014.
+//
+//
 
 #ifndef _GPSConnection_H
 #define	_GPSConnection_H
 
 #include <vector>
-#include <string>
 #include <boost/thread.hpp> 
-
-#include "libgpsmm.h"
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <sstream>
+#include <math.h>
 
 class Control;
 class Logger;
 
+#define PI 3.14159265
+
+typedef struct {
+	int tow;
+	double n;
+	double e;
+    double d;
+    double h_accuracy;
+    double v_accuracy;
+    int n_sats;
+    int flags;
+} NED;
+
+typedef struct {
+    int tow;
+    double lat;
+    double lon;
+    double height;
+    double h_accuracy;
+    double v_accuracy;
+    int n_sats;
+    int flags;
+} LlhPos;
+
+typedef struct {
+	int wn;
+	int tow;
+	double ns;
+	int flags;
+} GPS_TIME;
 
 class GPSConnection {
 public:
@@ -30,11 +75,11 @@ public:
 	double Speed;
 	double TrackAngle;
 	double Time;
-
-
+	NED baselinePosNED;
+	NED baselineVelNED;
+	LlhPos llhPos;
+	
 private:
-
-	gpsmm* GPSReceiver;
 
 	Logger* GPSLog;
 
@@ -42,11 +87,11 @@ private:
 	boost::thread s_Thread;
 
 	bool Run;
-
-	double OldTime;
+	GPS_TIME gpsTime;
+	int oldTime;
+	int baselinePosNEDOldTime;
 
 	void ProcessMessages();
-	void NewSpeedAndPosition();
 	void NewTrack();
 
 	void Monitor();
@@ -58,4 +103,3 @@ private:
 };
 
 #endif	/* _GPSConnection_H */
-
