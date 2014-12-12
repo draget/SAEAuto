@@ -1,5 +1,5 @@
-#line 1 "E:/Tom_doc/university/5thyear/FYP/Code/Git/SAEAuto/SafetyPIC/AutoSAE_Safety.c"
-
+#line 1 "C:/Users/Martin French/Desktop/SafetyPIC/AutoSAE_Safety.c"
+#line 9 "C:/Users/Martin French/Desktop/SafetyPIC/AutoSAE_Safety.c"
 char uart_rd;
 short brakeil = 1;
 short hbstate = 0;
@@ -11,7 +11,7 @@ short hb_trip = 0;
 int hb_interruptcount = 0;
 int arm_interruptcount = 0;
 int alarm_counter = 0;
-
+#line 24 "C:/Users/Martin French/Desktop/SafetyPIC/AutoSAE_Safety.c"
 void trip() {
 
  tripstate = 1;
@@ -30,8 +30,23 @@ void trip() {
  tripreq = 0;
 
 }
+#line 46 "C:/Users/Martin French/Desktop/SafetyPIC/AutoSAE_Safety.c"
+void untrip() {
 
+ tripstate = 0;
 
+ PORTB.B6 = 1;
+ PORTA.B4 = 0;
+ PORTA.B0 = 0;
+ PORTA.B1 = 1;
+ PORTA.B3 = 0;
+
+ UART1_Write_Text("Untrip\n");
+
+ arm_state = 0;
+
+}
+#line 67 "C:/Users/Martin French/Desktop/SafetyPIC/AutoSAE_Safety.c"
 void interrupt() {
 
  if(hb_interruptcount > 50) {
@@ -66,9 +81,7 @@ void interrupt() {
  TMR0 = 100;
  INTCON.TMR0IF = 0;
 }
-
-
-
+#line 106 "C:/Users/Martin French/Desktop/SafetyPIC/AutoSAE_Safety.c"
 void main() {
 
  OSCCON = 0b1111110;
@@ -103,6 +116,7 @@ void main() {
  OPTION_REG.PS2 = 1;
  OPTION_REG.PS1 = 1;
  OPTION_REG.PS0 = 1;
+ OPTION_REG.NOT_RBPU = 0;
  TMR0 = 100;
 
  INTCON.GIE = 1;
@@ -116,10 +130,12 @@ void main() {
  if(tripreq == 1) { trip(); }
 
  asm { CLRWDT; }
+
  if (UART1_Data_Ready()) {
  uart_rd = UART1_Read();
 
  if(uart_rd == 'E' && tripstate == 0) { trip(); }
+ if(uart_rd == 'R' && tripstate == 1) { untrip(); }
 
  oldhbstate = hbstate;
 
@@ -143,6 +159,7 @@ void main() {
  if(alarm_counter == 0) { PORTA.B0 = 0; }
  }
 
+ brakeil = PORTB.B7;
  PORTB.B1 = brakeil;
 
  if(arm_state > 0 && PORTA.B2 == 0 && tripstate == 0) {

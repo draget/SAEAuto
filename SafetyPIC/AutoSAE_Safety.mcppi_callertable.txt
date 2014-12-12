@@ -9,6 +9,9 @@ main
 			UART1_Write
 	UART1_Data_Ready
 	UART1_Read
+	untrip
+		UART1_Write_Text
+			UART1_Write
 	UART1_Write
 	Button
 		Delay_500us

@@ -33,11 +33,14 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=4
-Path0=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\defs\
-Path1=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
-Path2=E:\Tom_doc\university\5thyear\FYP\Code\Git\SAEAuto\SafetyPIC\
-Path3=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\Examples\
+Count=7
+Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\
+Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
+Path2=C:\Users\Martin French\Desktop\SafetyPIC\
+Path3=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\defs\
+Path4=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
+Path5=E:\Tom_doc\university\5thyear\FYP\Code\Git\SAEAuto\SafetyPIC\
+Path6=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\Examples\
 [HEADER_PATH]
 Count=0
 [HEADERS]

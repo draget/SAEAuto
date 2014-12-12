@@ -41,6 +41,25 @@ void trip() {
 }
 
 /*
+* Perform appropriate emergency actions.
+*/
+void untrip() {
+
+     tripstate = 0;
+
+     PORTB.B6 = 1;    // Close trip circuit
+     PORTA.B4 = 0;    // E-stop LED off
+     PORTA.B0 = 0;    // Alarm off
+     PORTA.B1 = 1;     // Deactivate brake interlock
+     PORTA.B3 = 0;    // Deactivate hb trip led
+
+     UART1_Write_Text("Untrip\n");
+
+     arm_state = 0;
+
+}
+
+/*
 * This function is called when the PICs hardware interrupt is triggered.
 * It handles operations based upon timers.
 *
@@ -118,6 +137,7 @@ void main() {
      OPTION_REG.PS2 = 1;   // bits 2-0  PS2:PS0: Prescaler Rate Select bits
      OPTION_REG.PS1 = 1;
      OPTION_REG.PS0 = 1;
+     OPTION_REG.NOT_RBPU = 0;
      TMR0 = 100;             // preset for timer register
      
      INTCON.GIE = 1;
@@ -132,10 +152,11 @@ void main() {
 
              asm { CLRWDT; } // Reset watchdog timer
 
-              if (UART1_Data_Ready()) {		// Receive serial data.
+              if (UART1_Data_Ready()) {                // Receive serial data.
                  uart_rd = UART1_Read();
                  
                  if(uart_rd == 'E' && tripstate == 0) { trip(); }
+                 if(uart_rd == 'R' && tripstate == 1) { untrip(); }
                  
                  oldhbstate = hbstate;
                  
@@ -149,7 +170,7 @@ void main() {
 
                  if(oldhbstate != hbstate) { hb_interruptcount = 0; }
 
-                 UART1_Write_Text("ACK ");	// Reply with acknowledgement of message.
+                 UART1_Write_Text("ACK ");        // Reply with acknowledgement of message.
                  UART1_Write(uart_rd);
                  UART1_Write_Text("\n");
               }
@@ -159,6 +180,7 @@ void main() {
                            if(alarm_counter == 0) { PORTA.B0 = 0; } // Turn off the alarm if it shouldn't be on.
               }
               
+              brakeil = PORTB.B7;
               PORTB.B1 = brakeil;
 
               if(arm_state > 0 && PORTA.B2 == 0 && tripstate == 0) {        // Dash e-stop

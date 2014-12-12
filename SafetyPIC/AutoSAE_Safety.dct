@@ -1142,6 +1142,7 @@ uart1_tx_idle
 uart1_write
 uart1_write_text
 uldiv
+untrip
 vcfg0
 vcfg0_bit
 vcfg1
