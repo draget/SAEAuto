@@ -43,6 +43,14 @@ int curScanDataSource = 0;      // Current scan data source/buffer.
 int curObjectDataSource = 0;    // Current object data source/buffer.
 int curErrorDataSource = 0;     // Current error data source/buffer.
 
+int layersToCheck = 4; // The number of LIDAR scan layers for which to 'findRoad', should be >=1 and <=4
+
+int LHEdge[layersToCheck] = {0};
+int RHEdge[layersToCheck] = {0};
+
+int RoadSlope[layersToCheck] = {0};
+int RoadIntercept[layersToCheck] = {0};
+
 bool gotObject;
 bool gotScan;
 
@@ -397,11 +405,11 @@ void IBEO::ProcessMessages() {
 		
 		// Save CPU time by not acting upon every set of data.
 		if((current.tv_sec + ((double)current.tv_usec)/1000000) > (lastwrite.tv_sec + ((double)lastwrite.tv_usec)/1000000) + IBEO_PERIOD) { 
-
-			PolarToXY();
-
-			FindRoad();
-
+			int currLayer = 0;
+			while (currLayer < layersToCheck) {
+				PolarToXY(currLayer);
+				FindRoad(currLayer);
+			}
 			WriteFiles(current); 
 	
 			ProjectObjectsToMap();
@@ -458,7 +466,7 @@ void IBEO::ProjectObjectsToMap() {
  * Inputs : None.
  * Outputs: None.
  */
-void IBEO::PolarToXY() {
+void IBEO::PolarToXY(int currLayer) {
 
 	CurrentXYScan.xvalues.clear();
 	CurrentXYScan.yvalues.clear();
@@ -467,8 +475,8 @@ void IBEO::PolarToXY() {
 	double dist;
 
 	for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
-		if(scan_data_points[curScanDataSource][i].layer_echo != 0) { continue; }
-		angle = (scan_data_points[curScanDataSource][i].horiz_angle+2880)*CarControl->TwoPi/11520;
+		if(scan_data_points[curScanDataSource][i].layer_echo != currLayer) { continue; } // Ignore points not on the current layer.
+		angle = (scan_data_points[curScanDataSource][i].horiz_angle+2880)*CarControl->TwoPi/11520; //TODO: Probably need to do some angle compensation hereabouts
 		dist = scan_data_points[curScanDataSource][i].radial_dist/100.0;
 		CurrentXYScan.xvalues.push_back(cos(angle)*dist);
 		CurrentXYScan.yvalues.push_back(sin(angle)*dist);
@@ -509,8 +517,14 @@ void IBEO::WriteFiles(timeval current) {
 				<< scan_data_points[curScanDataSource][i].echo_pulse_width << "," 
 				<< scan_data_points[curScanDataSource][i].res << "\n";
 		}
-
-		outfile_scan << "R," << LHEdge << "," << RHEdge << "," << RoadSlope << "," << RoadIntercept;
+		
+		int scannedLayer = 0;
+		int calculatedLayers = LHEdge.size();
+		while (layer < calculatedLayers) {
+			// NOTE: The output text line for the road segment MUST start with "R" or the road segment will not be detected and plotted on the lovely LIDAR plot (ie. getlux4.cgi)
+			outfile_scan << "Scan layer " << scannedLayer << ":\n" << "R," << LHEdge[scannedLayer] << "," << RHEdge[scannedLayer] << "," << RoadSlope[scannedLayer] << "," << RoadIntercept[scannedLayer] << "\n";
+		
+		}
 		
 		outfile_scan.close();
 
@@ -546,7 +560,7 @@ void IBEO::WriteFiles(timeval current) {
  * Inputs : None.
  * Outputs: None.
  */
-void IBEO::FindRoad() {
+void IBEO::FindRoad(int scanLayer) {
 
 	int FoundStart = 0;			// State variable.
 	int InitialSearchDirn = 0;		// Used to tell which direction the loop is currently searching.
@@ -704,10 +718,9 @@ void IBEO::FindRoad() {
 
 	// Decide if the road was found or not...
 	if(fabs(fit.getSlope()) < MAX_SLOPE && (RHS_i - LHS_i) > GROUP_SIZE) {
-		RoadSlope = fit.getSlope(); RoadIntercept = fit.getIntercept(); RHEdge = *(RHS_i); LHEdge = *(LHS_i);
+		RoadSlope[currLayer] = fit.getSlope(); RoadIntercept[currLayer] = fit.getIntercept(); RHEdge[currLayer] = *(RHS_i); LHEdge[currLayer] = *(LHS_i);
 	}
 	else {
-		RoadSlope = 0; RoadIntercept = 0; RHEdge = 0; LHEdge = 0;
+		RoadSlope[currLayer] = 0; RoadIntercept[currLayer] = 0; RHEdge[currLayer] = 0; LHEdge[currLayer] = 0;
 	}
-
 }

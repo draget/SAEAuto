@@ -29,6 +29,13 @@ public:
 	VECTOR_2D GetAverageAccel(int n);
 
 	double Yaw;
+	long double roll;
+	long double pitch;
+	
+	long double cos_roll;
+	long double cos_pitch;
+	long double sin_roll;
+	long double sin_pitch;
 	
 	std::vector<VECTOR_2D> Accelerations;
 
