@@ -31,6 +31,8 @@ Xsens::Xsens(Control* CarController, Logger* Logger) {
 
 	reply = new Packet(1,0); /* 1 item, not xbus */
 
+	roll = 0;
+	pitch = 0;
 	Yaw = 0;
 
 	VECTOR_2D ZeroVec;
@@ -133,10 +135,13 @@ void Xsens::ProcessMessages() {
 
 	matrix_data = reply->getOriMatrix();
 
-	//long double cos_roll = cosl((long double)reply->getOriEuler().m_roll*2*M_PI/360);
-	//long double cos_pitch = cosl((long double)reply->getOriEuler().m_pitch*2*M_PI/360);
-	//long double sin_roll = sinl((long double)reply->getOriEuler().m_roll*2*M_PI/360);
-	//long double sin_pitch = sinl((long double)reply->getOriEuler().m_pitch*2*M_PI/360);
+	roll = (long double)reply->getOriEuler().m_roll*2*M_PI/360;
+	pitch = (long double)reply->getOriEuler().m_pitch*2*M_PI/360;
+
+	cos_roll = cosl(roll);
+	cos_pitch = cosl(pitch);
+	sin_roll = sinl(roll);
+	sin_pitch = sinl(pitch);
 
 	xacc = (long double) reply->getCalData().m_acc.m_data[0];
 	yacc = (long double) reply->getCalData().m_acc.m_data[1];
@@ -164,8 +169,8 @@ void Xsens::ProcessMessages() {
 	else if(matrix_data.m_data[1][1] > 0) { Yaw = 180 - 360*asinl(matrix_data.m_data[1][0])/2/M_PI; }
 	else { Yaw = 360 + 360*asinl(matrix_data.m_data[1][0])/2/M_PI; }
 
-	if(CarControl->ExtLogging) {
-		IMULog->WriteLogLine(boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Yaw) + "," + boost::lexical_cast<std::string>(xacc_comp) + "," + boost::lexical_cast<std::string>(yacc_comp), true);
+	if(CarControl->Ext ging) {
+		IMULog->WriteLogLine(boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Yaw) + "," + boost::lexical_cast<std::string>(roll) + "," + boost::lexical_cast<std::string>(pitch);//boost::lexical_cast<std::string>(xacc_comp) + "," + boost::lexical_cast<std::string>(yacc_comp), true);
 	}
 
 //	if(reply->getOriEuler().m_yaw < 0) { Yaw = 360 + reply->getOriEuler().m_yaw ; }

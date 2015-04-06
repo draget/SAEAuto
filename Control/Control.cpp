@@ -60,6 +60,8 @@ static timestamp_t get_timestamp()
 
 Control *SAECar;
 
+
+
 /**
  * Purpose: Creates a new instance of the Control object.
  * Inputs : Name of directory logs are to be saved in.
@@ -328,10 +330,17 @@ void Control::WriteInfoFile() {
 	WebLogger->WriteLogLine("IBEO N Scan Pts|" + boost::lexical_cast<std::string>(this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_points), true);
 	WebLogger->WriteLogLine("IBEO Scan No|" + boost::lexical_cast<std::string>(this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_number), true);
 
-	WebLogger->WriteLogLine("IBEO LH Edge|" + boost::lexical_cast<std::string>(this->Lux->LHEdge), true);
-	WebLogger->WriteLogLine("IBEO RH Edge|" + boost::lexical_cast<std::string>(this->Lux->RHEdge), true);
-	WebLogger->WriteLogLine("IBEO Road Slope|" + boost::lexical_cast<std::string>(this->Lux->RoadSlope), true);
-	WebLogger->WriteLogLine("IBEO Road Intcpt|" + boost::lexical_cast<std::string>(this->Lux->RoadIntercept), true);
+	int numLayers = this->Lux->layersToCheck;
+	int indLayer = 0;
+	while (indLayer < numLayers) {
+		WebLogger->WriteLogLine("Scan Layer " + boost::lexical_cast<std::string>(indLayer) + ":", true);
+		
+		WebLogger->WriteLogLine("IBEO LH Edge|" + boost::lexical_cast<std::string>(this->Lux->LHEdge[indLayer]), true);
+		WebLogger->WriteLogLine("IBEO RH Edge|" + boost::lexical_cast<std::string>(this->Lux->RHEdge[indLayer]), true);
+		WebLogger->WriteLogLine("IBEO Road Slope|" + boost::lexical_cast<std::string>(this->Lux->RoadSlope[indLayer]), true);
+		WebLogger->WriteLogLine("IBEO Road Intcpt|" + boost::lexical_cast<std::string>(this->Lux->RoadIntercept[indLayer]), true);
+		indLayer++;
+	}
 	
 	WebLogger->WriteLogLine("Advanced Path Planning Active|" + boost::lexical_cast<std::string>(this->PathPlan.active), true);
 
