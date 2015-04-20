@@ -531,7 +531,7 @@ function drawXYGraph(json)
 
 		RGraph.Reset(document.getElementById('cvs'));
 	var HeadingVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[parseFloat(json.params["Fused X Pos"].content,10) + 3*Math.sin(2*Math.PI*parseFloat(json.params["Fused Heading"].content,10)/360.0),parseFloat(json.params["Fused Y Pos"].content,10) + 3*Math.cos(2*Math.PI*parseFloat(json.params["Fused Heading"].content,10)/360.0),"clear"]];
-	var NextWPVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[parseFloat(json.nextwp.x,10),parseFloat(json.nextwp.y,10),"clear"]];
+	if (json.params["Auto On"].content == 1) {var NextWPVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[parseFloat(json.nextwp.x,10),parseFloat(json.nextwp.y,10),"clear"]];} else {var NextWPVector = [];}
 	var DesiredHeadingVector = [[parseFloat(json.params["Fused X Pos"].content,10),parseFloat(json.params["Fused Y Pos"].content,10),"clear"],[parseFloat(json.params["Fused X Pos"].content,10) + 3*Math.sin(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),parseFloat(json.params["Fused Y Pos"].content,10) + 3*Math.cos(2*Math.PI*parseFloat(json.params["Desired Bearing"].content,10)/360.0),"clear"]];
 
 	var scatter = new RGraph.Scatter2('cvs', json.mapdata, HeadingVector,DesiredHeadingVector,NextWPVector)
@@ -542,6 +542,8 @@ function drawXYGraph(json)
 		.Set('chart.line', true)
 		.Set('chart.line.linewidth', 1.5)
 		.Set('chart.line.colors', [null,"blue","red","orange"])
+		.Set('tickmarks', "circle")
+		.Set('ticksize', '2')
                 .Draw();
 
 	xyscale = scatter.GetScale();

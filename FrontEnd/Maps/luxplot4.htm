@@ -105,18 +105,23 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 					
  		});
 
+		var length = json.roadedge.length;
+		var ind = 0;
+		
+		while (ind < length) {
+			
+			var x_l = (centerx + parseFloat(json.roadedge[ind][0],10)*scale);
+			var y_l = (centery - parseFloat(json.roadedge[ind][1],10)*scale);
+	
+			var x_r = (centerx + parseFloat(json.roadedge[ind + 1][0],10)*scale);
+			var y_r = (centery - parseFloat(json.roadedge[ind + 1][1],10)*scale);
 
-		var x_l = (centerx + parseFloat(json.roadedge[0][0],10)*scale);
-		var y_l = (centery - parseFloat(json.roadedge[0][1],10)*scale);
-
-		var x_r = (centerx + parseFloat(json.roadedge[1][0],10)*scale);
-		var y_r = (centery - parseFloat(json.roadedge[1][1],10)*scale);
-
-
-
-		var poly = new RGraph.Drawing.Poly('cvs', [[x_l,y_l],[x_r,y_r]])
-		.Set("strokestyle","white")
-            	.Draw();
+			var poly = new RGraph.Drawing.Poly('cvs', [[x_l,y_l],[x_r,y_r]])
+			.Set("strokestyle","white")
+	            	.Draw();
+	            	
+	        ind++;
+		}
 
 		setTimeout(updateLuxPlot,500);
 

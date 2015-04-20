@@ -32,6 +32,8 @@ Xsens::Xsens(Control* CarController, Logger* Logger) {
 	reply = new Packet(1,0); /* 1 item, not xbus */
 
 	Yaw = 0;
+	pitch = 0;
+	roll = 0;
 
 	VECTOR_2D ZeroVec;
 	ZeroVec.x = 0.0;
@@ -138,8 +140,8 @@ void Xsens::ProcessMessages() {
 	//long double sin_roll = sinl((long double)reply->getOriEuler().m_roll*2*M_PI/360);
 	//long double sin_pitch = sinl((long double)reply->getOriEuler().m_pitch*2*M_PI/360);
 
-	pitch = reply->getOriEuler().m_pitch;
-	roll = reply->getOriEuler().m_roll;
+	//pitch = reply->getOriEuler().m_pitch;
+	//roll = reply->getOriEuler().m_roll;
 
 	xacc = (long double) reply->getCalData().m_acc.m_data[0];
 	yacc = (long double) reply->getCalData().m_acc.m_data[1];
@@ -152,6 +154,9 @@ void Xsens::ProcessMessages() {
 	// IMU axes are the wrong way about
 	CurrentAccel.x = -yacc_comp;
 	CurrentAccel.y = xacc_comp;
+
+	pitch = 360*asinl(-1*matrix_data.m_data[0][2])/2/M_PI;
+	roll = 360*asinl(matrix_data.m_data[1][2]/cosl(pitch*2*M_PI/360))/2/M_PI;
 
 
 	Accelerations.erase(Accelerations.begin());
