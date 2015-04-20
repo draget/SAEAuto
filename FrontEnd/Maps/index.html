@@ -1,0 +1,216 @@
+<html>
+ <head>
+<link rel="stylesheet" type="text/css" href="index.css">
+</head>
+
+<script>
+function jump(h){
+    var url = location.href;
+    location.href = "#"+h;
+    history.replaceState(null,null,url)
+}
+
+function flash(f,h) {
+	alert(f);
+    url = location.href;
+    location.href = "#"+h;
+    history.replaceState(null,null,url)
+}
+
+function pausecomp(ms) {
+ms += new Date().getTime();
+while (new Date() < ms){}
+} 
+
+
+function link(h) {
+	window.location=h;
+}
+
+
+</script>
+
+<body>
+<div id="container1"><div id="container2">
+	
+<div id="welcome" class="page">
+<p class="center">Welcome to Autono-mouse</p>
+<button class="pos_left_big" onclick="jump('carintro')">View Guide</button>
+<button class="pos_right_big" onclick="jump('predriveWarning')">Start Driving</button>
+</div>
+
+<br />
+<br />
+
+<div id="predriveWarning" class="page">
+<p class="center">Attention!</p>
+<br />
+<p class="center">Please operate this vehicle responsibly.</p>
+<p class="center">Ensure the area around the vehicle is clear.</p>
+<button class="pos_left" onclick="jump('welcome')">Exit</button>
+<button class="pos_right" onclick="jump('autoEstop');">Acknowledge</button>
+</div>
+
+<br />
+<br />
+
+<div id="autoEstop" class="page">
+<p class="center">Please disengage the autonomous E-stop.</p>
+<button class="pos_left" onclick="link('./controlcontrol.cgi?command=stop');">Exit</button>
+<button class="pos_right" onclick="link('./controlcontrol.cgi?command=start')">Done</button>
+<p class="center"><img class="center" src="./img/autoestop.JPG"></p>
+</div>
+
+<br />
+<br />
+
+<div id="driveEstop" class="page">
+<p class="center">Please disengage the drive E-stop.</p>
+<button class="pos_left" onclick="link('./controlcontrol.cgi?command=stop');">Exit</button>
+<button class="pos_right" onclick="alert('Warning: Throttle now active');link('./waypointssmall.cgi');">Done</button>
+<p class="center"><img class="center" src="./img/driveestop.JPG"></p>
+</div>
+
+<br />
+<br />
+
+<div id="exitAfterEstop" class="page">
+<p class="center">Startup cancelled.</p>
+<p class="center">Please ensure both drive and autonomous E-stops are engaged.</p>
+<button class="pos_right" onclick="jump('welcome')">Done</button>
+</div>
+
+<!--
+----------------------- Car Intro Pages
+-->
+
+<br />
+<br />
+
+<div id="carintro" class="page">
+<p class="centerbottom">1/11</p>
+<p class="center">The Autono-mouse SAE car is a prototype autonomous car built for the racetrack by the UWA Renewable Energy Vehicle (REV) project</p>
+<button class="pos_left" onclick="jump('welcome')">Exit</button>
+<button class="pos_right" onclick="jump('carintro2')">Next</button>
+</div>
+
+<br />
+<br />
+
+<div id="carintro2" class="page">
+<p class="centerbottom">2/11</p>
+<p class="center">Autono-mouse perceives its environment using sensors such as GPS, lidar and inertial measurement systems</p>
+<button class="pos_left" onclick="jump('welcome')">Exit</button>
+<button class="pos_right" onclick="jump('carintro3')">Next</button>
+</div>
+
+<br />
+<br />
+
+<div id="carintro3" class="page">
+<p class="centerbottom">3/11</p>
+<p class="center">It can then navigate itself using actuators on the steering wheel and brake, the co-pilot shall manually apply the accelerator</p>
+<button class="pos_left" onclick="jump('welcome')">Exit</button>
+<button class="pos_right" onclick="jump('carintro4')">Next</button>
+</div>
+
+<br />
+<br />
+
+
+<div id="carintro4" class="page">
+<p class="centerbottom">4/11</p>
+<p class="center">It has a wealth of safety features, some of which you, as the co-pilot, must control</p>
+<button class="pos_left" onclick="jump('welcome')">Exit</button>
+<button class="pos_right" onclick="jump('carintro5')">Next</button>
+</div>
+
+<br />
+<br />
+
+<div id="carintro5" class="page">
+<p class="centerbottom">5/11</p>
+<p class="center">Throughout the car, emergency stop (e-stop) switches are used to electrically isolate important circuits<br>
+As the co-pilot, you are required to disengage the 'autonomous' and 'drive' switches before driving and engage them in the event of a problem</p>
+<button class="pos_left" onclick="jump('welcome')">Exit</button>
+<button class="pos_right" onclick="jump('carintro6')">Next</button>
+</div>
+
+<br />
+<br />
+
+<div id="carintro6" class="page">
+<p class="centerbottom">6/11</p>
+<p class="center">To disengage an e-stop, twist the button anti-clockwise until it springs up.<br>
+To engage, simply push it in until it locks down.</p>
+<button class="pos_left" onclick="jump('welcome')">Exit</button>
+<button class="pos_right" onclick="jump('carintro7')">Next</button>
+</div>
+
+<br />
+<br />
+
+<div id="carintro7" class="page">
+<p class="centerbottom">7/11</p>
+<p class="center">The autonomous e-stop is located above the steering wheel</p>
+<button class="pos_left" onclick="jump('welcome')">Exit</button>
+<button class="pos_right" onclick="jump('carintro8')">Next</button>
+<p class="center"><img class="center" src="./img/autoestop.JPG"></p>
+</div>
+
+<br />
+<br />
+
+<div id="carintro8" class="page">
+<p class="centerbottom">8/11</p>
+<p class="center">The drive e-stop is located to the right of the steering wheel</p>
+<button class="pos_left" onclick="jump('welcome')">Exit</button>
+<button class="pos_right" onclick="jump('carintro9')">Next</button>
+<p class="center"><img class="center" src="./img/driveestop.JPG"></p>
+</div>
+
+<br />
+<br />
+
+<div id="carintro9" class="page">
+<p class="centerbottom">9/11</p>
+<p class="center">Before disengaging either e-stop, it is your responsibility to ensure the immediate area is safe</p>
+<button class="pos_left" onclick="jump('welcome')">Exit</button>
+<button class="pos_right" onclick="jump('carintro10')">Next</button>
+</div>
+
+<br />
+<br />
+
+<div id="carintro10" class="page">
+<p class="centerbottom">10/11</p>
+<p class="center">Once the main driving screen is displayed, take the following steps to begin driving</p>
+<button class="pos_left" onclick="jump('welcome')">Exit</button>
+<button class="pos_right" onclick="jump('carintro11')">Next</button>
+<p class="center"><img class="center" src="./img/waypointssmall_guide.png"></p>
+</div>
+
+<br />
+<br />
+
+<div id="carintro11" class="page">
+<p class="centerbottom">11/11</p>
+<p class="center">The guide is now finished. <br> Please contact Thomas Braunl for further queries.</p>
+<button class="pos_right" onclick="jump('welcome')">Finish</button>
+<p class="center"><img class="center" src="./img/waypointssmall_guide.png"></p>
+</div>
+
+<br />
+<br />
+
+
+
+
+<script>
+$("#example").bind("mousewheel",function(ev, delta) {
+    var scrollTop = $(this).scrollTop();
+    $(this).scrollTop(scrollTop-Math.round(delta));
+});
+</script>
+</body>
+</html>

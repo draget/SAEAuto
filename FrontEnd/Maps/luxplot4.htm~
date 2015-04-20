@@ -1,0 +1,178 @@
+<!DOCTYPE html >
+<html>
+<head>
+
+    
+    <script src="RGraph/libraries/RGraph.common.core.js" ></script>
+    <script src="RGraph/libraries/RGraph.common.dynamic.js" ></script>
+    <script src="RGraph/libraries/RGraph.common.tooltips.js" ></script>
+    <script src="RGraph/libraries/RGraph.rscatter_half.js" ></script>
+	<script src="RGraph/libraries/RGraph.drawing.circle.js" ></script>
+	<script src="RGraph/libraries/RGraph.drawing.poly.js" ></script>
+    
+    <title>Live IBEO</title>
+
+<script type="text/javascript" src="jquery-2.0.3.js">
+  	</script>
+
+ <script>
+var centerx = 0;
+var centery = 0;
+var scale = 0;
+
+var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", "car", "truck"];
+
+        window.onload = function ()
+        {
+        	updateLuxPlot();
+		setTimeout(updateList,2000);
+		
+        }
+
+	function updateLuxPlot() {
+
+		var arg = "";
+
+		if(document.getElementById("plotnos").selectedIndex >= 0) { arg = document.getElementById("plotnos").options[document.getElementById("plotnos").selectedIndex].innerHTML; }
+
+		RGraph.AJAX.getJSON("getlux4.cgi?no=" + arg + "&run=" + document.getElementById("run").value + "&layer=" + document.getElementById("layers").options[document.getElementById("layers").selectedIndex].text, drawLuxGraph);
+
+		setTimeout(updateLuxPlot,500);
+
+	}
+
+        function drawLuxGraph(json)
+        {
+
+		RGraph.Reset(document.getElementById('cvs'));
+            	var rscatter = new RGraph.Rscatter('cvs', json.data)
+
+		.Set('labels.axes', 'new')
+		.Set('labels.count', 3)
+		.Set('ymax', parseInt(document.getElementById("scale").value,10))
+                .Draw();
+
+		centerx = ((rscatter.canvas.width - rscatter.Get("chart.gutter.left") - rscatter.Get("chart.gutter.right")) / 2) + rscatter.Get("chart.gutter.left");
+		centery = (rscatter.canvas.height - rscatter.Get("chart.gutter.top") - rscatter.Get("chart.gutter.bottom")) + rscatter.Get("chart.gutter.top");
+		scale = rscatter.GetScale();
+
+		document.getElementById("logarea").innerHTML = json.objdata.join("\n");
+
+		$.each(json.objdata,function(index, value){ 
+
+			var parts = value.split(",");
+
+			// Plot axes are opposite of IBEO axes.
+
+			var x = (centerx - parseFloat(parts[2],10)/100.0*scale);
+			var y = (centery - parseFloat(parts[1],10)/100.0*scale);
+
+			var boundingbox = new Array(4);
+			boundingbox[0] = new Array(2);
+			boundingbox[1] = new Array(2);
+			boundingbox[2] = new Array(2);
+			boundingbox[3] = new Array(2);
+
+			boxwidth = parseFloat(parts[8],10)/100.0;
+			boxheight = parseFloat(parts[9],10)/100.0;
+			
+			box_center_x = parseFloat(parts[7],10)/100.0;
+			box_center_y = parseFloat(parts[6],10)/100.0;
+
+			boundingbox[0][0] = (centerx - (box_center_x - boxwidth/2)*scale);
+			boundingbox[0][1] = (centery - (box_center_y - boxheight/2)*scale);
+			boundingbox[1][0] = (centerx - (box_center_x - boxwidth/2)*scale);
+			boundingbox[1][1] = (centery - (box_center_y + boxheight/2)*scale);
+			boundingbox[2][0] = (centerx - (box_center_x + boxwidth/2)*scale);
+			boundingbox[2][1] = (centery - (box_center_y - boxheight/2)*scale);
+			boundingbox[3][0] = (centerx - (box_center_x + boxwidth/2)*scale);
+			boundingbox[3][1] = (centery - (box_center_y + boxheight/2)*scale);
+
+			var poly = new RGraph.Drawing.Poly('cvs', [[boundingbox[0][0],boundingbox[0][1]],[boundingbox[2][0],boundingbox[2][1]],[boundingbox[3][0],boundingbox[3][1]],[boundingbox[1][0],boundingbox[1][1]]])
+			.Set("strokestyle","black")
+			.Set("fillstyle","rgba(255,0,0,0.1)")
+			.Set("linewidth",1)
+            		.Draw();
+
+			var circle = new RGraph.Drawing.Circle('cvs',x,y, 5)
+            				.Set('chart.strokestyle', 'black')
+           				.Set('chart.fillstyle', 'rgba(255,0,0,0.7)')
+            				.Set('chart.tooltips', ["ID: " + parts[0] + "<br /> Type: " + objtypes[parseInt(parts[5],10)]])
+            				.Draw();
+
+			
+					
+ 		});
+
+
+		var x_l = (centerx + parseFloat(json.roadedge[0][0],10)*scale);
+		var y_l = (centery - parseFloat(json.roadedge[0][1],10)*scale);
+
+		var x_r = (centerx + parseFloat(json.roadedge[1][0],10)*scale);
+		var y_r = (centery - parseFloat(json.roadedge[1][1],10)*scale);
+
+
+
+		var poly = new RGraph.Drawing.Poly('cvs', [[x_l,y_l],[x_r,y_r]])
+		.Set("strokestyle","brown")
+            	.Draw();
+
+
+        }
+
+
+
+function updateList() {
+
+
+
+	$.ajax({
+		type: "GET"
+		,url: "getluxlist.cgi" + "?run=" + document.getElementById("run").value
+		,dataType: "json"
+		,cache: false
+		,success: function(json){
+
+				 $.each(json.files,function(index, value){ 
+
+					 var option=document.createElement("option");
+					option.text=value;
+					document.getElementById("plotnos").add(option,null);
+ 				});
+
+                            }
+		,error: function() { alert("AJAX Error!"); }
+		});
+
+
+
+}
+
+
+    </script>
+
+
+</head>
+<body>
+<h2>LIDAR Display</h2>
+    <canvas style="background-color : grey;" id="cvs" width="1000" height="500">[No canvas support]</canvas> <br />
+    
+
+
+<table>
+<tr><td>Layers:</td><td style="background-color : grey"> <b> <font color="red">0 (bottom)</font> <font color="orange">1</font> <font color="yellow">2</font> <font color="green">3 (top)</font> <font color="brown">Road</font></b></td></tr>
+<tr><td>Scale Max:</td><td><input type="text" value="20" id="scale" size="4" /></td></tr>
+<tr><td>Run ID:</td><td><input type="text" value="0" id="run" size="15" /></td></tr>
+<tr><td>Layers:</td><td><select id="layers"><option>All</option><option>0</option><option>1</option><option>2</option><option>3</option></td></tr>
+<tr><td>Specific Plot:</td><td>Object Data: (id, ref x, ref y, closest x, closest y, class,box centre x, box center y, box width, box height, object act)</td></tr>
+<tr><td>
+<select size="15" id="plotnos"></select>
+</td>
+
+<td><textarea rows="15" cols="75" id="logarea"></textarea></td></tr>
+
+</table>
+
+   
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html >
+<html>
+<head>
+
+    
+    <script src="RGraph/libraries/RGraph.common.core.js" ></script>
+    <script src="RGraph/libraries/RGraph.common.dynamic.js" ></script>
+    <script src="RGraph/libraries/RGraph.common.tooltips.js" ></script>
+    <script src="RGraph/libraries/RGraph.rscatter_half.js" ></script>
+    
+    <title>Live IBEO</title>
+
+<script type="text/javascript" src="jquery-2.0.3.js">
+  	</script>
+
+ <script>
+
+
+        window.onload = function ()
+        {
+        	updateLuxPlot();
+		setTimeout(updateLog,1000);
+		setTimeout(updateList,1000);
+		
+        }
+
+	function updateLuxPlot() {
+
+		var arg = "";
+
+		if(document.getElementById("plotnos").selectedIndex >= 0) { arg = document.getElementById("plotnos").options[document.getElementById("plotnos").selectedIndex].innerHTML; }
+
+		RGraph.AJAX.getJSON("getlux.cgi?no=" + arg, drawLuxGraph);
+		setTimeout(updateLuxPlot,500);
+
+	}
+
+        function drawLuxGraph(json)
+        {
+
+		RGraph.Reset(document.getElementById('cvs'));
+            var rscatter = new RGraph.Rscatter('cvs', json.data)
+
+		.Set('labels.axes', 'new')
+		.Set('labels.count', 2)
+
+                .Draw();
+        }
+
+
+	function updateLog() {
+
+	var arg = "";
+
+	if(document.getElementById("plotnos").selectedIndex >= 0) { arg = document.getElementById("plotnos").options[document.getElementById("plotnos").selectedIndex].innerHTML; }
+
+
+	$.ajax({
+		type: "GET"
+		,url: "getluxobj.cgi?no=" + arg
+		,dataType: "json"
+		,cache: false
+		,success: function(json){
+
+				document.getElementById("logarea").innerHTML = json.objdata;
+
+                            }
+		,error: function() { alert("AJAX Error!"); }
+		});
+
+		setTimeout(updateLog,1000);
+
+}
+
+
+function updateList() {
+
+
+
+	$.ajax({
+		type: "GET"
+		,url: "getluxlist.cgi"
+		,dataType: "json"
+		,cache: false
+		,success: function(json){
+
+				 $.each(json.files,function(index, value){ 
+
+					 var option=document.createElement("option");
+					option.text=value;
+					document.getElementById("plotnos").add(option,null);
+ 				});
+
+                            }
+		,error: function() { alert("AJAX Error!"); }
+		});
+
+
+
+}
+
+
+    </script>
+
+
+</head>
+<body>
+
+    <canvas id="cvs" width="1000" height="500">[No canvas support]</canvas> <br />
+    
+
+<select size="10" id="plotnos"></select>
+
+Plot Number: <input type="text" length="15" id="plotno" />
+
+
+
+<textarea rows="15" cols="75" id="logarea"></textarea>
+
+   
+</body>
+</html>
