@@ -1,6 +1,6 @@
 #!/bin/sh
 export TERM=xterm # elevate webservers 'dumb' terminal to xterm
-cd /opt/SAE/git/SAEAuto/Control # change to control directory
+cd /home/pi/SAEAuto/Control # change to control directory
 sudo killall Control #kill any running processes
 sleep 1
 
