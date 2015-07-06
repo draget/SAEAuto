@@ -8,6 +8,8 @@
 
 char uart_rd;
 short brakeil = 1;
+short hb_bypass_button_state = 0; //0 => Button is not pressed.
+short hb_bypass_prev_state = 0;
 short hbstate = 0;
 short oldhbstate = 0;
 short tripreq = 0;
@@ -167,6 +169,18 @@ void main() {
                  if(uart_rd == 'H') { brakeil = 0; }
                  
                  if(uart_rd == 'A') { alarm_counter = 25; PORTA.B0 = 1; }
+		
+		hb_bypass_button_state = PORTB.B7;		
+
+		//If button state has changed
+             	if(hb_bypass_button_state != hb_prev_button_state) {
+			//If button now pressed => set hbstate to 1, else set to 0 as button must have been released.
+	        	if(hb_bypass_button_state == 1) {
+				hbstate = 1;
+			} else {
+				hbstate = 0;
+			}
+	      }
 
                  if(oldhbstate != hbstate) { hb_interruptcount = 0; }
 
@@ -180,8 +194,10 @@ void main() {
                            if(alarm_counter == 0) { PORTA.B0 = 0; } // Turn off the alarm if it shouldn't be on.
               }
               
-              brakeil = PORTB.B7;
+              //brakeil = PORTB.B7;
               PORTB.B1 = brakeil;
+
+	      
 
               if(arm_state > 0 && PORTA.B2 == 0 && tripstate == 0) {        // Dash e-stop
                            UART1_Write_Text("DES\n");
