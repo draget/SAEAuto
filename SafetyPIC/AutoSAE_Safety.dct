@@ -452,6 +452,8 @@ go_done_bit
 go_not_done
 go_not_done_bit
 halfbits
+hb_bypass_button_state
+hb_bypass_prev_state
 hb_interruptcount
 hb_trip
 hbstate

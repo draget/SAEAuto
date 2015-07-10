@@ -15,6 +15,9 @@ Value=0
 Value=2000
 [EEPROM_DEFINITION]
 Value=
+[EXPANDED NODES]
+Node1=Sources
+Count=1
 [FILES]
 Count=1
 File0=AutoSAE_Safety.c
@@ -33,14 +36,10 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=7
-Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\
-Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
-Path2=C:\Users\Martin French\Desktop\SafetyPIC\
-Path3=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\defs\
-Path4=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
-Path5=E:\Tom_doc\university\5thyear\FYP\Code\Git\SAEAuto\SafetyPIC\
-Path6=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\Examples\
+Count=3
+Path0=\\uniwa.uwa.edu.au\userhome\Students3\20751503\My Documents\Mikroelektronika\mikroC PRO for PIC\Defs\
+Path1=\\uniwa.uwa.edu.au\userhome\Students3\20751503\My Documents\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
+Path2=\\uniwa.uwa.edu.au\userhome\Students3\20751503\My Documents\SAEAuto-master\SAEAuto-master\SafetyPIC\
 [HEADER_PATH]
 Count=0
 [HEADERS]
@@ -89,6 +88,7 @@ File36=Time
 File37=TouchPanel
 File38=Trigonometry
 File39=UART
-[EXPANDED NODES]
-Node1=Sources
-Count=1
+[EXPANDED_NODES]
+Node0=Sources
+Node1=Output Files
+Count=2

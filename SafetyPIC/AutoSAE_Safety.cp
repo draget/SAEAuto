@@ -1,7 +1,9 @@
-#line 1 "C:/Users/Martin French/Desktop/SafetyPIC/AutoSAE_Safety.c"
-#line 9 "C:/Users/Martin French/Desktop/SafetyPIC/AutoSAE_Safety.c"
+#line 1 "//uniwa.uwa.edu.au/userhome/Students3/20751503/My Documents/SAEAuto-master/SAEAuto-master/SafetyPIC/AutoSAE_Safety.c"
+#line 9 "//uniwa.uwa.edu.au/userhome/Students3/20751503/My Documents/SAEAuto-master/SAEAuto-master/SafetyPIC/AutoSAE_Safety.c"
 char uart_rd;
 short brakeil = 1;
+short hb_bypass_button_state = 0;
+short hb_bypass_prev_state = 0;
 short hbstate = 0;
 short oldhbstate = 0;
 short tripreq = 0;
@@ -11,7 +13,7 @@ short hb_trip = 0;
 int hb_interruptcount = 0;
 int arm_interruptcount = 0;
 int alarm_counter = 0;
-#line 24 "C:/Users/Martin French/Desktop/SafetyPIC/AutoSAE_Safety.c"
+#line 26 "//uniwa.uwa.edu.au/userhome/Students3/20751503/My Documents/SAEAuto-master/SAEAuto-master/SafetyPIC/AutoSAE_Safety.c"
 void trip() {
 
  tripstate = 1;
@@ -30,7 +32,7 @@ void trip() {
  tripreq = 0;
 
 }
-#line 46 "C:/Users/Martin French/Desktop/SafetyPIC/AutoSAE_Safety.c"
+#line 48 "//uniwa.uwa.edu.au/userhome/Students3/20751503/My Documents/SAEAuto-master/SAEAuto-master/SafetyPIC/AutoSAE_Safety.c"
 void untrip() {
 
  tripstate = 0;
@@ -46,7 +48,7 @@ void untrip() {
  arm_state = 0;
 
 }
-#line 67 "C:/Users/Martin French/Desktop/SafetyPIC/AutoSAE_Safety.c"
+#line 69 "//uniwa.uwa.edu.au/userhome/Students3/20751503/My Documents/SAEAuto-master/SAEAuto-master/SafetyPIC/AutoSAE_Safety.c"
 void interrupt() {
 
  if(hb_interruptcount > 50) {
@@ -81,7 +83,7 @@ void interrupt() {
  TMR0 = 100;
  INTCON.TMR0IF = 0;
 }
-#line 106 "C:/Users/Martin French/Desktop/SafetyPIC/AutoSAE_Safety.c"
+#line 108 "//uniwa.uwa.edu.au/userhome/Students3/20751503/My Documents/SAEAuto-master/SAEAuto-master/SafetyPIC/AutoSAE_Safety.c"
 void main() {
 
  OSCCON = 0b1111110;
@@ -130,6 +132,19 @@ void main() {
  if(tripreq == 1) { trip(); }
 
  asm { CLRWDT; }
+#line 164 "//uniwa.uwa.edu.au/userhome/Students3/20751503/My Documents/SAEAuto-master/SAEAuto-master/SafetyPIC/AutoSAE_Safety.c"
+ hb_bypass_button_state = PORTB.B7;
+
+ if(hb_bypass_button_state != hb_bypass_prev_state) {
+
+ hb_interruptcount = 0;
+ if(hb_bypass_button_state == 1) {
+ hbstate = 1;
+ } else {
+ hbstate = 0;
+ }
+ }
+ hb_bypass_prev_state = hb_bypass_button_state;
 
  if (UART1_Data_Ready()) {
  uart_rd = UART1_Read();
@@ -159,8 +174,10 @@ void main() {
  if(alarm_counter == 0) { PORTA.B0 = 0; }
  }
 
- brakeil = PORTB.B7;
+
  PORTB.B1 = brakeil;
+
+
 
  if(arm_state > 0 && PORTA.B2 == 0 && tripstate == 0) {
  UART1_Write_Text("DES\n");

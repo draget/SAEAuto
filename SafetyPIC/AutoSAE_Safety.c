@@ -154,26 +154,28 @@ void main() {
 
         asm { CLRWDT; } // Reset watchdog timer
      
-     	
-     	/*
-     	* Having the bypass button code before the Data Ready if block means that the heartbeat LED can be updated
-     	* with this button's status (useful in ensuring PIC programmed correctly),
-     	* but the actual resetting of the timer occurs in the if block.
-     	* This prevents the vehicle from being able to drive autonomously without being properly connected.
-	*/
-	hb_bypass_button_state = PORTB.B7;		
-	//If button state has changed
-     	if(hb_bypass_button_state != hb_prev_button_state) {
-	     	//If button now pressed => set hbstate to 1, else set to 0 as button must have been released.
-        	if(hb_bypass_button_state == 1) {
-			hbstate = 1;
-		} else {
-			hbstate = 0;
-		}
-      	}
+             
+             /*
+             * Having the bypass button code before the Data Ready if block means that the heartbeat LED can be updated
+             * with this button's status (useful in ensuring PIC programmed correctly),
+             * but the actual resetting of the timer occurs in the if block.
+             * This prevents the vehicle from being able to drive autonomously without being properly connected.
+        */
+        hb_bypass_button_state = PORTB.B7;                
+        //If button state has changed
+       if(hb_bypass_button_state != hb_bypass_prev_state) {
+          //If button now pressed => set hbstate to 1, else set to 0 as button must have been released.
+          hb_interruptcount = 0;//Reset the timer
+          if(hb_bypass_button_state == 1) {
+                  hbstate = 1;
+          } else {
+                  hbstate = 0;
+          }
+        }
+        hb_bypass_prev_state = hb_bypass_button_state;
 
         if (UART1_Data_Ready()) {                // Receive serial data.
-	        uart_rd = UART1_Read();
+                uart_rd = UART1_Read();
                  
                 if(uart_rd == 'E' && tripstate == 0) { trip(); }
                 if(uart_rd == 'R' && tripstate == 1) { untrip(); }
@@ -187,7 +189,7 @@ void main() {
                  if(uart_rd == 'H') { brakeil = 0; }
                  
                  if(uart_rd == 'A') { alarm_counter = 25; PORTA.B0 = 1; }
-		
+                
                  if(oldhbstate != hbstate) { hb_interruptcount = 0; }
 
                  UART1_Write_Text("ACK ");        // Reply with acknowledgement of message.
@@ -203,7 +205,7 @@ void main() {
               //brakeil = PORTB.B7;
               PORTB.B1 = brakeil;
 
-	      
+              
 
               if(arm_state > 0 && PORTA.B2 == 0 && tripstate == 0) {        // Dash e-stop
                            UART1_Write_Text("DES\n");
