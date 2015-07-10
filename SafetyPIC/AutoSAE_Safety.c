@@ -150,17 +150,35 @@ void main() {
 
      while(1) {
      
-              if(tripreq == 1) { trip(); }
+        if(tripreq == 1) { trip(); }
 
-             asm { CLRWDT; } // Reset watchdog timer
+        asm { CLRWDT; } // Reset watchdog timer
+     
+     	
+     	/*
+     	* Having the bypass button code before the Data Ready if block means that the heartbeat LED can be updated
+     	* with this button's status (useful in ensuring PIC programmed correctly),
+     	* but the actual resetting of the timer occurs in the if block.
+     	* This prevents the vehicle from being able to drive autonomously without being properly connected.
+	*/
+	hb_bypass_button_state = PORTB.B7;		
+	//If button state has changed
+     	if(hb_bypass_button_state != hb_prev_button_state) {
+	     	//If button now pressed => set hbstate to 1, else set to 0 as button must have been released.
+        	if(hb_bypass_button_state == 1) {
+			hbstate = 1;
+		} else {
+			hbstate = 0;
+		}
+      	}
 
-              if (UART1_Data_Ready()) {                // Receive serial data.
-                 uart_rd = UART1_Read();
+        if (UART1_Data_Ready()) {                // Receive serial data.
+	        uart_rd = UART1_Read();
                  
-                 if(uart_rd == 'E' && tripstate == 0) { trip(); }
-                 if(uart_rd == 'R' && tripstate == 1) { untrip(); }
+                if(uart_rd == 'E' && tripstate == 0) { trip(); }
+                if(uart_rd == 'R' && tripstate == 1) { untrip(); }
                  
-                 oldhbstate = hbstate;
+                oldhbstate = hbstate;
                  
                  if(uart_rd == '+') { hbstate = 1; }
                  if(uart_rd == '-') { hbstate = 0; }
@@ -170,18 +188,6 @@ void main() {
                  
                  if(uart_rd == 'A') { alarm_counter = 25; PORTA.B0 = 1; }
 		
-		hb_bypass_button_state = PORTB.B7;		
-
-		//If button state has changed
-             	if(hb_bypass_button_state != hb_prev_button_state) {
-			//If button now pressed => set hbstate to 1, else set to 0 as button must have been released.
-	        	if(hb_bypass_button_state == 1) {
-				hbstate = 1;
-			} else {
-				hbstate = 0;
-			}
-	      }
-
                  if(oldhbstate != hbstate) { hb_interruptcount = 0; }
 
                  UART1_Write_Text("ACK ");        // Reply with acknowledgement of message.
