@@ -1,4 +1,8 @@
 #!/bin/sh
+export TERM=xterm # elevate webservers 'dumb' terminal to xterm
+cd /home/pi/SAEAuto/Control # change to control directory
+sudo killall Control #kill any running processes
+sleep 1
 
 sudo mkfs -t ext3 -q /dev/ram1 8192
 sudo [ ! -d ./ramdisk ] && mkdir -p ./ramdisk
@@ -17,9 +21,10 @@ sudo chmod 777 /dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Control
 sudo chmod 777 /dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_74134373733351609070-if00
 sudo chmod 777 /dev/serial/by-id/usb-Xsens_Xsens_USB-serial_converter_XST8R2K9-if00-port0
 
-sudo python M2Mconnect.py
-
 User=`whoami`
 
-sudo nice -n -19 sudo -u $User ./Control $1
+sudo nohup nice -n -19 sudo -u $User ./Control $1 > whatever.stdout 2> whatever.stderr < /dev/null &
+sleep 2
+pidof Control
+
 
