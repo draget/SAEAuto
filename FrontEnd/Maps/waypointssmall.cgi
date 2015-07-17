@@ -641,7 +641,8 @@ print <<END;
 <button type="button" onclick="toggleRecord(); return false;"> <img id="recorder" src="img/notrecording.png" width="30" height="30"> </button>
 <br />
 <button type="button" onclick="link('./controlcontrol.cgi?command=stop');"> <img id="stopcontrol" src="img/stopcontrol.png" width="30" height="30"> </button>
-
+<br />
+<button type="button" onclick="sendCommand('TOGBIL'); return false;"> <img id="togbil" src="img/togbil.png" width="30" height="30"> </button>
 <!-- ----------------  START OF HIDDEN CODE  -------------- -->
 
 <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
