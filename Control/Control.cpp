@@ -99,6 +99,8 @@ Control::Control(std::string LogDir, bool ExtLog) {
 	CurrentSteeringSetPosn = 0;
 	CurrentThrottleBrakeSetPosn = 0;
 
+	LogLevel = "INFO"; //Set to "Debug" for increased log verbosity.
+
 
 	// Create object instances...
 	Log = new Logger(LogDir + "/mainlog.txt");

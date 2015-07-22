@@ -205,9 +205,9 @@ void LowLevelSerialOut::ProcessMessage() {
 
 	}
 	else {
-
-		Log->WriteLogLine("LowLevelSerial - Received non-ack: " + MsgString);
-
+		if (CarControl->LogLevel == "DEBUG") {
+			Log->WriteLogLine("LowLevelSerial - Received non-ack: " + MsgString);
+		}
 	}
 
 	RxBuffer.clear();

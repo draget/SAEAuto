@@ -104,6 +104,8 @@ public:
 	bool RecordActive;
 	bool BrakeILOn; // If this is off we don't require a heartbeat or network connection for auto!
 
+	std::string LogLevel;
+
 	double DatumLat;
 	double DatumLong;
 
