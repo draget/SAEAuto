@@ -442,10 +442,10 @@ void IBEO::ProjectObjectsToMap() {
 
 			// Only put fenceposts down that are at least a radius away from existing ones.
 			BOOST_FOREACH( VECTOR_2D MapPoint, CarControl->CurrentMap.DetectedFenceposts ) {
-				if(CarControl->VectorMagnitude(CarControl->SubtractVector(MapPoint,TransformedObject)) < CarControl->FencepostRadius) { Found = true; break; }
+				if(CarControl->VectorMagnitude(CarControl->SubtractVector(MapPoint,TransformedObject)) < CarControl->FencepostRadius) { Found = true; }
 			}
 
-			if(! Found) {} //CarControl->CurrentMap.DetectedFenceposts.push_back(TransformedObject); }
+			if(! Found) { CarControl->CurrentMap.DetectedFenceposts.push_back(TransformedObject); }
 		}
 
 	}

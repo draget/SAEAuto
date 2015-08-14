@@ -736,14 +736,25 @@ void Control::UpdatePathPlan() {
 		double mincurverad = 2;
 		
 		//Get current Obstacles
-		double ob[] = {22,46.8,1};
+		//double ob[] = {22,46.8,1}; //TODO: Put in actual objects
+		int numPosts = CurrentMap.DetectedFenceposts.length;
+
+		double ob[] = new double[3*numPosts];
+		int postIter = 0;
+		while( postIter < numPosts;) {
+			ob[postIter] = CurrentMap.DetectedFenceposts.x;
+			ob[postIter + 1] = CurrentMap.DetectedFenceposts.y;
+			ob[postIter + 2] = FencepostRadius;
+			postIter += 3;
+		}
 		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob, 3, 0);
 		emxArray_real_T *arcob = emxCreate_real_T(1,1);
 		
 		Log->WriteLogLine("Object Localize");
-		//Log->WriteLogLine("Obstacles Size: " + boost::lexical_cast<std::string>(obstacles->size[0]) + "x" + boost::lexical_cast<std::string>(obstacles->size[1]));
-		//Log->WriteLogLine("Obstacles Data: " + boost::lexical_cast<std::string>(obstacles->data[0]) + "," + boost::lexical_cast<std::string>(obstacles->data[1]));
-		
+		if (LogLevel == "Debug") {
+			Log->WriteLogLine("Obstacles Size: " + boost::lexical_cast<std::string>(obstacles->size[0]) + "x" + boost::lexical_cast<std::string>(obstacles->size[1]));
+			Log->WriteLogLine("Obstacles Data: " + boost::lexical_cast<std::string>(obstacles->data[0]) + "," + boost::lexical_cast<std::string>(obstacles->data[1]));
+		}
 		timestamp_t t0 = get_timestamp();
 		oblocalize(PathPlan.scoefx,PathPlan.scoefy,PathPlan.si,obstacles,1,EPSILON,arcob);
 		timestamp_t t1 = get_timestamp();
@@ -934,11 +945,11 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 	
 	PlanLock.lock(); //block until path planning is complete, lock mutex
 	
-	//VECTOR_2D DistanceToBaseFrame = SubtractVector(PathPlan.BaseFrame[0],CurPosn);
-	//if(VectorMagnitude(DistanceToBaseFrame) < MAPPOINT_RADIUS) {
-	//	Log->WriteLogLine("Control - Reached Start of BaseFrame. Activating Advanced Path Planning ");
-		//PathPlan.active = true;
-	//}
+	VECTOR_2D DistanceToBaseFrame = SubtractVector(PathPlan.BaseFrame[0],CurPosn);
+	if(VectorMagnitude(DistanceToBaseFrame) < MAPPOINT_RADIUS) {
+		Log->WriteLogLine("Control - Reached Start of BaseFrame. Activating Advanced Path Planning ");
+		PathPlan.active = true;
+	}
 	
 	VECTOR_2D VectorToNextWp;
 	
@@ -960,7 +971,7 @@ void Control::AutoPosUpdate(VECTOR_2D CurPosn) {
 		VECTOR_2D DistanceToBaseFrame = SubtractVector(PathPlan.BaseFrame[0],CurPosn);
 		if(VectorMagnitude(DistanceToBaseFrame) < MAPPOINT_RADIUS) {
 			Log->WriteLogLine("Control - Reached Start of BaseFrame. Activating Advanced Path Planning ");
-			//PathPlan.active = true;
+			PathPlan.active = true;
 		}
 		
 		// Check if we have reached a waypoint.
