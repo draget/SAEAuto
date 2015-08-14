@@ -1,0 +1,47 @@
+[?1049h[1;24r(B[m[4l[?7h[?1h=[H[2J[1;13HUWA AUTONOMOUS SAE CAR CONTROLLER - THOMAS DRAGE 2013
+Manual State: 0
+Trip State: 0
+HB State: 0[4;51HIBEO State: 0
+Car Net State: Waiting to accept a connection     IBEO N Objects: 0
+Safety Serial State: 1[6;51HIBEO N Scan Pts: 0
+LowLevel Serial State: 1[7;51HIBEO Scan No: 0
+Brake IL Status: 1[9;51HGPS State: 1
+Current Steering Posn: 0[10;51HGPS Latitude: 0.000000
+Current Throttle/Brake Level: 0[11;51HGPS Longitude: 0.000000[12;51HGPS Speed: 0.000000[13;51HGPS Track Angle: 0.000000
+
+Log:
+Log:
+Log: 14/08/15 08:59:03: Log started.
+Log: 14/08/15 08:59:03: Control - Ext logging: 1
+Log: 14/08/15 08:59:03: IPC - Couldn't create fifo!
+Log: 14/08/15 08:59:03: IPC - Pipe open okay.
+Log: 14/08/15 08:59:03: IBEO scanner - attempting to connect to 192.168.2.4:1200[22;1H2.
+Log: 14/08/15 08:59:06: XSens - Couldn't open IMU port.
+Log: 14/08/15 08:59:06: Car Network - Waiting to accept a connection[16d[A[2M[23dLog: 14/08/15 08:59:19: IPC - Received SETDATUM,-31.980569,115.81780700000002
+Log: 14/08/15 08:59:19: IPC - Setting new datum -31.980569115.81780700000002[16d[A[3M[8;18H0[22dLog: 14/08/15 08:59:41: IPC - Received TOGBIL
+Log: 14/08/15 08:59:41: IPC - calling toggle brakeil
+Log: 14/08/15 08:59:41: Control - Brake IL toggled[16d[A[3M[8;18H1[22dLog: 14/08/15 08:59:43: IPC - Received TOGBIL
+Log: 14/08/15 08:59:43: IPC - calling toggle brakeil
+Log: 14/08/15 08:59:43: ontrol - Brake IL toggled[16d[A[2M[23dLog: 14/08/15 09:00:29: IPC - Received LOADMAP,test.wyp
+Log: 14/08/15 09:00:29: IPC - calling load map[16d[A[4M[21dLog: 14/08/15 09:00:29: #Samples: 440
+Log: 14/08/15 09:00:29: Total Baseframe Path Length: 219.8945085177653
+Log: 14/08/15 09:00:29: #Curvature Samples: 440
+Log: 14/08/15 09:00:29: Control - loaded 0 fence and 3 waypoints.[16d[A[2M[23dLog: 14/08/15 09:00:42: IPC - Received SETDATUM,-31.97930430504157,115.817635059[24;1H3566914/08/15 09:00:42: IPC - Setting new datum -31.97930430504157115.817635059[?7l3[?7h[16d[15;23r[23;1H[2S[1;24r[3;13H5[7;24H0[11;31H-256[22d35669
+5669
+Log: [24;19H4:52: Control - changed to trip state 5 reason: Error sending[K[16d[3;13H7[15;19H5:07: GPS - Read error![K[16;19H5:07: Control - changed to trip state 7 reason: GPS Error[17;19H5:07: GPS - Read error![18;19H5:07: Control - changed to trip state 7 reason: GPS Error[19;19H5:07: GPS - Read error![K[20;19H5:07[20;35Hchanged to trip state 7 reason: GPS Error[21;19H5:07: GPS - Read error![K
+Log: 14/08/15 09:05:07: Control - changed to trip state 7 reason: GPS Error
+Log: 14/08/15 09:05:07: GPS - Read error![24;19H5:07[24;57H7[24;67HGPS Error[K[16d[15;25HControl - changed to trip state 7 reason: GPS Error[16;25HGPS - Read error![K[17;25HControl - changed to trip state 7 reason: GPS Error[18;25HGPS - Read error![K[19;25HControl - changed to trip state 7 reason: GPS Error[20;25HGPS - Read error![K[21;25HControl - changed to trip state 7 reason: GPS Error[22;25HGPS - Read error![K[23;25HControl - changed to trip state 7 reason: GPS Error[24;25HGPS - Read error![K[16d[15;22H8
+8
+8
+8
+8
+8
+8
+8
+8
+8[16d[15;6H[K
+[K
+[K
+[K
+[K
+[K[21;25HLog started.[K[22;25HControl - Ext logging: 1[23;25HIPC - Couldn't create fifo![K[24;25HIPC - Pipe open okay.[16d

@@ -737,17 +737,18 @@ void Control::UpdatePathPlan() {
 		
 		//Get current Obstacles
 		//double ob[] = {22,46.8,1}; //TODO: Put in actual objects
-		int numPosts = CurrentMap.DetectedFenceposts.length;
+		int numPosts = CurrentMap.DetectedFenceposts.size();
 
-		double ob[] = new double[3*numPosts];
+		std::vector<double> ob;
+
 		int postIter = 0;
-		while( postIter < numPosts;) {
-			ob[postIter] = CurrentMap.DetectedFenceposts.x;
-			ob[postIter + 1] = CurrentMap.DetectedFenceposts.y;
-			ob[postIter + 2] = FencepostRadius;
-			postIter += 3;
+		while( postIter < numPosts) {
+			ob.push_back(CurrentMap.DetectedFenceposts[postIter].x);
+			ob.push_back(CurrentMap.DetectedFenceposts[postIter].y);
+			ob.push_back(FencepostRadius);
+			postIter++;
 		}
-		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob, 3, 0);
+		emxArray_real_T *obstacles = emxCreateWrapper_real_T(&ob[0], 3, 0);
 		emxArray_real_T *arcob = emxCreate_real_T(1,1);
 		
 		Log->WriteLogLine("Object Localize");
