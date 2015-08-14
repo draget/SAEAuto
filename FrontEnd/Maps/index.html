@@ -57,7 +57,7 @@ function link(h) {
 <div id="autoEstop" class="page">
 <p class="center">Please disengage the autonomous E-stop.</p>
 <button class="pos_left" onclick="link('./controlcontrol.cgi?command=stop');">Exit</button>
-<button class="pos_right" onclick="link('./controlcontrol.cgi?command=start')">Done</button>
+<button class="pos_right" onclick="link('controlcontrol.cgi?command=start')">Done</button>
 <p class="center"><img class="center" src="./img/autoestop.JPG"></p>
 </div>
 
@@ -69,6 +69,15 @@ function link(h) {
 <button class="pos_left" onclick="link('./controlcontrol.cgi?command=stop');">Exit</button>
 <button class="pos_right" onclick="alert('Warning: Throttle now active');link('./waypointssmall.cgi');">Done</button>
 <p class="center"><img class="center" src="./img/driveestop.JPG"></p>
+</div>
+
+<br/>
+<br/>
+
+<div id="selectDriveType" class="page">
+<p class="center">What type of drive are you performing?</p>
+<button class="pos_left" onclick="link('./simpleRecord.cgi');">Simple Record/Redrive</button>
+<button class="pos_right" onclick="link('./waypointssmall.cgi');">Standard Autonomous</button>
 </div>
 
 <br />

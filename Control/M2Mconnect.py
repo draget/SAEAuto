@@ -1,12 +1,11 @@
 #!/usr/bin/python
 """
 M2Mconnect - this program checks wireless modem cellular network connectivity
-and Raspberry Pi wwan0 interface and connects if disconnected. If eth0 or 
+and Raspberry Pi eth1 interface and connects if disconnected. If eth0 or 
 wlan0 has an IP then program provides a warning about multiple IP interfaces 
-on Raspberry Pi but continues to connect Raspberry Pi wwan0 and the modem 
-cellular PDP network connection. The program stores the modem cellular network 
-IP address. This information can be used to message that IP address to server 
-if required.
+on Raspberry Pi but continues to connect Raspberry Pi eth1. The program stores 
+the modem cellular network IP address. This information can be used to message 
+that IP address to server if required.
 
 By default the client script is using the (telstra.extranet) APN to connect to
 the cellular network, this will mean that a publicly addressable IP is assigned 
@@ -14,8 +13,8 @@ to the modem. While the IP is public the IP address is not statically assigned
 and can change between reconnection's. Teams may also wish to use the 
 (telstra.internet) APN which assigns a private IP and is thus more secure.
 
-While the modem can be assigned a public IP the Raspberry Pi wwan0 interface 
-is assigned a local IP address from the modem (typically 192.168.2.2). 
+While the modem can be assigned a public IP the Raspberry Pi eth1 interface 
+is assigned a local IP address from the modem (typically 192.168.1.4). 
 If you wish the Raspberry Pi to be reached from the internet you will need to 
 log into the modem config web page (telstra.4g) and configure port forward 
 settings.
@@ -30,10 +29,6 @@ implement the baseline code that is not specific to your solution, then please
 submit modifications via github. Teams will be recognised for their 
 contributions in improving the baseline code.
 
-24th April 2015
-Edited the global APN to telstra.m2m as testra.extranet is deprecated.
-Added an exit call to main() after RaspberryCheckIP() as REV does not need the rest of the functionality
-
 """
 
 import random
@@ -44,32 +39,20 @@ import time
 import traceback
 import urllib2
 import lockfile
-
+from cookielib import CookieJar
 
 ####################
 # Global Variables #
 ####################
 
-APN = 'telstra.m2m'  #Vaild settings are 'telstra.extranet' for pubic IP or 'telstra.internet' for private IP.
-
-SetEcho = 'ATE1'
-ModemRadioOn = 'AT+CFUN=1'                            #Turn on modem cellular radio
-ModemRadioOff = 'AT+CFUN=0'                           #Turn off modem cellular radio
-ModemPdpOpen = 'AT!SCACT=1,1'                         #Open cellular network PDP connection using profile 1
-ModemPdpClose = 'AT!SCACT=0,1'                        #Close open cellular network PDP connections (profile 1)
-setAPN = 'AT+CGDCONT=1,\"IP\",\"' + APN + '\"'        #Set profile1 APN
-setDefaultAPN = 'AT!SCDFTPROF=1'                      #Set profile 1 stored in modem as defualt for connecting
-setProf1Manual = 'AT!SCPROF=1,"m2mChallenge",0,0,0,0' #Set modem to manual with not autoconnect on powerup
-setProf1Auto = 'AT!SCPROF=1,"m2mChallenge",1,0,0,0'   #Set modem to auto connect on powerup (default)
-setProf1NDIS = 'AT!SCPROFSWOPT=1,0'                   #Set modem prof1 to Network Device Interface Services (NDIS)
-#readModemNetworkIP = 'AT!SCPADDR=1'
-DHCP_Release_wwan0 = 'sudo dhclient -r wwan0'
-DHCP_Renew_wwan0 = 'sudo dhclient -nw wwan0'
-readIPwwan0 = 'sudo ifconfig wwan0'
+APN = 'telstra.extranet'  #Vaild settings are 'telstra.extranet' for pubic IP or 'telstra.internet' for private IP.
+DHCP_Release_eth1 = 'sudo dhclient -r eth1'
+DHCP_Renew_eth1 = 'sudo dhclient -nw eth1'
+readIPeth1 = 'sudo ifconfig eth1'
 backoff = 10            # Sets the starting backoff time for attempting to reconnect (seconds)
 backofftimer = backoff  # backofftimer is doubled every time the connection fails. See connectbackoff()
 backoffStart = 0
-
+token = ["00000000","xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"]
 
 ##########################################################
 # Code to manage connection and communication with modem #
@@ -79,7 +62,7 @@ def InterfaceCheck(interface):
     """
     Checks if the passed network interfaces has a IP address.
     Prints a warning if a IP address is detected as this could mean the 
-    Raspberry Pi has multiple IP address if wwan0 interface is activated.
+    Raspberry Pi has multiple IP address if eth1 interface is activated.
     And lead to IP routing issues without correct configuration.
     """
     time.sleep(2)
@@ -89,7 +72,7 @@ def InterfaceCheck(interface):
         IP = re.search('(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})', commandresult)
         if IP:
             print "[ !! ] WARNING: Detected IP address", IP.group(0), "on", interface
-            print "       If Raspberry wwan0 IP also activated this can cause routing issues"
+            print "       If Raspberry eth1 IP also activated this can cause routing issues"
             print "       Recommend only activating one IP interface or set routing table to handle multiple interfaces"
             result = IP.group(0)
         else:
@@ -105,36 +88,21 @@ def InterfaceCheck(interface):
 
 
 def ModemDetect():
-    """Checks if wireless modem is plugged into USB port and detected on wwan0 by RaspberryPi"""
-    print "[ -- ] Checking Modem Present"
-    commandresult, commanderror = SendOS('ls /dev/ttyUSB*')
-    modemTTYinterface = re.search('ttyUSB3', commandresult) # If modem plugged in and detected there should be a ttyUSB3 interface to communicate AT commands
-    if modemTTYinterface and not commanderror:
-        commandresult, commanderror = SendOS('sudo ifconfig wwan0')
-        modeminterface = re.search('wwan0', commandresult) # If modem plugged in and detected there should be a wwan0 interface created
-        if modeminterface and not commanderror:
-            result = True  # ttyUSB3 and wwan0 interface detected so assume modem is plugged in and correctly configured
-        else:
-            print "[FAIL] Modem ttyUSB3 interface detected but wwan0 interface is NOT detected"
-            result = False
+    """Checks if AC785  modem is plugged into USB port and detected on eth1 by RaspberryPi"""
+    #print "[ -- ] Checking AC785 Modem Present"
+    commandresult, commanderror = SendOS('sudo ifconfig eth1')
+    modeminterface = re.search('eth1', commandresult) # If modem plugged in and detected there should be a eth1 interface created
+    if modeminterface and not commanderror:
+        print "[ OK ] eth1 interface detected, communication with AC785 Modem enabled"
+        result = True  # eth1 interface detected so assume modem is plugged in and correctly configured
     else:
-        print "[FAIL] Modem ttyUSB3 interface is NOT detected, check sierra modem is plugged into USB port"
+        print "[FAIL] eth1 interface is NOT detected, communication with AC785 Modem NOT possible"
         result = False
     return result
 
 
-def SendAT(ATcom):
-    """Sends AT commands to modem. Warning does not cheak for OK reply"""
-    print "[ -- ]     Sending AT command:", ATcom
-    command = 'sudo echo -e \'' + ATcom
-    command = command + '\r\' > /dev/ttyUSB3'
-    SendOS(command)
-    time.sleep(2)
-
-
 def SendOS(OScom):
     """Sends commands to Raspberry OS and returns output. """
-    #print "[ -- ] Sending OS command:", OScom
     commandoutput = subprocess.Popen([OScom], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     commandresult, commanderror = commandoutput.communicate()
     return commandresult, commanderror
@@ -144,39 +112,22 @@ def SendOS(OScom):
 # Code to manage wireless connection state #
 ############################################
 
-def ModemPdpConnect():
-    """Initiate new PDP connection"""
-    print "[ -- ] Running PDP Connection Commands"
-    SendAT(ModemRadioOn)
-    time.sleep(10)
-    SendAT(setAPN)
-    time.sleep(3)
-    SendAT(setDefaultAPN)
-    time.sleep(3)
-    SendAT(setProf1NDIS)
-    time.sleep(3)
-    SendAT(setProf1Auto)
-    time.sleep(3)
-    SendAT(ModemPdpOpen)
-    time.sleep(6)
-
 
 def RaspberryIPcheck():
     """
-    Checks if IP address assigned on interface wwan0 of Raspberry Pi
+    Checks if IP address assigned on interface eth1 of Raspberry Pi
     """
-    #SendOS(DHCP_Release_wwan0)
+    #SendOS(DHCP_Release_eth1)
     #time.sleep(2)
-    SendOS(DHCP_Renew_wwan0)
+    SendOS(DHCP_Renew_eth1)
     time.sleep(5)
-    commandresult, commanderror = SendOS(readIPwwan0)
+    commandresult, commanderror = SendOS(readIPeth1)
     wwanip = re.search('(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})', commandresult)
     if wwanip and not commanderror:
-        print "[ OK ] RaspberryPi wwan0 connected with IP address", wwanip.group(0)
+        print "[ OK ] RaspberryPi eth1 connected with IP address", wwanip.group(0)
         result = wwanip.group(0)
-	
     else:
-        print "[FAIL] RaspberryPi unable to get wwan0 IP address"
+        print "[FAIL] RaspberryPi unable to get eth1 IP address"
         result = None
     return result
 
@@ -186,18 +137,18 @@ def ModemIPcheck():
     Checks if IP address assigned on the wireless modem from cellular network
     """
     zeroIP = "0.0.0.0"
-    webresponse = urllib2.urlopen('http://192.168.1.1/index.html#data')
+    webresponse = urllib2.urlopen('http://192.168.1.1/index.html#settings/network/status')
     modemwebpage = webresponse.read()
     modemip = re.search('(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})', modemwebpage)
     if modemip:
         if modemip.group(0) != zeroIP:
-            print "[ OK ] Modem connected with IP address", modemip.group(0)
+            print "[ OK ] AC785 Modem connected to cellular network with IP address", modemip.group(0)
             result = modemip.group(0)
         else:
-            print "[ -- ] No Modem IP address"
+            print "[ -- ] AC785 Modem has no IP address from cellular network"
             result = None
     else:
-        print "[ -- ] No Modem IP address"
+        print "[ -- ] AC785 Modem has has no IP address from cellular network"
         result = None
     return result
 
@@ -207,39 +158,50 @@ def ModemIPchange(modemip):
     Checks if modem IP has changed from the last acquired modem IP
     Saves current IP in file .current_ip for later reference
     """
-    print "[ -- ] Checking if Modem IP Changed"
+    print "[ -- ] Checking if AC785 Modem IP Changed"
     lastIP = subprocess.Popen("cat  ~/.current_ip", shell=True, stdout=subprocess.PIPE)
     lastIP = lastIP.communicate()[0]
     if lastIP:
         lastIPclean = re.search('(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})', lastIP)
         if lastIPclean:
             if modemip != lastIPclean.group(0):
-                print "[ -- ] New Modem IP address detected", modemip, "was", lastIPclean.group(0)
+                print "[ -- ] New AC785 Modem IP address detected", modemip, "was", lastIPclean.group(0)
                 iplist = "echo \"" + modemip + "\" >|~/.current_ip"
                 # Save IP address in file .current_ip
                 SendOS(iplist)
-                # Place code here if you want device to do something in response to IP change. Example send email.
+                IPchangeAlert(modemip)
             else:
-                print "[ -- ] Modem IP address same as last acquired address", modemip
+                print "[ -- ] AC785 Modem IP address same as last acquired address", modemip
         else:
             # File .current_ip was empty
-            print "[ -- ] New wwan0 IP address", modemip
+            print "[ -- ] New eth1 IP address", modemip
             iplist = "echo \"" + modemip + "\" >|~/.current_ip"
             # Save IP address in file .current_ip
             SendOS(iplist)
+            IPchangeAlert(modemip)
     else:
         # File .current_ip did not exist
-        print "[ -- ] New wwan0 IP address", modemip
+        print "[ -- ] New eth1 IP address", modemip
         iplist = "echo \"" + modemip + "\" >|~/.current_ip"
         # Save IP address in file .current_ip
         SendOS(iplist)
+        IPchangeAlert(modemip)
+        
+
+def IPchangeAlert(modemip):
+    """
+    Send an alert to inform remote user that the external modem IP address has changed
+    This is recommended if external remote ssh access to the pi is required using telstra.extranet APN
+    """
+    # Place code here if you want device to do something in response to IP change. 
+    # Example send email or update Dynamic DNS service.
+
 
 def privateIP(currentIP):
     """
     Checks if current IP is in the private IP range or the public IP range
     Returns True if in private IP range or False if in public IP range
     """
-
     #Match against private IP ranges
     if re.search('10\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})', currentIP):
         print "[ -- ] Private IP using 10.x.x.x range"
@@ -291,8 +253,171 @@ def connectbackoff():
         #print "[ -- ] Backoff timer has not expired so cannot try to connect yet"
         timeremain = backofftimer - timepassed
         timeremain = round(timeremain, 1)
-        print "[ -- ] System can attempt reconnect in", timeremain, "seconds"
+        print "[ -- ] System can attempt reconnect to cellular netowrk in", timeremain, "seconds"
         return False
+
+
+def ModemLogin():
+    """Login to AC785 webpage"""
+    global token
+    targetUrl = "http://192.168.1.1/index.html"
+    #print "[ -- ] Getting session cookie from AC785 webpage"
+    req = urllib2.Request(targetUrl)
+    req.get_method = lambda: 'GET'
+    response = urllib2.urlopen(req)
+    UploadResult = response.getcode()
+    if UploadResult == 200:
+        print "[ OK ] AC785 Webpage Opened"
+        modemwebpage = response.read()
+        #print modemwebpage
+        # sessionId=00000000%2DyfHPjwmGkJLC3vghDRzbePeD0mhH9rA
+        sessioncookie = re.search('sessionId=(?:[\d]{1,8})\%2D(?:[\w]{1,31})', modemwebpage)
+        if sessioncookie:
+            token = sessioncookie.group(0).split('%2D')
+            print "[ -- ] Session Cookie: ", sessioncookie.group(0)
+            time.sleep(2)
+            targetUrl = "http://192.168.1.1/Forms/config"
+            #print "[ -- ] Logging into AC785 Admin Webpage"
+            postdata = "token=" + token[1] + "&ok_redirect=%2Findex.html&err_redirect=%2Findex.html&session.password=admin"
+            headers = {"Cookie": token[0] + "-" + token[1]}
+            #print "     URL: ", targetUrl
+            #print "     Headers: ", headers
+            #print "     Body: ", postdata
+            req = urllib2.Request(targetUrl, postdata, headers)
+            req.get_method = lambda: 'POST'
+            response = urllib2.urlopen(req)
+            UploadResult = response.getcode()
+            if UploadResult == 200:
+                print "[ OK ] AC785 Admin Webpage Login Sucessful"
+            else:
+                print "[FAIL] AC785 Admin Webpage Login Error", UploadResult
+            #print response.read()
+        else:
+            print "[FAIL] No session cookie detected. Unable to login to AC785 Admin Webpage"
+            sessioncookie = None
+            token = None
+            UploadResult = 0
+    else:
+        print "[FAIL] AC785 Webpage Load Error", UploadResult
+    time.sleep(2)
+    return UploadResult
+
+
+def ModemPdpDisconnect():
+    """Disconnect AC785 from celluar network"""
+    targetUrl = "http://192.168.1.1/Forms/config"
+    #print "[ -- ] Running PDP Disonnection Commands"
+    postdata = "wwan.connect=Disconnect&err_redirect=/error.json&ok_redirect=/success.json&token=" + token[1]
+    headers = {"Cookie": token[0] + "-" + token[1]}
+    #print "     URL: ", targetUrl
+    #print "     Headers: ", headers
+    #print "     Body: ", postdata
+    req = urllib2.Request(targetUrl, postdata, headers)
+    req.get_method = lambda: 'POST'
+    response = urllib2.urlopen(req)
+    UploadResult = response.getcode()
+    if UploadResult == 200:
+        print "[ -- ] PDP Disconnect Request Sent"
+    else:
+        print "[FAIL] PDP Disconnect Error", UploadResult
+    #print response.read()
+    time.sleep(2)
+    return UploadResult
+
+
+def ModemPdpConnect():
+    """Connect AC785 to cellular network"""
+    targetUrl = "http://192.168.1.1/Forms/config"
+    #print "[ -- ] Running PDP Connection Commands"
+    postdata = "wwan.connect=DefaultProfile&err_redirect=/error.json&ok_redirect=/success.json&token=" + token[1]
+    headers = {"Cookie": token[0] + "-" + token[1]}
+    #print "     URL: ", targetUrl
+    #print "     Headers: ", headers
+    #print "     Body: ", postdata
+    req = urllib2.Request(targetUrl, postdata, headers)
+    req.get_method = lambda: 'POST'
+    response = urllib2.urlopen(req)
+    UploadResult = response.getcode()
+    if UploadResult == 200:
+        print "[ -- ] PDP Connect Request Sent"
+    else:
+        print "[FAIL] PDP Connect Error", UploadResult
+    #print response.read()
+    time.sleep(10)
+    return UploadResult
+
+
+def ModemDeleateProfile(id):
+    """Deleate AC785 APN"""
+    #print "[ -- ] Deleting APN Profile", str(id)
+    targetUrl = 'http://192.168.1.1/Forms/profile'
+    #profile.id=1&action=delete&err_redirect=/error.json&ok_redirect=/success.json&token=anyfLUyviCSSrTovug29PkZJKLDMdpr
+    postdata = "profile.id=" + str(id) + "&action=delete&err_redirect=/error.json&ok_redirect=/success.json&token=" + token[1]
+    headers = {"Cookie": token[0] + "-" + token[1]}
+    #print "     URL: ", targetUrl
+    #print "     Headers: ", headers
+    #print "     Body: ", postdata
+    req = urllib2.Request(targetUrl, postdata, headers)
+    req.get_method = lambda: 'POST'
+    response = urllib2.urlopen(req)
+    UploadResult = response.getcode()
+    if UploadResult == 200:
+        #print "[ -- ] Cleared APN Profile", str(id)
+		time.sleep(0)
+    else:
+        print "[FAIL] Unable to Delete APN Profile", str(id)
+    #print response.read()
+    time.sleep(2)
+    return UploadResult
+
+
+def ModemPdpSetAPN(id):
+    """Set AC785 APN Profile"""
+    # Clear any existing Profile settings
+    for x in range(1, 5):
+        ModemDeleateProfile(x)
+    ModemDeleateProfile(id)
+    #print "[ -- ] Setting AC785 Modem APN to", APN
+    targetUrl = 'http://192.168.1.1/Forms/profile'
+    postdata = "action=update&profile.index=" + str(id) + "&profile.id=" + str(id) + "&profile.name=UniChallenge&profile.apn=" + APN + "&profile.username=&profile.password=&profile.authtype=None&profile.type=IPV4&profile.pdproamingtype=None&profile.ipaddr=0.0.0.0&err_redirect=/error.json&ok_redirect=/success.json&token=" + token[1]
+    headers = {"Cookie": token[0] + "-" + token[1]}
+    #print "     URL: ", targetUrl
+    #print "     Headers: ", headers
+    #print "     Body: ", postdata
+    req = urllib2.Request(targetUrl, postdata, headers)
+    req.get_method = lambda: 'POST'
+    response = urllib2.urlopen(req)
+    UploadResult = response.getcode()
+    if UploadResult == 200:
+        print "[ -- ] Set APN", str(id)
+        ModemDefaultProfile(id + 1) #+1 offset due to webpage having default telstra.internet profile that can not be deleted
+    else:
+        print "[FAIL] Unable to set APN", str(id)
+    #print response.read()
+    time.sleep(2)
+    return UploadResult
+
+
+def ModemDefaultProfile(id):
+    """Set AC785 defulat APN"""
+    #print "[ -- ] Setting AC785 Modem Default Profile to", str(id)
+    targetUrl = 'http://192.168.1.1/Forms/config'
+    postdata = "wwan.profile.default=" + str(id) + "&wwan.profile.defaultLTE=" + str(id) + "&err_redirect=/error.json&ok_redirect=/success.json&token=" + token[1]
+    headers = {"Cookie": token[0] + "-" + token[1]}
+    #print "     URL: ", targetUrl
+    #print "     Headers: ", headers
+    #print "     Body: ", postdata
+    req = urllib2.Request(targetUrl, postdata, headers)
+    req.get_method = lambda: 'POST'
+    response = urllib2.urlopen(req)
+    UploadResult = response.getcode()
+    if UploadResult == 200:
+        print "[ -- ] Set Defualt to Profile", str(id)
+    else:
+        print "[FAIL] Unable to set default to profile", str(id)
+    #print response.read()
+    time.sleep(2)
+    return UploadResult
 
 
 class ExitProgram(Exception):
@@ -312,7 +437,6 @@ def main():
     print "[ -- ] System Initiating Connection Check"
     global backofftimer
     global backoffStart
-
     #Check lock file to see if another M2Mconnect program is already running. If already running then exit.
     M2MconnectLOCKfile = lockfile.FileLock('M2MconnectLOCKfile')
     try:
@@ -324,7 +448,6 @@ def main():
         print "Check another instance of M2Mconnect.py is not already running"
         print "**********"
         sys.exit()
-
     while True:
         try:
             if connectbackoff(): 
@@ -332,24 +455,52 @@ def main():
                 #Check what interfaces already have a IP address
                 InterfaceCheck('eth0')
                 InterfaceCheck('wlan0')
-                #Begin wwan0 interface setup
+                #Begin eth1 interface setup
                 if ModemDetect():
-                    SendAT('ATE1')
                     if RaspberryIPcheck():
-			#QUIT PROGRAM IS IPCHECK IS VALID
 			raise ExitProgram()
-
-                        currentIP = ModemIPcheck()
-                        if currentIP:
-                            if not correctIP(currentIP):
-                                # Disconnect currnet PDP session and start again
-                                if APN == 'telstra.internet':
-                                    print "[ -- ] APN set to", APN, "but current modem IP is public"
-                                elif APN == 'telstra.extranet':
-                                    print "[ -- ] APN set to", APN, "but current modem IP is private"
-                                print "[ -- ] Closeing current network PDP connection"
-                                SendAT(ModemPdpClose)
-                                time.sleep(10)
+                        if ModemLogin():
+                            currentIP = ModemIPcheck()
+                            if currentIP:
+                                if not correctIP(currentIP):
+                                    # Disconnect currnet PDP session and start again
+                                    if APN == 'telstra.internet':
+                                        print "[ -- ] APN set to", APN, "but current modem IP is public"
+                                    elif APN == 'telstra.extranet':
+                                        print "[ -- ] APN set to", APN, "but current modem IP is private"
+                                    print "[ -- ] Closing current network PDP connection"
+                                    ModemPdpDisconnect()
+                                    time.sleep(10)
+                                    ModemPdpSetAPN(1)
+                                    time.sleep(5)
+                                    ModemPdpConnect()
+                                    returnedIP = ModemIPcheck()
+                                    if returnedIP is not None:
+                                        if correctIP(returnedIP):
+                                            ModemIPchange(returnedIP)
+                                            print "[ OK ] System IP Connection Complete"
+                                            print "************************************"
+                                            backofftimer = backoff
+                                            raise ExitProgram()
+                                        else:
+                                            print "[FAIL] AC785 Modem did not get correct IP address for APN", APN
+                                            ModemPdpDisconnect()
+                                            time.sleep(10)
+                                            backoffStart = time.time()
+                                            print " "
+                                    else:
+                                        print "[FAIL] Modem did not get IP address from network"
+                                        backoffStart = time.time()
+                                        print " "
+                                else:
+                                    # Currnet IP and APN match or APN not set as either extranet/internet.
+                                    ModemIPchange(currentIP)
+                                    print "[ OK ] System IP Connection Complete"
+                                    print "************************************"
+                                    backofftimer = backoff
+                                    raise ExitProgram()
+                            else:
+                                ModemPdpSetAPN(1)
                                 ModemPdpConnect()
                                 returnedIP = ModemIPcheck()
                                 if returnedIP is not None:
@@ -360,50 +511,25 @@ def main():
                                         backofftimer = backoff
                                         raise ExitProgram()
                                     else:
-                                        print "[FAIL] Modem did not get correct IP address for APN", APN
-                                        SendAT(ModemPdpClose)
+                                        print "[FAIL] AC785 Modem did not get correct IP address for APN", APN
+                                        ModemPdpDisconnect()
                                         time.sleep(10)
                                         backoffStart = time.time()
                                         print " "
                                 else:
-                                    print "[FAIL] Modem did not get IP address from network"
+                                    print "[FAIL] AC785 Modem could not get IP address from network"
                                     backoffStart = time.time()
                                     print " "
-                            else:
-                                # Currnet IP and APN match or APN not set as either extranet/internet.
-                                ModemIPchange(currentIP)
-                                print "[ OK ] System IP Connection Complete"
-                                print "************************************"
-                                backofftimer = backoff
-                                raise ExitProgram()
                         else:
-                            ModemPdpConnect()
-                            returnedIP = ModemIPcheck()
-                            if returnedIP is not None:
-                                if correctIP(returnedIP):
-                                    ModemIPchange(returnedIP)
-                                    print "[ OK ] System IP Connection Complete"
-                                    print "************************************"
-                                    backofftimer = backoff
-                                    raise ExitProgram()
-                                else:
-                                    print "[FAIL] Modem did not get correct IP address for APN", APN
-                                    SendAT(ModemPdpClose)
-                                    time.sleep(10)
-                                    backoffStart = time.time()
-                                    print " "
-                            else:
-                                print "[FAIL] Modem could not get IP address from network"
-                                backoffStart = time.time()
-                                print " "
+                            print "[FAIL] Unable to Login as Admin to AC785 Modem"
+                            backofftimer = backoff
                     else:
-                        print "[FAIL] RaspberryPi could not get IP address from modem\n"
+                        print "[FAIL] RaspberryPi could not get IP address from AC785 modem\n"
                         backofftimer = backoff
                 else:
-                    print "[FAIL] Unable to open AT serial connection to Modem\n"
+                    print "[FAIL] Unable to open connection to AC785 Modem\n"
                     backofftimer = backoff
             time.sleep(5)
-
         except ExitProgram:
             M2MconnectLOCKfile.release()
             sys.exit()
