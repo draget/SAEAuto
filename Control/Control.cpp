@@ -87,8 +87,10 @@ Control::Control(std::string LogDir, bool ExtLog) {
 	AutoOn = false;
 	BrakeILOn = true;
 	RecordActive = false;
+	OnRoad = true;
 
 	FencepostRadius = MAPPOINT_RADIUS;
+	RoadEdgeRadius = 0.10;
 
 	DatumLat = -31.980569;
 	DatumLong = 115.817807;
@@ -330,10 +332,17 @@ void Control::WriteInfoFile() {
 	WebLogger->WriteLogLine("IBEO N Scan Pts|" + boost::lexical_cast<std::string>(this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_points), true);
 	WebLogger->WriteLogLine("IBEO Scan No|" + boost::lexical_cast<std::string>(this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_number), true);
 
-	WebLogger->WriteLogLine("IBEO LH Edge|" + boost::lexical_cast<std::string>(this->Lux->LHEdge), true);
-	WebLogger->WriteLogLine("IBEO RH Edge|" + boost::lexical_cast<std::string>(this->Lux->RHEdge), true);
-	WebLogger->WriteLogLine("IBEO Road Slope|" + boost::lexical_cast<std::string>(this->Lux->RoadSlope), true);
-	WebLogger->WriteLogLine("IBEO Road Intcpt|" + boost::lexical_cast<std::string>(this->Lux->RoadIntercept), true);
+	int numLayers = this->Lux->layersToScan;
+	int indLayer = 0;
+	while (indLayer < numLayers) {
+		WebLogger->WriteLogLine("Scan Layer " + boost::lexical_cast<std::string>(indLayer) + ":", true);
+		
+		WebLogger->WriteLogLine("IBEO LH Edge|" + boost::lexical_cast<std::string>(this->Lux->LHEdge[indLayer]), true);
+		WebLogger->WriteLogLine("IBEO RH Edge|" + boost::lexical_cast<std::string>(this->Lux->RHEdge[indLayer]), true);
+		WebLogger->WriteLogLine("IBEO Road Slope|" + boost::lexical_cast<std::string>(this->Lux->RoadSlope[indLayer]), true);
+		WebLogger->WriteLogLine("IBEO Road Intcpt|" + boost::lexical_cast<std::string>(this->Lux->RoadIntercept[indLayer]), true);
+		indLayer++;
+	}
 	
 	WebLogger->WriteLogLine("Advanced Path Planning Active|" + boost::lexical_cast<std::string>(this->PathPlan.active), true);
 
@@ -736,24 +745,34 @@ void Control::UpdatePathPlan() {
 		double mincurverad = 2;
 		
 		//Get current Obstacles
-		//double ob[] = {22,46.8,1}; //TODO: Put in actual objects
-		int numPosts = CurrentMap.DetectedFenceposts.length;
+		int numPosts = CurrentMap.DetectedFenceposts.size();
+		std::vector<double> ob;
 
-		double ob[] = new double[3*numPosts];
 		int postIter = 0;
-		while( postIter < numPosts;) {
-			ob[postIter] = CurrentMap.DetectedFenceposts.x;
-			ob[postIter + 1] = CurrentMap.DetectedFenceposts.y;
-			ob[postIter + 2] = FencepostRadius;
-			postIter += 3;
+		while( postIter < numPosts) {
+			ob.push_back(CurrentMap.DetectedFenceposts[postIter].x);
+			ob.push_back(CurrentMap.DetectedFenceposts[postIter].y);
+			ob.push_back(FencepostRadius);
+			postIter++;
 		}
-		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob, 3, 0);
+		if (OnRoad) {
+			int edgeIter = 0;
+			while (edgeIter < Lux->edgeXs.size()) {
+				ob.push_back(Lux->edgeXs.at(edgeIter));
+				ob.push_back(Lux->edgeYs.at(edgeIter));
+				ob.push_back(RoadEdgeRadius);
+				edgeIter++;
+			}
+		}
+		
+		emxArray_real_T *obstacles = emxCreateWrapper_real_T(&ob[0], 3, 0);
 		emxArray_real_T *arcob = emxCreate_real_T(1,1);
 		
 		Log->WriteLogLine("Object Localize");
 		if (LogLevel == "Debug") {
 			Log->WriteLogLine("Obstacles Size: " + boost::lexical_cast<std::string>(obstacles->size[0]) + "x" + boost::lexical_cast<std::string>(obstacles->size[1]));
 			Log->WriteLogLine("Obstacles Data: " + boost::lexical_cast<std::string>(obstacles->data[0]) + "," + boost::lexical_cast<std::string>(obstacles->data[1]));
+			Log->WriteLogLine("Number of road edges: " + boost::lexical_cast<std::string>(Lux->edgeXs.size()));
 		}
 		timestamp_t t0 = get_timestamp();
 		oblocalize(PathPlan.scoefx,PathPlan.scoefy,PathPlan.si,obstacles,1,EPSILON,arcob);

@@ -31,9 +31,9 @@ Xsens::Xsens(Control* CarController, Logger* Logger) {
 
 	reply = new Packet(1,0); /* 1 item, not xbus */
 
-	Yaw = 0;
-	pitch = 0;
 	roll = 0;
+	pitch = 0;
+	Yaw = 0;
 
 	VECTOR_2D ZeroVec;
 	ZeroVec.x = 0.0;
@@ -135,13 +135,13 @@ void Xsens::ProcessMessages() {
 
 	matrix_data = reply->getOriMatrix();
 
-	//long double cos_roll = cosl((long double)reply->getOriEuler().m_roll*2*M_PI/360);
-	//long double cos_pitch = cosl((long double)reply->getOriEuler().m_pitch*2*M_PI/360);
-	//long double sin_roll = sinl((long double)reply->getOriEuler().m_roll*2*M_PI/360);
-	//long double sin_pitch = sinl((long double)reply->getOriEuler().m_pitch*2*M_PI/360);
+	roll = (long double)reply->getOriEuler().m_roll*2*M_PI/360;
+	pitch = (long double)reply->getOriEuler().m_pitch*2*M_PI/360;
 
-	//pitch = reply->getOriEuler().m_pitch;
-	//roll = reply->getOriEuler().m_roll;
+	cos_roll = cosl(roll);
+	cos_pitch = cosl(pitch);
+	sin_roll = sinl(roll);
+	sin_pitch = sinl(pitch);
 
 	xacc = (long double) reply->getCalData().m_acc.m_data[0];
 	yacc = (long double) reply->getCalData().m_acc.m_data[1];
@@ -154,9 +154,6 @@ void Xsens::ProcessMessages() {
 	// IMU axes are the wrong way about
 	CurrentAccel.x = -yacc_comp;
 	CurrentAccel.y = xacc_comp;
-
-	pitch = 360*asinl(-1*matrix_data.m_data[0][2])/2/M_PI;
-	roll = 360*asinl(matrix_data.m_data[1][2]/cosl(pitch*2*M_PI/360))/2/M_PI;
 
 
 	Accelerations.erase(Accelerations.begin());
@@ -173,7 +170,7 @@ void Xsens::ProcessMessages() {
 	else { Yaw = 360 + 360*asinl(matrix_data.m_data[1][0])/2/M_PI; }
 
 	if(CarControl->ExtLogging) {
-		IMULog->WriteLogLine(boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Yaw) + "," + boost::lexical_cast<std::string>(pitch) + "," + boost::lexical_cast<std::string>(roll), true);
+		IMULog->WriteLogLine(boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Yaw) + "," + boost::lexical_cast<std::string>(roll) + "," + boost::lexical_cast<std::string>(pitch));//boost::lexical_cast<std::string>(xacc_comp) + "," + boost::lexical_cast<std::string>(yacc_comp), true);
 	}
 
 //	if(reply->getOriEuler().m_yaw < 0) { Yaw = 360 + reply->getOriEuler().m_yaw ; }

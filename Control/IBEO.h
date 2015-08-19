@@ -4,6 +4,7 @@
  *
  * Created on 18 April 2012, 7:34 PM
  * Modified, T. Drage, 2013.
+ * Modified, T. Churack, 2015.
  */
 
 #ifndef _IBEO_H
@@ -26,9 +27,18 @@
 
 #define OBJECT_THRESHOLD	15	// Distance outside which all points are considered road.
 
-#define GROUP_SIZE	12	// Size of road detections search groups
-#define MAX_SLOPE	0.1	// Maximum slope of a road segment.
-#define	MIN_R		0.15	// Minimum correlation coefficient in road fits.	
+#define GROUPSIZE	12	// Size of road detections search groups
+#define MAX_SLOPE	0.4	// Maximum slope of a road segment.
+#define	MIN_R		0.1	// Minimum correlation coefficient in road fits.	
+#define MAX_X	10
+#define MAX_Y	20
+#define MIN_X	0.75
+#define ALLOWED_VARIATION	1.5
+#define CUTOFF_SLOPE	0.75
+#define VARIATION_THRESHOLD	0.25
+#define EARTH_RADIUS 6371000
+#define LIDARHEIGHT 1.225 //Metres above ground of LiDAR, as measured by Calvin Yapp and reported in his thesis
+#define PITCHDIFFIMU 4.0 //Angle of LiDAR in degrees below horizontal plane. Correct as of 30/3/2015.
 
 
 class Control;
@@ -146,8 +156,15 @@ struct ERROR_DATA {
 
 struct SCAN_XY_DATA {
 
-	std::vector<double> xvalues, yvalues;
+	std::vector<double> xvalues, yvalues, zvalues;
 
+};
+
+struct RPOINT {
+	int i;
+	double x;
+	double r;
+	double slope;
 };
 
 class IBEO {
@@ -172,10 +189,15 @@ public:
 	IBEO_HEADER FindHeader();
 	bool inUse;
 
-	double LHEdge;
-	double RHEdge;
-	double RoadSlope;
-	double RoadIntercept;
+	double LHEdge[];
+	double RHEdge[];
+	double RoadSlope[];
+	double RoadIntercept[];
+	
+	int layersToScan;
+	
+	std::vector<double> edgeXs;
+	std::vector<double> edgeYs;
 
 private:
 	IBEONetwork *connection;
@@ -196,9 +218,17 @@ private:
 
 	void ProcessMessages();
 	void WriteFiles(timeval current);
-	void FindRoad();
-	void PolarToXY();
+	void FindRoads();
+	void PolarToXY(int);
 	void ProjectObjectsToMap();
+	double* FindRoad(double, double);
+	
+	void rotateForHeading(std::vector<double>&, std::vector<double>&, bool);
+	void correctForRoll(std::vector<double>&, std::vector<double>&, std::vector<double>&);
+	void correctForPitch(std::vector<double>&, std::vector<double>&, std::vector<double>&);
+	std::vector<double> rotateEdges(double, double, double, double);
+	int findrpeak(double, std::vector<RPOINT>);
+	std::vector<double> XSlopeIntToXY(double, double, double, double);
 	
 	timeval lastwrite;
 

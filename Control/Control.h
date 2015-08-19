@@ -103,7 +103,8 @@ public:
 	bool AutoRun;
 	bool RecordActive;
 	bool BrakeILOn; // If this is off we don't require a heartbeat or network connection for auto!
-
+	bool OnRoad;
+	
 	std::string LogLevel;
 
 	double DatumLat;
@@ -127,6 +128,7 @@ public:
 
 	
 	double FencepostRadius;
+	double RoadEdgeRadius;
 
 	double LatOffset;
 	double LongOffset;
