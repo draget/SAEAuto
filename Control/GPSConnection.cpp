@@ -6,7 +6,9 @@
  *
  * Created on 23/7/13
  */
-
+extern "C" {
+#include "Piksi_Read.h"
+}
 
 #include <iostream>
 #include <boost/thread.hpp> 
@@ -37,6 +39,7 @@ GPSConnection::GPSConnection(Control* CarController, Logger* Logger) {
 
 	GPSState = false;
 	Run = false;
+	PI = boost::math::constants::pi<double>();
 
 }
 
@@ -62,15 +65,16 @@ bool GPSConnection::Open() {
 
 	GPSLog = new Logger(LogPath.c_str());
 
-	GPSReceiver = new gpsmm("localhost", DEFAULT_GPSD_PORT);
+	fd = OpenPiksi(PIKSI_PATH, PIKSI_BAUD);
 
-    	if (GPSReceiver->stream(WATCH_ENABLE|WATCH_JSON) == NULL) {
-    	    	Log->WriteLogLine("GPS - No GPSD running.");
-		CarControl->Trip(7);
-        	return false;
-   	}
-
+	if (fd < 0){
+	Log->WriteLogLine("Piksi - GPS failed to open...");
+	GPSState = false;
+	} else {
+	Log->WriteLogLine("Piksi - GPS successfully opened and initialized");
 	GPSState = true;
+	}
+
 	return true;
 
 }
@@ -94,34 +98,42 @@ void GPSConnection::Start() {
 
 
 void GPSConnection::ProcessMessages() {
+	int nullcount = 0;
 
 	while(Run) {
 
-		struct gps_data_t* NewData;
-
-		if (! GPSReceiver->waiting(10000)) { continue; }
-
-		if ((NewData = GPSReceiver->read()) == NULL) {
-	    		Log->WriteLogLine("GPS - Read error!");
-			CarControl->Trip(7);
-		} 
-		else {
-			if (NewData->set & TIME_SET) {
-				Time = NewData->fix.time;
+    		ProcessPiksi();
+    		
+		if (pos_llh.lat == NULL) {
+			nullcount += 1;
+			if (nullcount == 1000) {
+	    		Log->WriteLogLine("GPS - Read error! No Fix.");
 			}
-			if(NewData->set & TRACK_SET) {
-				TrackAngle = NewData->fix.track;
-				NewTrack();
-			}
-			if((NewData->set & LATLON_SET) && (NewData->set & SPEED_SET)) {
-				Latitude = NewData->fix.latitude - CarControl->LatOffset;
-				Longitude = NewData->fix.longitude - CarControl->LongOffset;
-				Speed = NewData->fix.speed;
-				NewSpeedAndPosition();
+		} else {
+			nullcount = 0;
+			Time = gps_time.tow;
+			if (vel_ned.n > 0) {
+				if (vel_ned.e > 0) {
+					TrackAngle = (atan(vel_ned.e/vel_ned.n)* 180 / PI);
+				} else {
+					TrackAngle = 360.0 + (atan(vel_ned.e/vel_ned.n)* 180 / PI);
+				}
+			} else if (vel_ned.n < 0) {
+				if (vel_ned.e > 0) {
+					TrackAngle = 180.0 + (atan(vel_ned.e/vel_ned.n)* 180 / PI);
+				} else {
+					TrackAngle = 180.0 + (atan(vel_ned.e/vel_ned.n)* 180 / PI);
+				}
 			}
 			
+			NewTrack();
+			Speed = sqrt(vel_ned.e*vel_ned.e + vel_ned.n*vel_ned.n)*0.001; // convert to m/s
+
+			Latitude = pos_llh.lat - CarControl->LatOffset;
+			Longitude = pos_llh.lon - CarControl->LongOffset;
+			NewSpeedAndPosition();	
 		}
-    }
+    	}
 
 }
 

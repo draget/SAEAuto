@@ -5,8 +5,10 @@
 #include <vector>
 #include <string>
 #include <boost/thread.hpp> 
+#include <boost/math/constants/constants.hpp>
 
 #include "libgpsmm.h"
+
 
 class Control;
 class Logger;
@@ -23,6 +25,7 @@ public:
 	void Start();
 	void Stop();
 	
+	double PI;
 	bool GPSState;
 
 	double Latitude;
@@ -42,6 +45,7 @@ private:
 	boost::thread s_Thread;
 
 	bool Run;
+	int fd;
 
 	double OldTime;
 
