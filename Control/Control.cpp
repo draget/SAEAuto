@@ -68,6 +68,8 @@ Control *SAECar;
 Control::Control(std::string LogDir, bool ExtLog) {
 
 	TwoPi = 4*acos(0);
+	OldObjectTime = get_timestamp();
+	
 
 	this->LogDir = LogDir;
 	this->ExtLogging = ExtLog;
@@ -97,6 +99,7 @@ Control::Control(std::string LogDir, bool ExtLog) {
 
 	LatOffset = 0.0;
 	LongOffset = 0.0;
+	
 
 	CurrentSteeringSetPosn = 0;
 	CurrentThrottleBrakeSetPosn = 0;
@@ -1334,6 +1337,23 @@ double Control::VectorMagnitude(VECTOR_2D MapPoint) {
 
 	return sqrt(pow(MapPoint.x,2) + pow(MapPoint.y,2));
 
+}
+
+void Control::RespondToObject(unsigned short objType) {
+	timestamp_t curTime = get_timestamp();
+	
+	if ((curTime - oldObjectTime) / 1000000.0L > OBJECTNOTIFYTIME) {
+		if (objType == 3) {
+			Log->WriteLogLine("PEDESTRIAN"); //Log lines to be replaced by recorded voice.
+		} else if (objType == 4) {
+			Log->WriteLogLine("BIKE");
+		} else if (objType == 5) {
+			Log->WriteLogLine("CAR");
+		} else if (objType == 6) {
+			Log->WriteLogLine("TRUCK");
+		}
+		oldObjectTime = curTime;
+	}
 }
 
 // C-style non -member functions follow.
