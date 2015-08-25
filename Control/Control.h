@@ -18,6 +18,8 @@
 #define GRANULARITY 0.5 //Set this with consideration to mappoint radius above
 #define EPSILON 0.01
 
+#define OBJECTNOTIFYTIME 3 //Seconds between object type notifications
+
 #include <vector>
 #include <string>
 
@@ -132,6 +134,8 @@ public:
 
 	double LatOffset;
 	double LongOffset;
+	
+	timestamp_t oldObjectTime;
 
 	unsigned int NextWaypoint;
 
