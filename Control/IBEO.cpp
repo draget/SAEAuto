@@ -474,7 +474,10 @@ void IBEO::ProjectObjectsToMap() {
 				if(CarControl->VectorMagnitude(CarControl->SubtractVector(MapPoint,TransformedObject)) < CarControl->FencepostRadius/2) { Found = true; }
 			}
 
-			if(! Found) { CarControl->CurrentMap.DetectedFenceposts.push_back(TransformedObject); }
+			if(! Found) { 
+				CarControl->CurrentMap.DetectedFenceposts.push_back(TransformedObject);
+				CarControl->RespondToObject((unsigned short)object_data[curObjectDataSource][i].classification);
+			}
 		}
 
 	}
