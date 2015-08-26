@@ -68,7 +68,10 @@ Control *SAECar;
 Control::Control(std::string LogDir, bool ExtLog) {
 
 	TwoPi = 4*acos(0);
-	OldObjectTime = get_timestamp();
+	LastPedTime = get_timestamp();
+	LastBikeTime = get_timestamp();
+	LastCarTime = get_timestamp();
+	LastTruckTime = get_timestamp();
 	
 
 	this->LogDir = LogDir;
@@ -1342,17 +1345,18 @@ double Control::VectorMagnitude(VECTOR_2D MapPoint) {
 void Control::RespondToObject(unsigned short objType) {
 	timestamp_t curTime = get_timestamp();
 	
-	if ((curTime - oldObjectTime) / 1000000.0L > OBJECTNOTIFYTIME) {
-		if (objType == 3) {
-			Log->WriteLogLine("PEDESTRIAN"); //Log lines to be replaced by recorded voice.
-		} else if (objType == 4) {
-			Log->WriteLogLine("BIKE");
-		} else if (objType == 5) {
-			Log->WriteLogLine("CAR");
-		} else if (objType == 6) {
-			Log->WriteLogLine("TRUCK");
-		}
-		oldObjectTime = curTime;
+	if (objType == 3 && ((curTime - LastPedTime) / 1000000.0L > OBJECTNOTIFYTIME)) {
+		Log->WriteLogLine("PEDESTRIAN"); //Log lines to be replaced by recorded voice.
+		LastPedTime = curTime;
+	} else if (objType == 4 && ((curTime - LastBikeTime) / 1000000.0L > OBJECTNOTIFYTIME)) {
+		Log->WriteLogLine("BIKE");
+		LastBikeTime = curTime;
+	} else if (objType == 5 && ((curTime - LastCarTime) / 1000000.0L > OBJECTNOTIFYTIME)) {
+		Log->WriteLogLine("CAR");
+		LastCarTime = curTime;
+	} else if (objType == 6 && ((curTime - LastTruckTime) / 1000000.0L > OBJECTNOTIFYTIME)) {
+		Log->WriteLogLine("TRUCK");
+		LastTruckTime = curTime;
 	}
 }
 
