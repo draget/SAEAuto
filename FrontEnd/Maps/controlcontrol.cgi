@@ -34,7 +34,7 @@ then
 	PIDOF="$(pidof Control)"
 	if [ "$PIDOF" == "" ];
 	then
-		echo "Successfully stoped Control software"
+		echo "Successfully stopped Control software"
 	else 
 		echo "!! There was a problem stopping Control software"
 		echo "</p><button class='pos_left' onclick=\"link('./controlcontrol.cgi?command=stop')\">Try Again</button>"

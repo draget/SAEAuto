@@ -177,7 +177,7 @@ void Xsens::ProcessMessages() {
 //	else { Yaw = reply->getOriEuler().m_yaw; }
 
 	// Massively decrease the amount of time that the CMT API spends waiting for a message.
-	boost::this_thread::sleep(boost::posix_time::milliseconds(5));
+	boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 
     }
 

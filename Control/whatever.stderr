@@ -1,2 +1,2 @@
-rm: cannot remove `./RunFiles/0': Permission denied
 connect failed: No route to host
+_mcleanup: gmon.out: Permission denied
