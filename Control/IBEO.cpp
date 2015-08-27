@@ -432,6 +432,8 @@ void IBEO::ProcessMessages() {
 			FindRoads();
 
 			WriteFiles(current); 
+			
+			CarControl->CurrentMap.DetectedFenceposts.clear(); //Clears detected objects between scans
 	
 			ProjectObjectsToMap();
 
@@ -551,8 +553,10 @@ void IBEO::WriteFiles(timeval current) {
 				<< scan_data_points[curScanDataSource][i].echo_pulse_width << "," 
 				<< scan_data_points[curScanDataSource][i].res << "\n";
 		}
-
-		outfile_scan << "R," << LHEdge << "," << RHEdge << "," << RoadSlope << "," << RoadIntercept;
+		
+		for(int i = 0; i < layersToScan; i++) {
+			outfile_scan << "R" << i+1 << "," << LHEdge[i] << "," << RHEdge[i] << "," << RoadSlope[i] << "," << RoadIntercept[i];
+		}
 		
 		outfile_scan.close();
 
