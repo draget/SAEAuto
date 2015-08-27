@@ -31,6 +31,11 @@ public:
 	double Yaw;
 	double pitch;
 	double roll;
+
+	double cos_roll;
+	double cos_pitch;
+	double sin_roll;
+	double sin_pitch;
 	
 	std::vector<VECTOR_2D> Accelerations;
 

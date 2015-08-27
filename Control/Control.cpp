@@ -58,6 +58,11 @@ static timestamp_t get_timestamp()
   return  now.tv_usec + (timestamp_t)now.tv_sec * 1000000;
 }
 
+timestamp_t LastPedTime;
+timestamp_t LastBikeTime;
+timestamp_t LastCarTime;
+timestamp_t LastTruckTime;
+
 Control *SAECar;
 
 /**

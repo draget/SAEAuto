@@ -128,14 +128,12 @@ public:
 	void MapRecordPosUpdate(VECTOR_2D CurPosn);
 	VECTOR_2D GetInterpolatedVector(VECTOR_2D CurPosn);
 
-	
+	void RespondToObject(unsigned short);	
 	double FencepostRadius;
 	double RoadEdgeRadius;
 
 	double LatOffset;
 	double LongOffset;
-	
-	timestamp_t oldObjectTime;
 
 	unsigned int NextWaypoint;
 
