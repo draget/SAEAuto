@@ -54,9 +54,9 @@ Logger::~Logger() {
 }
 
 
-void Logger::WriteLogLine(std::string LogLine) { WriteLogLine(LogLine, false); }
-
-void Logger::WriteLogLine(std::string LogLine, bool NoTime) {
+void Logger::WriteLogLine(std::string LogLine) { WriteLogLine(LogLine, false, false); }
+void Logger::WriteLogLine(std::string Logline, bool NoTime) { WriteLogLine(LogLine, NoTime, false); } 
+void Logger::WriteLogLine(std::string LogLine, bool NoTime, bool Main) {
 
 	if(! NoTime) {	
 
@@ -72,7 +72,7 @@ void Logger::WriteLogLine(std::string LogLine, bool NoTime) {
 	else {
 		LogFileStream << LogLine + '\n';
 	}
-	if (linecount == 10){
+	if (linecount == 10 || Main){
 		LogFileStream.flush();
 		linecount = 0;
 	}
