@@ -32,6 +32,8 @@ Logger::Logger(std::string LogFileArg) {
 	LogFileStream.open(LogFile.c_str());
 	
 	this->WriteLogLine("Log started.");
+	
+	linecount = 0;
 
 }
 
@@ -70,8 +72,13 @@ void Logger::WriteLogLine(std::string LogLine, bool NoTime) {
 	else {
 		LogFileStream << LogLine + '\n';
 	}
-	LogFileStream.flush();
-
+	if (linecount == 10){
+		LogFileStream.flush();
+		linecount = 0;
+	}
+	else {
+		linecount++;
+	}
 }
 
 void Logger::ClearLog() {

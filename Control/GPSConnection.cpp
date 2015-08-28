@@ -132,6 +132,8 @@ void GPSConnection::ProcessMessages() {
 			Latitude = pos_llh.lat - CarControl->LatOffset;
 			Longitude = pos_llh.lon - CarControl->LongOffset;
 			NewSpeedAndPosition();	
+			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+
 		}
     	}
 
@@ -181,7 +183,6 @@ void GPSConnection::Monitor() {
 
 		boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 	}
-
 }
 
 

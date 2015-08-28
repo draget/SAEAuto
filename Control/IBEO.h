@@ -23,7 +23,7 @@
 #define MAX_OBJECTS         20              // Maximum objects stored.
 #define MAX_CONTOUR_POINTS  100             // Maximum contour points per scan.
 
-#define IBEO_PERIOD	0.2	// Minimum period between analysing IBEO data.
+#define IBEO_PERIOD	0.4	// Minimum period between analysing IBEO data.
 
 #define OBJECT_THRESHOLD	15	// Distance outside which all points are considered road.
 

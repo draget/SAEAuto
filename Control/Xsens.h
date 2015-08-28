@@ -52,6 +52,7 @@ private:
 
 	boost::thread m_Thread;
 
+	int linecountIMU;
 	void ProcessMessages();
 
 	Control* CarControl;

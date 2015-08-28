@@ -4,3 +4,8 @@ TestCode/kalman
 TestCode/libeknav
 
 Control/matlab/html/
+
+Control/whatever.stderr
+Control/whatever.stdout
+**/**/*.o
+**/*.o

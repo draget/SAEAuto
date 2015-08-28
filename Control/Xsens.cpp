@@ -45,6 +45,8 @@ Xsens::Xsens(Control* CarController, Logger* Logger) {
  	Log = Logger;	
 
 	IMUState = false;
+	
+	linecountIMU = 0;
 
 }
 
@@ -169,15 +171,18 @@ void Xsens::ProcessMessages() {
 	else if(matrix_data.m_data[1][1] > 0) { Yaw = 180 - 360*asinl(matrix_data.m_data[1][0])/2/M_PI; }
 	else { Yaw = 360 + 360*asinl(matrix_data.m_data[1][0])/2/M_PI; }
 
-	if(CarControl->ExtLogging) {
+	if(CarControl->ExtLogging && linecountIMU == 10 ) {
+		linecountIMU = 0;
 		IMULog->WriteLogLine(boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Yaw) + "," + boost::lexical_cast<std::string>(roll) + "," + boost::lexical_cast<std::string>(pitch));//boost::lexical_cast<std::string>(xacc_comp) + "," + boost::lexical_cast<std::string>(yacc_comp), true);
 	}
-
+	else {
+		linecountIMU++;
+	}
 //	if(reply->getOriEuler().m_yaw < 0) { Yaw = 360 + reply->getOriEuler().m_yaw ; }
 //	else { Yaw = reply->getOriEuler().m_yaw; }
 
 	// Massively decrease the amount of time that the CMT API spends waiting for a message.
-	boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
     }
 

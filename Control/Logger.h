@@ -26,7 +26,7 @@ private:
 
 	std::string LogFile;
 	std::ofstream LogFileStream;
-
+	int linecount;
 };
 
 #endif	/* _Logger_H */
