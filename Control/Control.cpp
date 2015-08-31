@@ -770,8 +770,6 @@ void Control::UpdatePathPlan() {
 			while (Lux->edgeXs.size() > 0) {
 				ob.push_back(Lux->edgeXs.front());
 				ob.push_back(Lux->edgeYs.front());
-				Lux->edgeXs.pop();
-                                Lux->edgeYs.pop();
 				ob.push_back(RoadEdgeRadius);
 			}
 		}
