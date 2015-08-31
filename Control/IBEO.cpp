@@ -967,8 +967,8 @@ double* IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 	
 	rotateForHeading(CurrentXYScan.xvalues, CurrentXYScan.yvalues, false);
 	
-	while (edgeXs.size() > 1000) { edgeXs.erase(edgeXs.front); }
-	while (edgeYs.size() > 1000) { edgeYs.erase(edgeYs.front); }
+	while (edgeXs.size() > 1000) { edgeXs.erase(edgeXs.front()); }
+	while (edgeYs.size() > 1000) { edgeYs.erase(edgeYs.front()); }
 	edgeXs.push_back(temp.at(0));
 	edgeXs.push_back(temp.at(2));
 	edgeYs.push_back(temp.at(1));
