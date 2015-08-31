@@ -13,7 +13,6 @@
 #include "IBEONetwork.h"
 #include <inttypes.h>
 #include <boost/thread.hpp> 
-#include <queue>
 
 #define IBEO_IP_ADDRESS     "192.168.2.4"   // Default IP Address for the ibeo.
 #define IBEO_PORT           12002           // Default Port for the ibeo.
@@ -202,8 +201,8 @@ public:
 	
 	int layersToScan;
 	
-	std::queue<double> edgeXs;
-	std::queue<double> edgeYs;
+	std::vector<double> edgeXs;
+	std::vector<double> edgeYs;
 
 private:
 	IBEONetwork *connection;
