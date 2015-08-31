@@ -13,6 +13,7 @@
 #include "IBEONetwork.h"
 #include <inttypes.h>
 #include <boost/thread.hpp> 
+#include <queue>
 
 #define IBEO_IP_ADDRESS     "192.168.2.4"   // Default IP Address for the ibeo.
 #define IBEO_PORT           12002           // Default Port for the ibeo.
@@ -39,7 +40,7 @@
 #define EARTH_RADIUS 6371000
 #define LIDARHEIGHT 1.225 //Metres above ground of LiDAR, as measured by Calvin Yapp and reported in his thesis
 #define PITCHDIFFIMU 4.0 //Angle of LiDAR in degrees below horizontal plane. Correct as of 30/3/2015.
-
+#define LAYERS 4
 
 class Control;
 class Logger;
@@ -189,15 +190,20 @@ public:
 	IBEO_HEADER FindHeader();
 	bool inUse;
 
-	double LHEdge[];
-	double RHEdge[];
-	double RoadSlope[];
-	double RoadIntercept[];
+	double LHEdge[LAYERS];
+	double RHEdge[LAYERS];
+	double RoadSlope[LAYERS];
+	double RoadIntercept[LAYERS];
+
+	double LHSEdgeTemp;
+	double RHSEdgeTemp;
+	double RoadSlopeTemp;
+	double RoadInterceptTemp;
 	
 	int layersToScan;
 	
-	std::vector<double> edgeXs;
-	std::vector<double> edgeYs;
+	std::queue<double> edgeXs;
+	std::queue<double> edgeYs;
 
 private:
 	IBEONetwork *connection;

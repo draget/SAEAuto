@@ -19,21 +19,29 @@
 
 
 
-
+Logger::Logger(std::string LogFileArg) {
+	logInit( LogFileArg, DEFAULTBUFFER );
+}
 /**
  * Purpose: Creates a new instance of the Logger object.
  * Inputs : None.
  * Outputs: None.
  */
-Logger::Logger(std::string LogFileArg) {
- 
+Logger::Logger(std::string LogFileArg, int numLines) {
+	logInit(LogFileArg,numLines);
+}
+
+void Logger::logInit( std::string LogFileArg, int numLines) {
+
 	LogFile = LogFileArg;
 
 	LogFileStream.open(LogFile.c_str());
-	
+
 	this->WriteLogLine("Log started.");
-	
+
 	linecount = 0;
+	linesToBuffer = numLines;
+
 
 }
 
@@ -54,9 +62,8 @@ Logger::~Logger() {
 }
 
 
-void Logger::WriteLogLine(std::string LogLine) { WriteLogLine(LogLine, false, false); }
-void Logger::WriteLogLine(std::string Logline, bool NoTime) { WriteLogLine(LogLine, NoTime, false); } 
-void Logger::WriteLogLine(std::string LogLine, bool NoTime, bool Main) {
+void Logger::WriteLogLine(std::string LogLine) { WriteLogLine(LogLine, false); }
+void Logger::WriteLogLine(std::string LogLine, bool NoTime) { 
 
 	if(! NoTime) {	
 
@@ -72,7 +79,7 @@ void Logger::WriteLogLine(std::string LogLine, bool NoTime, bool Main) {
 	else {
 		LogFileStream << LogLine + '\n';
 	}
-	if (linecount == 10 || Main){
+	if (linecount == linesToBuffer - 1 ){
 		LogFileStream.flush();
 		linecount = 0;
 	}
@@ -155,6 +162,7 @@ void Logger::GetLogLines(std::string outputbuffer[], int NoLines) {
 
 void Logger::CloseLog() {
 
+	LogFileStream.flush();
 	LogFileStream.close();
 
 }

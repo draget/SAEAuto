@@ -5,15 +5,16 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-
+#define DEFAULTBUFFER 10
 
 class Logger {
 public:
-
+	Logger(std::string, int);
 	Logger(std::string LogFile);
     	Logger(const Logger& orig);
     	virtual ~Logger();
 
+	void logInit(std::string, int);
 	void GetLogLines(std::string outputbuffer[], int NoLines);
 	void WriteLogLine(std::string LogLine, bool NoTime);
 	void WriteLogLine(std::string LogLine);
@@ -27,6 +28,7 @@ private:
 	std::string LogFile;
 	std::ofstream LogFileStream;
 	int linecount;
+	int linesToBuffer;
 };
 
 #endif	/* _Logger_H */

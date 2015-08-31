@@ -44,7 +44,7 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
         {
 
 		if(json == null) { setTimeout(updateLuxPlot,500); return; }
-
+		console.log(json);
 		RGraph.Reset(document.getElementById('cvs'));
             	var rscatter = new RGraph.Rscatter('cvs', json.data)
 
@@ -105,22 +105,18 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 					
  		});
 
-		var length = json.roadedge.length;
-		var ind = 0;
-		
-		while (ind < length) {
-			
-			var x_l = (centerx + parseFloat(json.roadedge[ind][0],10)*scale);
-			var y_l = (centery - parseFloat(json.roadedge[ind][1],10)*scale);
+		if (json.hasOwnProperty('roadedge')) {
+			var parts = json.roadedge;
+			for(var i = 0; i < parts.length; i += 2) {
+				var x_l = (centerx + parseFloat(parts[i][0],10)*scale);
+				var y_l = (centery - parseFloat(parts[i][1],10)*scale);
 	
-			var x_r = (centerx + parseFloat(json.roadedge[ind + 1][0],10)*scale);
-			var y_r = (centery - parseFloat(json.roadedge[ind + 1][1],10)*scale);
+				var x_r = (centerx + parseFloat(parts[i+1][0],10)*scale);
+				var y_r = (centery - parseFloat(parts[i+1][1],10)*scale);
 
-			var poly = new RGraph.Drawing.Poly('cvs', [[x_l,y_l],[x_r,y_r]])
-			.Set("strokestyle","white")
-	            	.Draw();
-	            	
-	        ind+=2;
+				var poly = new RGraph.Drawing.Poly('cvs', [[x_l,y_l],[x_r,y_r]]).Set("strokestyle","white").Draw();
+			}
+
 		}
 
 		setTimeout(updateLuxPlot,500);

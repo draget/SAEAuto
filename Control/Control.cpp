@@ -112,11 +112,11 @@ Control::Control(std::string LogDir, bool ExtLog) {
 	CurrentSteeringSetPosn = 0;
 	CurrentThrottleBrakeSetPosn = 0;
 
-	LogLevel = "INFO"; //Set to "Debug" for increased log verbosity.
+	LogLevel = "Debug"; //Set to "Debug" for increased log verbosity or "INFO" for normal.
 
 
 	// Create object instances...
-	Log = new Logger(LogDir + "/mainlog.txt");
+	Log = new Logger(LogDir + "/mainlog.txt", 1);
 	
 	TimeLog = new Logger(LogDir + "/timelog.txt");
 
@@ -767,12 +767,12 @@ void Control::UpdatePathPlan() {
 			postIter++;
 		}
 		if (OnRoad) {
-			int edgeIter = 0;
-			while (edgeIter < Lux->edgeXs.size()) {
-				ob.push_back(Lux->edgeXs.at(edgeIter));
-				ob.push_back(Lux->edgeYs.at(edgeIter));
+			while (Lux->edgeXs.size() > 0) {
+				ob.push_back(Lux->edgeXs.front());
+				ob.push_back(Lux->edgeYs.front());
+				ob.push_back(Lux->edgeXs.pop());
+                                ob.push_back(Lux->edgeYs.pop());
 				ob.push_back(RoadEdgeRadius);
-				edgeIter++;
 			}
 		}
 		

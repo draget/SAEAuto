@@ -58,8 +58,6 @@ float ProcNoise[3] = {0.1,0.1,0};
 
 double *Edges;
 
-int layersToScan = 4;
-
 double LHS[4] = {-2, -2, -2, -2};
 double RHS[4] = {2, 2, 2, 2};
 
@@ -74,9 +72,6 @@ int failed = 0;
 KalmanPVA KlmL[4] = {KalmanPVA(2,K_P,LHS[0],0,0,0.2,ProcNoise,MeasNoise), KalmanPVA(2,K_P,LHS[0],0,0,0.2,ProcNoise,MeasNoise), KalmanPVA(2,K_P,LHS[0],0,0,0.2,ProcNoise,MeasNoise), KalmanPVA(2,K_P,LHS[0],0,0,0.2,ProcNoise,MeasNoise)};
 KalmanPVA KlmR[4] = {KalmanPVA(2,K_P,RHS[0],0,0,0.2,ProcNoise,MeasNoise), KalmanPVA(2,K_P,RHS[0],0,0,0.2,ProcNoise,MeasNoise), KalmanPVA(2,K_P,RHS[0],0,0,0.2,ProcNoise,MeasNoise), KalmanPVA(2,K_P,RHS[0],0,0,0.2,ProcNoise,MeasNoise)};
 
-std::vector<double> edgeXs;
-std::vector<double> edgeYs;
-
 /**
  * Purpose: Creates a new instance of the IBEO object.
  * Inputs : None.
@@ -85,10 +80,9 @@ std::vector<double> edgeYs;
 IBEO::IBEO(Control* CarController, Logger* Logger) {
 
 	gettimeofday(&lastwrite,NULL);
-
+	layersToScan = LAYERS;
 	CarControl = CarController;
  	Log = Logger;
-
     connection = new IBEONetwork();
     for (int i=0; i<MSG_BUFFERS; i++) {
         scan_data_header[i].scan_points = 0;
@@ -555,9 +549,11 @@ void IBEO::WriteFiles(timeval current) {
 		}
 		
 		for(int i = 0; i < layersToScan; i++) {
-			outfile_scan << "R" << i+1 << "," << LHEdge[i] << "," << RHEdge[i] << "," << RoadSlope[i] << "," << RoadIntercept[i];
+			if (LHEdge[i] != 0 && RHEdge[i] != 0) {
+				outfile_scan << "R," << boost::lexical_cast<std::string>(LHEdge[i]) << "," << boost::lexical_cast<std::string>(RHEdge[i]) << "," << boost::lexical_cast<std::string>(RoadSlope[i]) << "," << boost::lexical_cast<std::string>(RoadIntercept[i]) << "\n";
+			}
 		}
-		
+
 		outfile_scan.close();
 
 		ofstream outfile_obj;
@@ -962,14 +958,21 @@ double* IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 	tempEdges[0] = (*LHS_i);
 	tempEdges[1] = (*RHS_i);
 	
+	LHSEdgeTemp = *(LHS_i);
+	RHSEdgeTemp = *(RHS_i);
+	RoadSlopeTemp = fit.getSlope();
+	RoadInterceptTemp = fit.getIntercept();
+
 	std::vector<double> temp = rotateEdges(*(LHS_i), *(RHS_i), fit.getSlope(), fit.getIntercept());
 	
 	rotateForHeading(CurrentXYScan.xvalues, CurrentXYScan.yvalues, false);
 	
-	edgeXs.push_back(temp.at(0));
-	edgeXs.push_back(temp.at(2));
-	edgeYs.push_back(temp.at(1));
-	edgeYs.push_back(temp.at(3));
+	while (edgeXs.size() > 1000) { edgeXs.pop(); }
+	while (edgeYs.size() > 1000) { edgeYs.pop(); }
+	edgeXs.push(temp.at(0));
+	edgeXs.push(temp.at(2));
+	edgeYs.push(temp.at(1));
+	edgeYs.push(temp.at(3));
 	
 	return tempEdges;
 }
@@ -981,7 +984,14 @@ void IBEO::FindRoads() {
 	for (int i = 0; i < layersToScan; i++) {
 		PolarToXY(i);
 		Edges = FindRoad(LHS[i],RHS[i]);
-		
+		if (LHEdge !=0 && RHEdge != 0) {
+			LHEdge[i] = LHSEdgeTemp;
+			RHEdge[i] = RHSEdgeTemp;
+			RoadSlope[i] = RoadSlopeTemp;
+			RoadIntercept[i] = RoadInterceptTemp;
+		}
+		//Log->WriteLogLine(boost::lexical_cast<std::string>(LHSEdgeTemp));
+		//Log->WriteLogLine(boost::lexical_cast<std::string>(RHSEdgeTemp));
 		if(Edges[0] < MIN_X) { KlmL[i].SetMeasurements(Edges[0], 0,0); }
 		KlmL[i].Update();
 		if(Edges[1] > MIN_X) { KlmR[i].SetMeasurements(Edges[1], 0,0); }
@@ -990,5 +1000,3 @@ void IBEO::FindRoads() {
 		RHS[i] = KlmR[i].GetPositionEstimate();
 	}
 }
-
-

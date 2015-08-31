@@ -1,3 +1,2 @@
-tcgetattr: Bad file descriptor
 cp: cannot stat `./ramdisk/current.lux': No such file or directory
 cp: cannot stat `./ramdisk/current.luxobj': No such file or directory
