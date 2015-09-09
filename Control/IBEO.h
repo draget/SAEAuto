@@ -40,6 +40,7 @@
 #define LIDARHEIGHT 1.225 //Metres above ground of LiDAR, as measured by Calvin Yapp and reported in his thesis
 #define PITCHDIFFIMU 4.0 //Angle of LiDAR in degrees below horizontal plane. Correct as of 30/3/2015.
 #define LAYERS 4
+#define MAXARRAYSIZE 500
 
 class Control;
 class Logger;
@@ -156,7 +157,7 @@ struct ERROR_DATA {
 
 struct SCAN_XY_DATA {
 
-	std::vector<double> xvalues, yvalues, zvalues;
+	std::deque<double> xvalues, yvalues, zvalues;
 
 };
 
@@ -200,9 +201,11 @@ public:
 	double RoadInterceptTemp;
 	
 	int layersToScan;
+	int EdgeArraySize;
+	int edgeIndex;
 	
-	std::vector<double> edgeXs;
-	std::vector<double> edgeYs;
+	double edgeXs[MAXARRAYSIZE];
+	double edgeYs[MAXARRAYSIZE];
 
 private:
 	IBEONetwork *connection;
@@ -226,14 +229,14 @@ private:
 	void FindRoads();
 	void PolarToXY(int);
 	void ProjectObjectsToMap();
-	double* FindRoad(double, double);
+	void FindRoad(double, double);
 	
-	void rotateForHeading(std::vector<double>&, std::vector<double>&, bool);
-	void correctForRoll(std::vector<double>&, std::vector<double>&, std::vector<double>&);
-	void correctForPitch(std::vector<double>&, std::vector<double>&, std::vector<double>&);
-	std::vector<double> rotateEdges(double, double, double, double);
-	int findrpeak(double, std::vector<RPOINT>);
-	std::vector<double> XSlopeIntToXY(double, double, double, double);
+	void rotateForHeading(std::deque<double>&, std::deque<double>&, bool);
+	void correctForRoll(std::deque<double>&, std::deque<double>&, std::deque<double>&);
+	void correctForPitch(std::deque<double>&, std::deque<double>&, std::deque<double>&);
+	std::deque<double> rotateEdges(double, double, double, double);
+	int findrpeak(double, std::deque<RPOINT>);
+	std::deque<double> XSlopeIntToXY(double, double, double, double);
 	
 	timeval lastwrite;
 

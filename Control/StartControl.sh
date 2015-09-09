@@ -2,7 +2,7 @@
 echo "---------------------------" >> ./RunFiles/scl.txt
 echo $(date) >> ./RunFiles/scl.txt
 echo "" >> ./RunFiles/scl.txt
-sudo mkfs -t ext3 -q /dev/ram1 4096 >>./RunFiles/scl.txt  2>&1
+sudo mkfs -t ext3 -q /dev/ram1 4096
 sudo [ ! -d ./ramdisk ] && mkdir -p ./ramdisk >>./RunFiles/scl.txt  2>&1
 sudo mount /dev/ram1 ./ramdisk >>./RunFiles/scl.txt 2>&1
 

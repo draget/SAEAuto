@@ -56,18 +56,19 @@ double pitchLayer[] = {2.9, 1.58, 0.65, -0.29}; //Pitch of scan layers (0,1,2,3)
 float MeasNoise[3] = {1,0,0};
 float ProcNoise[3] = {0.1,0.1,0};
 
-double *Edges;
+double Edges[2] = {0,0};
 
 double LHS[4] = {-2, -2, -2, -2};
 double RHS[4] = {2, 2, 2, 2};
 
-std::vector<double> xCoords;
-std::vector<double> yCoords;
+//std::vector<double> xCoords;
+//std::vector<double> yCoords;
 
 int dips = 0;
 int reallocs = 0;
 int peaked = 0;
 int failed = 0;
+char byteIn = 0;
 
 KalmanPVA KlmL[4] = {KalmanPVA(2,K_P,LHS[0],0,0,0.2,ProcNoise,MeasNoise), KalmanPVA(2,K_P,LHS[0],0,0,0.2,ProcNoise,MeasNoise), KalmanPVA(2,K_P,LHS[0],0,0,0.2,ProcNoise,MeasNoise), KalmanPVA(2,K_P,LHS[0],0,0,0.2,ProcNoise,MeasNoise)};
 KalmanPVA KlmR[4] = {KalmanPVA(2,K_P,RHS[0],0,0,0.2,ProcNoise,MeasNoise), KalmanPVA(2,K_P,RHS[0],0,0,0.2,ProcNoise,MeasNoise), KalmanPVA(2,K_P,RHS[0],0,0,0.2,ProcNoise,MeasNoise), KalmanPVA(2,K_P,RHS[0],0,0,0.2,ProcNoise,MeasNoise)};
@@ -83,6 +84,9 @@ IBEO::IBEO(Control* CarController, Logger* Logger) {
 	layersToScan = LAYERS;
 	CarControl = CarController;
  	Log = Logger;
+	EdgeArraySize = MAXARRAYSIZE;
+	edgeIndex = 0;
+
     connection = new IBEONetwork();
     for (int i=0; i<MSG_BUFFERS; i++) {
         scan_data_header[i].scan_points = 0;
@@ -156,21 +160,24 @@ IBEO_HEADER IBEO::FindHeader() {
 
     bool    foundHeader;
     IBEO_HEADER headerIn;
-    char    byteIn;
+    byteIn  = 0;
     int     i;
-
+    char* pointByte = &byteIn;
     foundHeader = false;
     while (!foundHeader) {
         for (i=0; i<4; i++) {
-            if (recv(connection->socketFD, &byteIn, 1, 0) > 0) {
-                if (byteIn != ibeo_magic_word[i]) break;
-            } else {
-                throw 1;
-            }
+           try {
+		if (recv(connection->socketFD, pointByte, 1, 0) > 0) {
+              		if (byteIn != ibeo_magic_word[i]) break;
+           	} else {
+                	throw 1;
+            		}
+	        } catch (int e) {
+		Log->WriteLogLine("Caught 1");
+		}
         }
         if (i == 4) foundHeader = true;
     }
-
     if (recv(connection->socketFD, &headerIn.size_prev_msg, sizeof(headerIn.size_prev_msg), 0) != sizeof(headerIn.size_prev_msg)) throw 1;
     if (recv(connection->socketFD, &headerIn.size_cur_msg, sizeof(headerIn.size_cur_msg), 0) != sizeof(headerIn.size_cur_msg)) throw 1;
     if (recv(connection->socketFD, &headerIn.res, sizeof(headerIn.res), 0) != sizeof(headerIn.res)) throw 1;
@@ -420,18 +427,22 @@ void IBEO::ProcessMessages() {
 		
 		// Save CPU time by not acting upon every set of data.
 		if((current.tv_sec + ((double)current.tv_usec)/1000000) > (lastwrite.tv_sec + ((double)lastwrite.tv_usec)/1000000) + IBEO_PERIOD) { 
-
-			//PolarToXY(); //Called individually for each scan layer in FindRoads()
+			/*
+			for (int i = 0; i< layersToScan; i++) {
+				PolarToXY(i); //Called individually for each scan layer in FindRoads()
+			}
+			*/
 
 			FindRoads();
-
+//			Log->WriteLogLine("After FindRoad...");
 			WriteFiles(current); 
-			
+//			Log->WriteLogLine("After WriteFiles...");
 			CarControl->CurrentMap.DetectedFenceposts.clear(); //Clears detected objects between scans
-	
+//			Log->WriteLogLine("After Fence Post Clear...");
 			ProjectObjectsToMap();
-
+//			Log->WriteLogLine("After Project to Map...");
 			gettimeofday(&lastwrite,NULL);
+//			Log->WriteLogLine("After Get Time of Day...");
 
 		}
 		
@@ -488,9 +499,9 @@ void IBEO::ProjectObjectsToMap() {
  */
 void IBEO::PolarToXY(int scanLayer) {
 
-	CurrentXYScan.xvalues.clear();
-	CurrentXYScan.yvalues.clear();
-	CurrentXYScan.zvalues.clear();
+	//CurrentXYScan.xvalues.clear();
+	//CurrentXYScan.yvalues.clear();
+	//CurrentXYScan.zvalues.clear();
 
 	double horizangle, vertang, planarDist;
 
@@ -510,8 +521,8 @@ void IBEO::PolarToXY(int scanLayer) {
 	correctForPitch(CurrentXYScan.xvalues, CurrentXYScan.yvalues, CurrentXYScan.zvalues);
 	correctForRoll(CurrentXYScan.xvalues, CurrentXYScan.yvalues, CurrentXYScan.zvalues);
 	
-	xCoords.insert(xCoords.end(), CurrentXYScan.xvalues.begin(), CurrentXYScan.xvalues.end());
-	yCoords.insert(yCoords.end(), CurrentXYScan.yvalues.begin(), CurrentXYScan.yvalues.end());
+	//xCoords.insert(xCoords.end(), CurrentXYScan.xvalues.begin(), CurrentXYScan.xvalues.end());
+	//yCoords.insert(yCoords.end(), CurrentXYScan.yvalues.begin(), CurrentXYScan.yvalues.end());
 }
 
 
@@ -526,18 +537,18 @@ void IBEO::WriteFiles(timeval current) {
 		  	system(("cp ./ramdisk/current.lux " + CarControl->LogDir + "/luxscan/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".lux").c_str());
 			system(("cp ./ramdisk/current.luxobj " + CarControl->LogDir + "/luxobj/" + boost::lexical_cast<std::string>(current.tv_sec + ((double)current.tv_usec)/1000000) + ".luxobj").c_str());		
 		}
-
+//		Log->WriteLogLine("Before Lockfile...");
 		ofstream lockfile("./ramdisk/ibeo.lck");
 		
 		lockfile.close();
 
 		ofstream outfile_scan;
+//		Log->WriteLogLine("Before Creating ramdisk...");
 
 		std::string FileName = "./ramdisk/current.lux";
 
 		outfile_scan.open(FileName.c_str(), ios::trunc);
-		
-
+//		Log->WriteLogLine("Before Scan Points...");
 		for(int i = 0; i < scan_data_header[curScanDataSource].scan_points; i++) {
 				int layer = (int)scan_data_points[curScanDataSource][i].layer_echo & 15;
 			outfile_scan << layer << "," 
@@ -547,12 +558,13 @@ void IBEO::WriteFiles(timeval current) {
 				<< scan_data_points[curScanDataSource][i].echo_pulse_width << "," 
 				<< scan_data_points[curScanDataSource][i].res << "\n";
 		}
-		
+//		Log->WriteLogLine("Before Edge Write For Loop...");
 		for(int i = 0; i < layersToScan; i++) {
 			if (LHEdge[i] != 0 && RHEdge[i] != 0) {
 				outfile_scan << "R," << boost::lexical_cast<std::string>(LHEdge[i]) << "," << boost::lexical_cast<std::string>(RHEdge[i]) << "," << boost::lexical_cast<std::string>(RoadSlope[i]) << "," << boost::lexical_cast<std::string>(RoadIntercept[i]) << "\n";
 			}
 		}
+//		Log->WriteLogLine("After Edge Write For Loop...");
 
 		outfile_scan.close();
 
@@ -582,25 +594,25 @@ void IBEO::WriteFiles(timeval current) {
 
 }
 
-int IBEO::findrpeak(double AvgRHS, std::vector<RPOINT> rightr) {
+int IBEO::findrpeak(double AvgRHS, std::deque<RPOINT> rightr) {
 
-	std::vector<RPOINT> Maxs;
-	std::vector<RPOINT> Mins;
+	std::deque<RPOINT> Maxs;
+	std::deque<RPOINT> Mins;
 
 	// Locates local maximum
-	for (std::vector<RPOINT>::iterator it=rightr.begin()+floor((GROUPSIZE-1)/2); it!=rightr.end(); it++) { // Loop through all points
+	for (std::deque<RPOINT>::iterator it=rightr.begin()+floor((GROUPSIZE-1)/2); it!=rightr.end(); it++) { // Loop through all points
 
 		bool max = true;
 
 		double this_r = (*it).r;
 
-		std::vector<RPOINT>::iterator groupend;
+		std::deque<RPOINT>::iterator groupend;
 
 		// Deal with hitting the end.
 		if(it + floor((GROUPSIZE-1)/2) > rightr.end()) { groupend = rightr.end(); }
 		else { groupend = it + floor((GROUPSIZE-1)/2); }
 
-		for(std::vector<RPOINT>::iterator groupit=it-floor((GROUPSIZE-1)/2); groupit<groupend; groupit++) { // Look to either side to see if point is a max.
+		for(std::deque<RPOINT>::iterator groupit=it-floor((GROUPSIZE-1)/2); groupit<groupend; groupit++) { // Look to either side to see if point is a max.
 			if((*groupit).r > this_r) { max = false; }
 		}
 
@@ -612,7 +624,7 @@ int IBEO::findrpeak(double AvgRHS, std::vector<RPOINT> rightr) {
 
 
 	// Look for (deep) local minima.
-	for (std::vector<RPOINT>::iterator it=rightr.begin()+floor((GROUPSIZE-1)/2); it!=rightr.end(); it++) { // Loop through all points
+	for (std::deque<RPOINT>::iterator it=rightr.begin()+floor((GROUPSIZE-1)/2); it!=rightr.end(); it++) { // Loop through all points
 
 		bool min = true;
 
@@ -620,13 +632,13 @@ int IBEO::findrpeak(double AvgRHS, std::vector<RPOINT> rightr) {
 
 		if(this_r > MIN_R) { continue; }
 
-		std::vector<RPOINT>::iterator groupend;
+		std::deque<RPOINT>::iterator groupend;
 
 		// Deal with hitting the end.
 		if(it + floor((GROUPSIZE-1)/2) > rightr.end()) { groupend = rightr.end(); }
 		else { groupend = it + floor((GROUPSIZE-1)/2); }
 
-		for(std::vector<RPOINT>::iterator groupit=it-floor((GROUPSIZE-1)/2); groupit<groupend; groupit++) { // Look to either side to see if point is a max.
+		for(std::deque<RPOINT>::iterator groupit=it-floor((GROUPSIZE-1)/2); groupit<groupend; groupit++) { // Look to either side to see if point is a max.
 			if((*groupit).r < this_r) { min = false; }
 		}
 
@@ -645,12 +657,12 @@ int IBEO::findrpeak(double AvgRHS, std::vector<RPOINT> rightr) {
 	double Dip_x;
 
 	// Find the absolute max
-	for (std::vector<RPOINT>::iterator it=Maxs.begin(); it!=Maxs.end(); it++) {
+	for (std::deque<RPOINT>::iterator it=Maxs.begin(); it!=Maxs.end(); it++) {
 		if((*it).r > Max_r*0.9 && (*it).slope < MAX_SLOPE) { Max_r = (*it).r; Peak_i = (*it).i; Peak_x = (*it).x; } // If there are close peaks (90%), prefer the outer one.
 	}
 
 	// Find the absolute min within reason
-	for (std::vector<RPOINT>::iterator it=Mins.begin(); it!=Mins.end(); it++) {
+	for (std::deque<RPOINT>::iterator it=Mins.begin(); it!=Mins.end(); it++) {
 		if(((*it).r*0.8 < Min_r || (*it).r < 0.05) && fabs((*it).x) < fabs(AvgRHS) + ALLOWED_VARIATION) { // If they are almost zero, prefer the outer one.
 			Min_r = (*it).r; Dip_i = (*it).i; Dip_x = (*it).x; 		
 		} 
@@ -666,7 +678,7 @@ int IBEO::findrpeak(double AvgRHS, std::vector<RPOINT> rightr) {
 			int Closest_Peak_i;
 			double Closest_Max_r;
 
-			for (std::vector<RPOINT>::iterator it=Maxs.begin(); it!=Maxs.end(); it++) {
+			for (std::deque<RPOINT>::iterator it=Maxs.begin(); it!=Maxs.end(); it++) {
 				//std::cout << (*it).x << " " << fabs((*it).x - AvgRHS) << "\n";
 				if(fabs((*it).x - AvgRHS) < ClosestDelta || (fabs((*it).x - AvgRHS) < ClosestDelta*1.5 && (*it).r > Closest_Max_r*0.9)) { 
 					Closest_Peak_i = (*it).i; Closest_Max_r = (*it).r; ClosestDelta = fabs((*it).x - AvgRHS); 
@@ -690,11 +702,11 @@ int IBEO::findrpeak(double AvgRHS, std::vector<RPOINT> rightr) {
 	
 }
 
-std::vector<double> IBEO::XSlopeIntToXY(double x1, double x2, double slope, double inter) {
+std::deque<double> IBEO::XSlopeIntToXY(double x1, double x2, double slope, double inter) {
 	double y1 = inter + slope*x1;
 	double y2 = inter + slope*x2;
 	
-	std::vector<double> ret;
+	std::deque<double> ret;
 	ret.push_back(x1);
 	ret.push_back(x2);
 	ret.push_back(y1);
@@ -702,7 +714,7 @@ std::vector<double> IBEO::XSlopeIntToXY(double x1, double x2, double slope, doub
 	return ret;
 }
 
-void IBEO::correctForPitch(std::vector<double> &xvalue, std::vector<double> &yvalue, std::vector<double> &zvalue) {
+void IBEO::correctForPitch(std::deque<double> &xvalue, std::deque<double> &yvalue, std::deque<double> &zvalue) {
 	double pitchCos = cosl(CarControl->IMU->pitch*CarControl->TwoPi/360); //Convert to Radians, loop uses a +ve pitch = counterclocwise rotation to correct, ie: +ve pitch is forward
 	double pitchSin = sinl(CarControl->IMU->pitch*CarControl->TwoPi/360);
 	int index = 0;
@@ -714,7 +726,7 @@ void IBEO::correctForPitch(std::vector<double> &xvalue, std::vector<double> &yva
 	}
 }
 
-void IBEO::correctForRoll(std::vector<double> &xvalue, std::vector<double> &yvalue, std::vector<double> &zvalue) {
+void IBEO::correctForRoll(std::deque<double> &xvalue, std::deque<double> &yvalue, std::deque<double> &zvalue) {
 	int index = 0;
 	double rollCos = cosl(CarControl->IMU->roll*CarControl->TwoPi/360); //Convert to Radians, +ve roll => roll is CW, +ve roll = ccw rotation to correct
 	double rollSin = sinl(CarControl->IMU->roll*CarControl->TwoPi/360);
@@ -726,33 +738,37 @@ void IBEO::correctForRoll(std::vector<double> &xvalue, std::vector<double> &yval
 	}
 }
 
-void IBEO::rotateForHeading(std::vector<double> &xvalue, std::vector<double> &yvalue, bool edges) {
+void IBEO::rotateForHeading(std::deque<double> &xvalue, std::deque<double> &yvalue, bool edges) {
 	int index = 0;
 	long double radHeading = CarControl->TwoPi - (CarControl->Fuser)->CurrentHeading*CarControl->TwoPi/360; // matrix rotates counterclockwise, so 360 degrees - heading is the angle to be rotated by, also converts to radians.
+	/**
 	if (!edges) {
 		xCoords.clear();
 		yCoords.clear();
 	}
+	*/
 	while (index < xvalue.size()) {
 		double tempx = xvalue[index];
 		xvalue[index] = cosl(radHeading)*tempx - sinl(radHeading)*(yvalue)[index]+(CarControl->Fuser)->CurrentPosition.x;
 		yvalue[index] = sinl(radHeading)*tempx + cosl(radHeading)*(yvalue)[index]+(CarControl->Fuser)->CurrentPosition.y;
+		/*
 		if (!edges) {
 			xCoords.push_back(xvalue[index]);
 			yCoords.push_back(yvalue[index]);
 		}
+*/
 		index++;
 	}
 }
 
-std::vector<double> IBEO::rotateEdges(double x1, double x2, double slope, double inter) {
-	std::vector<double> temp = XSlopeIntToXY(x1, x2, slope, inter);
-	std::vector<double> xvals(temp.begin(), temp.begin() + 2);
-	std::vector<double> yvals(temp.end() - 2, temp.end());
+std::deque<double> IBEO::rotateEdges(double x1, double x2, double slope, double inter) {
+	std::deque<double> temp = XSlopeIntToXY(x1, x2, slope, inter);
+	std::deque<double> xvals(temp.begin(), temp.begin() + 2);
+	std::deque<double> yvals(temp.end() - 2, temp.end());
 	
 	rotateForHeading(xvals, yvals, true);
 	
-	std::vector<double> ret(xvals);
+	std::deque<double> ret(xvals);
 	ret.insert(ret.end(), yvals.begin(), yvals.end());
 	
 	return ret;
@@ -764,7 +780,7 @@ std::vector<double> IBEO::rotateEdges(double x1, double x2, double slope, double
  * Inputs : None.
  * Outputs: None.
  */
-double* IBEO::FindRoad(double AvgLHS, double AvgRHS) {
+void IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 
 	int FoundStart = 0;			// State variable.
 	int InitialSearchDirn = 0;		// Used to tell which direction the loop is currently searching.
@@ -772,23 +788,24 @@ double* IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 	double Peak_i = 0.0;			// Stores i of above.
 	int LBoundaryPriorToRSearch = 0;	// Stores L bracket after initial search.
 
-	std::vector<RPOINT> rightr,leftr;
+	std::deque<RPOINT> rightr,leftr;
 
 	// Iterators used for bracketing the section being examined.
-	std::vector<double>::iterator xfirst;
-	std::vector<double>::iterator xlast;
-	std::vector<double>::iterator yfirst;
-	std::vector<double>::iterator ylast;
+	std::deque<double>::iterator xfirst;
+	std::deque<double>::iterator xlast;
+	std::deque<double>::iterator yfirst;
+	std::deque<double>::iterator ylast;
 
-	std::vector<double>::iterator RHS_i = CurrentXYScan.xvalues.begin();	// Stores RH bracket after finding R.
-	std::vector<double>::iterator LHS_i = CurrentXYScan.xvalues.begin(); 	// Stores final LH bracket after finding L.
-
+	std::deque<double>::iterator RHS_i = CurrentXYScan.xvalues.begin();	// Stores RH bracket after finding R.
+	std::deque<double>::iterator LHS_i = CurrentXYScan.xvalues.begin(); 	// Stores final LH bracket after finding L.
+	
+	std::vector<double> groupx;
+        std::vector<double> groupy;
 	// Number of points included in intial search and minimum for a fit.
 	int GroupSize = GROUPSIZE;
 
 	// Index that is iterated over.
 	int i = CurrentXYScan.xvalues.size() / 2;
-
 
 	while(i > 0 && i < CurrentXYScan.xvalues.size()) {
 
@@ -799,8 +816,8 @@ double* IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 			yfirst = CurrentXYScan.yvalues.begin() + i;
 			ylast = CurrentXYScan.yvalues.begin() + i-GroupSize;
 
-			std::vector<double> groupx(xlast,xfirst);
-			std::vector<double> groupy(ylast,yfirst);
+			groupx.insert(groupx.begin(),xlast,xfirst);
+			groupy.insert(groupy.begin(),ylast,yfirst);
 
 
 
@@ -834,9 +851,8 @@ double* IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 			yfirst = CurrentXYScan.yvalues.begin() + j + GroupSize;
 			ylast = CurrentXYScan.yvalues.begin() + j;
 
-			std::vector<double> groupx(xlast,xfirst);
-			std::vector<double> groupy(ylast,yfirst);
-
+			groupx.insert(groupx.begin(),xlast,xfirst);
+                        groupy.insert(groupy.begin(),ylast,yfirst);
 
 			Maths::Regression::Linear fit(GroupSize,groupx.data(), groupy.data());
 
@@ -858,9 +874,8 @@ double* IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 			xfirst = CurrentXYScan.xvalues.begin() + i;
 			yfirst = CurrentXYScan.yvalues.begin() + i;
 
-			std::vector<double> groupx(xlast,xfirst);
-			std::vector<double> groupy(ylast,yfirst);
-
+			groupx.insert(groupx.begin(),xlast,xfirst);
+                        groupy.insert(groupy.begin(),ylast,yfirst);
 
 			Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
 
@@ -905,9 +920,9 @@ double* IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 			xlast = CurrentXYScan.xvalues.begin() + i;
 			ylast = CurrentXYScan.yvalues.begin() + i;	
 
-			std::vector<double> groupx(xlast,xfirst);
-			std::vector<double> groupy(ylast,yfirst);
-
+			groupx.insert(groupx.begin(),xlast,xfirst);
+                        groupy.insert(groupy.begin(),ylast,yfirst);
+			
 			Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
 
 			double r = pow(fit.getCoefficient(),2);
@@ -941,49 +956,56 @@ double* IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 
 	if(LHS_i >= RHS_i) { LHS_i = RHS_i - 1; }
 	
-	std::vector<double>::iterator LHS_y = CurrentXYScan.yvalues.begin() + (LHS_i - CurrentXYScan.xvalues.begin());
-	std::vector<double>::iterator RHS_y = CurrentXYScan.yvalues.begin() + (RHS_i - CurrentXYScan.xvalues.begin());
+	std::deque<double>::iterator LHS_y = CurrentXYScan.yvalues.begin() + (LHS_i - CurrentXYScan.xvalues.begin());
+	std::deque<double>::iterator RHS_y = CurrentXYScan.yvalues.begin() + (RHS_i - CurrentXYScan.xvalues.begin());
 
 	// Find and fit the entire point from edge to edge.
-	std::vector<double> groupx(LHS_i,RHS_i);
-	std::vector<double> groupy(CurrentXYScan.yvalues.begin() + (LHS_i - CurrentXYScan.xvalues.begin()),CurrentXYScan.yvalues.begin() + (RHS_i - CurrentXYScan.xvalues.begin()));
+	groupx.clear();
+        groupy.clear();
+
+	groupx.insert(groupx.begin(), LHS_i,RHS_i);
+	groupy.insert(groupy.begin(), CurrentXYScan.yvalues.begin() + (LHS_i - CurrentXYScan.xvalues.begin()),CurrentXYScan.yvalues.begin() + (RHS_i - CurrentXYScan.xvalues.begin()));
 
 	Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
 
 	//std::cout << file << "," << *(LHS_i) << "," << *(RHS_i) << "," << fit.getSlope() << "," << fit.getIntercept() << '\n'; 
 	
 	
-	double *tempEdges = new double[2];
-    
-	tempEdges[0] = (*LHS_i);
-	tempEdges[1] = (*RHS_i);
+	Edges[0] = (*LHS_i);
+	Edges[1] = (*RHS_i);
 	
 	LHSEdgeTemp = *(LHS_i);
 	RHSEdgeTemp = *(RHS_i);
 	RoadSlopeTemp = fit.getSlope();
 	RoadInterceptTemp = fit.getIntercept();
 
-	std::vector<double> temp = rotateEdges(*(LHS_i), *(RHS_i), fit.getSlope(), fit.getIntercept());
+	std::deque<double> temp = rotateEdges(*(LHS_i), *(RHS_i), fit.getSlope(), fit.getIntercept());
 	
 	rotateForHeading(CurrentXYScan.xvalues, CurrentXYScan.yvalues, false);
 	
-	while (edgeXs.size() > 1000) { edgeXs.erase(edgeXs.front()); }
-	while (edgeYs.size() > 1000) { edgeYs.erase(edgeYs.front()); }
-	edgeXs.push_back(temp.at(0));
-	edgeXs.push_back(temp.at(2));
-	edgeYs.push_back(temp.at(1));
-	edgeYs.push_back(temp.at(3));
-	
-	return tempEdges;
+	if ((temp.at(0) != 0 && temp.at(1) != 0) ||  (temp.at(2) != 0 && temp.at(3) != 0)) {
+		edgeXs[edgeIndex] = temp.at(0);
+		edgeYs[edgeIndex] = temp.at(1);
+		edgeIndex++;
+		if (edgeIndex >= EdgeArraySize) { edgeIndex = 0; }
+		edgeXs[edgeIndex] = temp.at(2);
+		edgeYs[edgeIndex] = temp.at(3);
+		edgeIndex++;
+	}
+
+	//Log->WriteLogLine(boost::lexical_cast<std::string>(groupx.size()));
 }
 
 void IBEO::FindRoads() {
-	xCoords.clear();
-	yCoords.clear();
-	
+	//xCoords.clear();
+	//yCoords.clear();
+//	Log->WriteLogLine("Finding Roads...." );	
 	for (int i = 0; i < layersToScan; i++) {
 		PolarToXY(i);
-		Edges = FindRoad(LHS[i],RHS[i]);
+		FindRoad(LHS[i],RHS[i]);
+		CurrentXYScan.xvalues.clear();
+        	CurrentXYScan.yvalues.clear();
+        	CurrentXYScan.zvalues.clear();
 		if (LHEdge !=0 && RHEdge != 0) {
 			LHEdge[i] = LHSEdgeTemp;
 			RHEdge[i] = RHSEdgeTemp;
@@ -998,5 +1020,7 @@ void IBEO::FindRoads() {
 		KlmR[i].Update();
 		LHS[i] = KlmL[i].GetPositionEstimate();
 		RHS[i] = KlmR[i].GetPositionEstimate();
+//		Log->WriteLogLine("Found layer: " + boost::lexical_cast<std::string>(i)); 
 	}
+//	Log->WriteLogLine("Found Roads...."); 
 }

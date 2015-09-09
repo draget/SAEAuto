@@ -97,7 +97,7 @@ Control::Control(std::string LogDir, bool ExtLog) {
 	AutoOn = false;
 	BrakeILOn = true;
 	RecordActive = false;
-	OnRoad = true;
+	OnRoad = false;
 
 	FencepostRadius = MAPPOINT_RADIUS;
 	RoadEdgeRadius = 0.10;
@@ -343,7 +343,7 @@ void Control::WriteInfoFile() {
 	WebLogger->WriteLogLine("IBEO N Scan Pts|" + boost::lexical_cast<std::string>(this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_points), true);
 	WebLogger->WriteLogLine("IBEO Scan No|" + boost::lexical_cast<std::string>(this->Lux->scan_data_header[this->Lux->curScanDataSource].scan_number), true);
 
-	int numLayers = this->Lux->layersToScan;
+	int numLayers = LAYERS;
 	int indLayer = 0;
 	while (indLayer < numLayers) {
 		WebLogger->WriteLogLine("Scan Layer " + boost::lexical_cast<std::string>(indLayer) + ":", true);
@@ -766,14 +766,14 @@ void Control::UpdatePathPlan() {
 			ob.push_back(FencepostRadius);
 			postIter++;
 		}
+
 		if (OnRoad) {
-			while (Lux->edgeXs.size() > 0) {
-				ob.push_back(Lux->edgeXs.front());
-				ob.push_back(Lux->edgeYs.front());
+			for (int i = 0; i < Lux->EdgeArraySize; i++) {
+				ob.push_back(Lux->edgeXs[i]);
+				ob.push_back(Lux->edgeYs[i]);
 				ob.push_back(RoadEdgeRadius);
 			}
 		}
-		
 		emxArray_real_T *obstacles = emxCreateWrapper_real_T(&ob[0], 3, 0);
 		emxArray_real_T *arcob = emxCreate_real_T(1,1);
 		
@@ -781,7 +781,7 @@ void Control::UpdatePathPlan() {
 		if (LogLevel == "Debug") {
 			Log->WriteLogLine("Obstacles Size: " + boost::lexical_cast<std::string>(obstacles->size[0]) + "x" + boost::lexical_cast<std::string>(obstacles->size[1]));
 			Log->WriteLogLine("Obstacles Data: " + boost::lexical_cast<std::string>(obstacles->data[0]) + "," + boost::lexical_cast<std::string>(obstacles->data[1]));
-			Log->WriteLogLine("Number of road edges: " + boost::lexical_cast<std::string>(Lux->edgeXs.size()));
+			//Log->WriteLogLine("Number of road edges: " + boost::lexical_cast<std::string>(Lux->edgeXs.size()));
 		}
 		timestamp_t t0 = get_timestamp();
 		oblocalize(PathPlan.scoefx,PathPlan.scoefy,PathPlan.si,obstacles,1,EPSILON,arcob);
