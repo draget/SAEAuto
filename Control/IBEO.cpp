@@ -46,8 +46,8 @@ int curScanDataSource = 0;      // Current scan data source/buffer.
 int curObjectDataSource = 0;    // Current object data source/buffer.
 int curErrorDataSource = 0;     // Current error data source/buffer.
 
-bool gotObject;
-bool gotScan;
+bool gotObject = false;
+bool gotScan = false;
 
 bool verbose = false;
 
@@ -86,7 +86,7 @@ IBEO::IBEO(Control* CarController, Logger* Logger) {
  	Log = Logger;
 	EdgeArraySize = MAXARRAYSIZE;
 	edgeIndex = 0;
-
+	
     connection = new IBEONetwork();
     for (int i=0; i<MSG_BUFFERS; i++) {
         scan_data_header[i].scan_points = 0;
@@ -650,11 +650,11 @@ int IBEO::findrpeak(double AvgRHS, std::deque<RPOINT> rightr) {
 
 	double Max_r = 0;
 	int Peak_i = 0;
-	double Peak_x;
+	double Peak_x = 0;
 
 	double Min_r = 1;
 	int Dip_i = 0;
-	double Dip_x;
+	double Dip_x = 0;
 
 	// Find the absolute max
 	for (std::deque<RPOINT>::iterator it=Maxs.begin(); it!=Maxs.end(); it++) {
@@ -675,8 +675,8 @@ int IBEO::findrpeak(double AvgRHS, std::deque<RPOINT> rightr) {
 		if(fabs(Peak_x - AvgRHS) > ALLOWED_VARIATION) { // If we are way off look for the peak near the average!
 
 			double ClosestDelta = 1000;
-			int Closest_Peak_i;
-			double Closest_Max_r;
+			int Closest_Peak_i = 0;
+			double Closest_Max_r = 0;
 
 			for (std::deque<RPOINT>::iterator it=Maxs.begin(); it!=Maxs.end(); it++) {
 				//std::cout << (*it).x << " " << fabs((*it).x - AvgRHS) << "\n";
@@ -766,7 +766,7 @@ std::deque<double> IBEO::rotateEdges(double x1, double x2, double slope, double 
 	std::deque<double> xvals(temp.begin(), temp.begin() + 2);
 	std::deque<double> yvals(temp.end() - 2, temp.end());
 	
-	rotateForHeading(xvals, yvals, true);
+	//rotateForHeading(xvals, yvals, true);
 	
 	std::deque<double> ret(xvals);
 	ret.insert(ret.end(), yvals.begin(), yvals.end());
@@ -807,7 +807,7 @@ void IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 	// Index that is iterated over.
 	int i = CurrentXYScan.xvalues.size() / 2;
 
-	while(i > 0 && i < CurrentXYScan.xvalues.size()) {
+	while(i > 0 && i < CurrentXYScan.xvalues.size() && i >= GroupSize) {
 
 		if((! FoundStart) && InitialSearchDirn == 0) { // Initial search left
 
@@ -815,9 +815,12 @@ void IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 			xlast = CurrentXYScan.xvalues.begin() + i-GroupSize;
 			yfirst = CurrentXYScan.yvalues.begin() + i;
 			ylast = CurrentXYScan.yvalues.begin() + i-GroupSize;
-
-			groupx.insert(groupx.begin(),xlast,xfirst);
-			groupy.insert(groupy.begin(),ylast,yfirst);
+			int debPrev = groupx.size();
+			groupx.reserve(i);
+			groupy.reserve(i);
+			int deb = groupx.size();
+			groupx.assign(xlast,xfirst);
+			groupy.assign(ylast,yfirst);
 
 
 
@@ -956,43 +959,47 @@ void IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 
 	if(LHS_i >= RHS_i) { LHS_i = RHS_i - 1; }
 	
-	std::deque<double>::iterator LHS_y = CurrentXYScan.yvalues.begin() + (LHS_i - CurrentXYScan.xvalues.begin());
-	std::deque<double>::iterator RHS_y = CurrentXYScan.yvalues.begin() + (RHS_i - CurrentXYScan.xvalues.begin());
+//	std::deque<double>::iterator LHS_y = CurrentXYScan.yvalues.begin() + (LHS_i - CurrentXYScan.xvalues.begin());
+//	std::deque<double>::iterator RHS_y = CurrentXYScan.yvalues.begin() + (RHS_i - CurrentXYScan.xvalues.begin());
 
 	// Find and fit the entire point from edge to edge.
 	groupx.clear();
         groupy.clear();
+	
+	if (LHS_i >= CurrentXYScan.xvalues.begin() && RHS_i >= CurrentXYScan.xvalues.begin()) {
+		groupx.assign(LHS_i,RHS_i);
+		groupy.assign(CurrentXYScan.yvalues.begin() + (LHS_i - CurrentXYScan.xvalues.begin()),CurrentXYScan.yvalues.begin() + (RHS_i - CurrentXYScan.xvalues.begin()));
 
-	groupx.insert(groupx.begin(), LHS_i,RHS_i);
-	groupy.insert(groupy.begin(), CurrentXYScan.yvalues.begin() + (LHS_i - CurrentXYScan.xvalues.begin()),CurrentXYScan.yvalues.begin() + (RHS_i - CurrentXYScan.xvalues.begin()));
-
-	Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
+		Maths::Regression::Linear fit(groupx.size(),groupx.data(), groupy.data());
 
 	//std::cout << file << "," << *(LHS_i) << "," << *(RHS_i) << "," << fit.getSlope() << "," << fit.getIntercept() << '\n'; 
 	
 	
-	Edges[0] = (*LHS_i);
-	Edges[1] = (*RHS_i);
+		Edges[0] = (*LHS_i);
+		Edges[1] = (*RHS_i);
 	
-	LHSEdgeTemp = *(LHS_i);
-	RHSEdgeTemp = *(RHS_i);
-	RoadSlopeTemp = fit.getSlope();
-	RoadInterceptTemp = fit.getIntercept();
+		LHSEdgeTemp = *(LHS_i);
+		RHSEdgeTemp = *(RHS_i);
+		RoadSlopeTemp = fit.getSlope();
+		RoadInterceptTemp = fit.getIntercept();
 
-	std::deque<double> temp = rotateEdges(*(LHS_i), *(RHS_i), fit.getSlope(), fit.getIntercept());
-	
+		std::deque<double> temp = rotateEdges(*(LHS_i), *(RHS_i), fit.getSlope(), fit.getIntercept());
+		
+		if ((temp.at(0) != 0 && temp.at(1) != 0) ||  (temp.at(2) != 0 && temp.at(3) != 0)) {
+                edgeXs.push_back(temp.at(0));
+                edgeYs.push_back(temp.at(1));
+                edgeXs.push_back(temp.at(2));
+                edgeYs.push_back(temp.at(3));
+                	if (edgeXs.size() >= EdgeArraySize) {
+                        	edgeXs.pop_front();
+               	        	edgeXs.pop_front();
+                	        edgeYs.pop_front();
+                        	edgeYs.pop_front();
+                	}
+        	}
+	}
 	rotateForHeading(CurrentXYScan.xvalues, CurrentXYScan.yvalues, false);
 	
-	if ((temp.at(0) != 0 && temp.at(1) != 0) ||  (temp.at(2) != 0 && temp.at(3) != 0)) {
-		edgeXs[edgeIndex] = temp.at(0);
-		edgeYs[edgeIndex] = temp.at(1);
-		edgeIndex++;
-		if (edgeIndex >= EdgeArraySize) { edgeIndex = 0; }
-		edgeXs[edgeIndex] = temp.at(2);
-		edgeYs[edgeIndex] = temp.at(3);
-		edgeIndex++;
-	}
-
 	//Log->WriteLogLine(boost::lexical_cast<std::string>(groupx.size()));
 }
 

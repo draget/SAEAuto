@@ -204,8 +204,8 @@ public:
 	int EdgeArraySize;
 	int edgeIndex;
 	
-	double edgeXs[MAXARRAYSIZE];
-	double edgeYs[MAXARRAYSIZE];
+	std::deque<double> edgeXs;
+	std::deque<double> edgeYs;
 
 private:
 	IBEONetwork *connection;
