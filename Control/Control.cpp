@@ -776,7 +776,8 @@ void Control::UpdatePathPlan() {
 		}
 		emxArray_real_T *obstacles = emxCreateWrapper_real_T(&ob[0], 3, 0);
 		emxArray_real_T *arcob = emxCreate_real_T(1,1);
-		
+		ob.clear();
+		std::vector<double>().swap(ob); //Free memory reserved for ob
 		Log->WriteLogLine("Object Localize");
 		if (LogLevel == "Debug") {
 			Log->WriteLogLine("Obstacles Size: " + boost::lexical_cast<std::string>(obstacles->size[0]) + "x" + boost::lexical_cast<std::string>(obstacles->size[1]));
