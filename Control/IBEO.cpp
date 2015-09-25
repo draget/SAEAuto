@@ -807,7 +807,7 @@ void IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 	// Index that is iterated over.
 	int i = CurrentXYScan.xvalues.size() / 2;
 
-	while(i > 0 && i < CurrentXYScan.xvalues.size() && i >= GroupSize) {
+	while(i > 0 && i < CurrentXYScan.xvalues.size() && i >= GroupSize) { //If i is less than Groupsize xlast and ylast will iterate before the start of the data structure causing segfaults 
 
 		if((! FoundStart) && InitialSearchDirn == 0) { // Initial search left
 
@@ -966,7 +966,7 @@ void IBEO::FindRoad(double AvgLHS, double AvgRHS) {
 	groupx.clear();
         groupy.clear();
 	
-	if (LHS_i >= CurrentXYScan.xvalues.begin() && RHS_i >= CurrentXYScan.xvalues.begin()) {
+	if (LHS_i >= CurrentXYScan.xvalues.begin() && RHS_i >= CurrentXYScan.xvalues.begin()) { //Ensure Iterators are within the appropriate range to prevent Segfaults 
 		groupx.assign(LHS_i,RHS_i);
 		groupy.assign(CurrentXYScan.yvalues.begin() + (LHS_i - CurrentXYScan.xvalues.begin()),CurrentXYScan.yvalues.begin() + (RHS_i - CurrentXYScan.xvalues.begin()));
 
@@ -990,7 +990,7 @@ void IBEO::FindRoad(double AvgLHS, double AvgRHS) {
                 edgeYs.push_back(temp.at(1));
                 edgeXs.push_back(temp.at(2));
                 edgeYs.push_back(temp.at(3));
-                	if (edgeXs.size() >= EdgeArraySize) {
+                	if (edgeXs.size() >= EdgeArraySize) { //To prevent excessive memory usage clear oldest pair of Road Edges
                         	edgeXs.pop_front();
                	        	edgeXs.pop_front();
                 	        edgeYs.pop_front();
