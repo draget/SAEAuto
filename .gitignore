@@ -9,3 +9,5 @@ Control/whatever.stderr
 Control/whatever.stdout
 **/**/*.o
 **/*.o
+*/*.stderr
+*/*.stdout
