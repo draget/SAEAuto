@@ -28,6 +28,6 @@ else
 fi
 
 User=`whoami`
-
+sudo ulimit -c unlimited
 sudo nice -n -19 sudo -u $User ./Control $1
 

@@ -48,6 +48,8 @@ private:
 	int fd;
 
 	double OldTime;
+	double velocity_n;
+	double velocity_e;
 
 	void ProcessMessages();
 	void NewSpeedAndPosition();

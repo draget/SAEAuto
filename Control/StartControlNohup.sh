@@ -31,6 +31,7 @@ fi
 
 User=`whoami`
 
+sudo ulimit -c unlimited
 sudo nohup nice -n -19 sudo -u $User ./Control $1 > whatever.stdout 2> whatever.stderr < /dev/null &
 sleep 2
 pidof Control

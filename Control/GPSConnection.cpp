@@ -112,17 +112,19 @@ void GPSConnection::ProcessMessages() {
 		} else {
 			nullcount = 0;
 			Time = gps_time.tow;
+			velocity_n = double (vel_ned.n);
+			velocity_e = double (vel_ned.e);
 			if (vel_ned.n > 0) {
 				if (vel_ned.e > 0) {
-					TrackAngle = (atan(vel_ned.e/vel_ned.n)* 180 / PI);
+					TrackAngle = (atan(velocity_e/velocity_n)* 180 / PI);
 				} else {
-					TrackAngle = 360.0 + (atan(vel_ned.e/vel_ned.n)* 180 / PI);
+					TrackAngle = 360.0 + (atan(velocity_e/velocity_n)* 180 / PI);
 				}
 			} else if (vel_ned.n < 0) {
 				if (vel_ned.e > 0) {
-					TrackAngle = 180.0 + (atan(vel_ned.e/vel_ned.n)* 180 / PI);
+					TrackAngle = 180.0 + (atan(velocity_e/velocity_n)* 180 / PI);
 				} else {
-					TrackAngle = 180.0 + (atan(vel_ned.e/vel_ned.n)* 180 / PI);
+					TrackAngle = 180.0 + (atan(velocity_e/velocity_n)* 180 / PI);
 				}
 			}
 			
@@ -132,8 +134,8 @@ void GPSConnection::ProcessMessages() {
 			Latitude = pos_llh.lat - CarControl->LatOffset;
 			Longitude = pos_llh.lon - CarControl->LongOffset;
 			NewSpeedAndPosition();	
-			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-
+			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+			
 		}
     	}
 
@@ -176,7 +178,7 @@ void GPSConnection::Monitor() {
 		//Log->WriteLogLine("old " + boost::lexical_cast<std::string>(OldTime) + " new " + boost::lexical_cast<std::string>(Time));
 
 		if(CarControl->AutoRun) {
-			if(! (Time > (OldTime + 0.1))) { Log->WriteLogLine("GPS - GPS Fix is old."); CarControl->Trip(7); } 
+			if(! (Time > (OldTime + 1000))) { Log->WriteLogLine("GPS - GPS Fix is old."); } 
 		}
 
 		OldTime = Time;
