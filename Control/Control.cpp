@@ -255,6 +255,7 @@ void Control::UpdateTerminal() {
 	mvprintw(10,50,"GPS Longitude: %lf \n", this->GPS->Longitude);
 	mvprintw(11,50,"GPS Speed: %lf \n", this->GPS->Speed);
 	mvprintw(12,50,"GPS Track Angle: %lf \n", this->GPS->TrackAngle);
+	mvprintw(13,50,"Satellites Used: %lf \n", this->GPS->NumSat)
 
 	mvprintw(3,50,"IBEO State: %i \n", this->Lux->inUse);
 	mvprintw(4,50,"IBEO N Objects: %i \n", this->Lux->object_data_header[this->Lux->curObjectDataSource].number_of_objects);
@@ -319,6 +320,7 @@ void Control::WriteInfoFile() {
 	WebLogger->WriteLogLine("GPS Speed|" + boost::lexical_cast<std::string>(this->GPS->Speed), true);
 	WebLogger->WriteLogLine("GPS Track Angle|" + boost::lexical_cast<std::string>(this->GPS->TrackAngle), true);
 	WebLogger->WriteLogLine("GPS Time|" + boost::lexical_cast<std::string>(this->GPS->Time), true);
+	WebLogger->WriteLogLine("GPS Satellites|" + boost::lexical_cast<std::string>(this->GPS->NumSat), true);
 
 	WebLogger->WriteLogLine("Datum Lat|" + boost::lexical_cast<std::string>(this->DatumLat), true);
 	WebLogger->WriteLogLine("Datum Long|" + boost::lexical_cast<std::string>(this->DatumLong), true);
@@ -1307,10 +1309,14 @@ double Control::TimeStamp() {
 VECTOR_2D Control::LatLongToXY(double lat, double lng) {
 
 	VECTOR_2D MapPoint;
-
-	MapPoint.y = -1*EARTH_RADIUS*TwoPi*(DatumLat - lat)/360;
-	MapPoint.x = -1*EARTH_RADIUS*cos(abs(lat))*TwoPi*(DatumLong - lng)/360;
-
+	
+	if (lat == 0) {
+		MapPoint.y = 0;
+		MapPoint.x = 0;
+	} else {
+		MapPoint.y = -1*EARTH_RADIUS*TwoPi*(DatumLat - lat)/360;
+		MapPoint.x = -1*EARTH_RADIUS*cos(abs(lat))*TwoPi*(DatumLong - lng)/360;
+	}
 	return MapPoint;
 
 }

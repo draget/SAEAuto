@@ -26,8 +26,8 @@ public:
 	double CurrentHeading;
 	double CurrentSpeed;
 
-	void GPSUpdate(VECTOR_2D GPSPosition, double GPSSpeed);
-	void GPSTrackAngleUpdate(double GPSTrackAngle);
+	void GPSUpdate(VECTOR_2D GPSPosition, double GPSSpeed, int GPSNumSat);
+	void GPSTrackAngleUpdate(double GPSTrackAngle, int GPSNumSat);
 
 private:
 
