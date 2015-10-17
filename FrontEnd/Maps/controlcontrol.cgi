@@ -20,7 +20,8 @@ COMMAND=`echo "$QUERY_STRING" | sed -n 's/^.*command=\([^&]*\).*$/\1/p' | sed "s
 if [ "$COMMAND" == "start" ];
 then
 	RESULT="$(/bin/bash ../../Control/StartControlNohup.sh)"
-	if [ "$RESULT" != "" ];
+	PIDOF="$(pidof Control)"
+	if [ "$PIDOF" != "" ];
 	then
 		echo "Successfully started Control software"
 		echo "</p><button class='pos_right' onclick=\"link('./index.html#driveEstop')\">OK</button>"
