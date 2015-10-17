@@ -1214,10 +1214,10 @@ void Control::StartMapRecord() {
 
 	ClearMap();
 
-//	DatumLat = GPS->Latitude;
-//	DatumLong = GPS->Longitude;
+	DatumLat = GPS->Latitude;
+	DatumLong = GPS->Longitude;
 
-//	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
+	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 
 	RecordActive = true;
 
@@ -1379,7 +1379,7 @@ int main(int argc, char *argv[]) {
 
 	std::string LogDir;
 
-	bool ExtLogging = true;
+	bool ExtLogging = false;
 
 	if(argc > 1) {
 		std::string Arg = boost::lexical_cast<std::string>(argv[1]);
