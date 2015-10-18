@@ -22,11 +22,13 @@ public:
     	virtual ~GPSConnection();
 
 	bool Open();
+	void GPSDFound();
 	void Start();
 	void Stop();
 	
 	double PI;
 	bool GPSState;
+	bool UsingGPSD;
 
 	double Latitude;
 	double Longitude;
@@ -52,6 +54,7 @@ private:
 	double velocity_e;
 
 	void ProcessMessages();
+	void ProcessMessagesDep();
 	void NewSpeedAndPosition();
 	void NewTrack();
 
