@@ -28,6 +28,10 @@ public:
 	bool Send(std::string Command);
 	
 	bool SerialState;
+	
+	double WSS1;
+	double WSS2;
+	double SP;
 
 private:
 

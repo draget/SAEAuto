@@ -19,6 +19,7 @@
 #include "Control.h"
 #include "Xsens.h"
 #include "Logger.h"
+#include "LowLevelSerialOut.h"
 
 
 /**

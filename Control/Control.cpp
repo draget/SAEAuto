@@ -249,6 +249,9 @@ void Control::UpdateTerminal() {
 
 	mvprintw(9,0,"Current Steering Posn: %i \n", this->CurrentSteeringSetPosn);
 	mvprintw(10,0,"Current Throttle/Brake Level: %i \n", this->CurrentThrottleBrakeSetPosn);
+	mvprintw(11,0,"Wheel Speed FL: %lf \n", this->LowLevelSerial->WSS1);
+	mvprintw(12,0,"Wheel Speed FR: %lf \n", this->LowLevelSerial->WSS2);
+	mvprintw(13,0,"Actual Steering: %lf \n", this->LowLevelSerial->SP);
 
 	mvprintw(8,50,"GPS State: %i \n", this->GPS->GPSState);
 	mvprintw(9,50,"GPS Latitude: %lf \n", this->GPS->Latitude);
