@@ -38,7 +38,7 @@ using namespace std;
 GPSConnection::GPSConnection(Control* CarController, Logger* Logger) {
 
 	CarControl = CarController;
- 	Log = Logger;	
+ 	Log = Logger;
 
 	GPSState = false;
 	UsingGPSD = false;
@@ -65,10 +65,11 @@ GPSConnection::~GPSConnection() {
 
 bool GPSConnection::Open() {
 	std::string LogPath = CarControl->LogDir + "/gps.log";
+
 	GPSLog = new Logger(LogPath.c_str());
-	
+
 	fd = OpenPiksi(PIKSI_PATH, PIKSI_BAUD);
-	
+
 	if (fd < 0) {
 		Log->WriteLogLine("No Piksi Found - Attempting GPSD...");
 		GPSDFound();
@@ -77,19 +78,18 @@ bool GPSConnection::Open() {
 		UsingGPSD = false;
 		GPSState = true;
 	}
-	
+
 	return true;
 }
 
 void GPSConnection::GPSDFound() {
-	
+
 	GPSReceiver = new gpsmm("localhost", DEFAULT_GPSD_PORT);
 
    	if (GPSReceiver->stream(WATCH_ENABLE|WATCH_JSON) == NULL) {
    	    Log->WriteLogLine("QStar - No GPSD running.");
 		CarControl->Trip(7);
 		GPSState = false;
-		return false;
 
 	} else {
 		Log->WriteLogLine("QStar - GPSD Running.");
@@ -99,12 +99,12 @@ void GPSConnection::GPSDFound() {
 }
 
 void GPSConnection::Start() {
-    
-	if(GPSState) {	
+
+	if(GPSState) {
 
 		Run = true;
-		
-		if (UsingGPSD) {
+
+		if (! UsingGPSD) {
 			m_Thread = boost::thread(&GPSConnection::ProcessMessages, this);
 		} else {
 			m_Thread = boost::thread(&GPSConnection::ProcessMessagesDep, this);
@@ -116,54 +116,54 @@ void GPSConnection::Start() {
 		s_Thread.detach();
 
 	}
-        
+
 }
 
 void GPSConnection::ProcessMessages() {
 	int nullcount = 0;
-	int NumSat = 0;
+	NumSat = 0;
 
 	while(Run) {
 
-    	ProcessPiksi();
-		NumSat = pos_llh.n_sats
-
+	    	ProcessPiksi();
+		NumSat = pos_llh.n_sats;
 		if (NumSat == 0) {
 			nullcount += 1;
 			if (nullcount == 1000) {
-	    		Log->WriteLogLine("GPS - Read error! No Fix.");
+	    			Log->WriteLogLine("GPS - Read error! No Fix.");
 			}
 		} else {
 			nullcount = 0;
 		}
-		
-			Time = gps_time.tow;
-			velocity_n = double (vel_ned.n);
-			velocity_e = double (vel_ned.e);
-			if (vel_ned.n > 0) {
-				if (vel_ned.e > 0) {
-					TrackAngle = (atan(velocity_e/velocity_n)* 180 / PI);
-				} else {
-					TrackAngle = 360.0 + (atan(velocity_e/velocity_n)* 180 / PI);
-				}
-			} else if (vel_ned.n < 0) {
-				if (vel_ned.e > 0) {
-					TrackAngle = 180.0 + (atan(velocity_e/velocity_n)* 180 / PI);
-				} else {
-					TrackAngle = 180.0 + (atan(velocity_e/velocity_n)* 180 / PI);
-				}
+		Time = gps_time.tow;
+		velocity_n = double (vel_ned.n);
+		velocity_e = double (vel_ned.e);
+		if (vel_ned.n > 0) {
+			if (vel_ned.e > 0) {
+				TrackAngle = (atan(velocity_e/velocity_n)* 180 / PI);
 			} else {
-				TrackAngle = 0;
+				TrackAngle = 360.0 + (atan(velocity_e/velocity_n)* 180 / PI);
 			}
-			
-			NewTrack();
-			Speed = sqrt(vel_ned.e*vel_ned.e + vel_ned.n*vel_ned.n)*0.001; // convert to m/s
+		} else if (vel_ned.n < 0) {
+			if (vel_ned.e > 0) {
+				TrackAngle = 180.0 + (atan(velocity_e/velocity_n)* 180 / PI);
+			} else {
+				TrackAngle = 180.0 + (atan(velocity_e/velocity_n)* 180 / PI);
+			}
+		} else {
+			TrackAngle = 0;
+		}
 
-			Latitude = pos_llh.lat - CarControl->LatOffset;
-			Longitude = pos_llh.lon - CarControl->LongOffset;
-			NewSpeedAndPosition();	
-			boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-    }
+		NewTrack();
+		Speed = sqrt(vel_ned.e*vel_ned.e + vel_ned.n*vel_ned.n)*0.001; // convert to m/s
+
+		Latitude = pos_llh.lat - CarControl->LatOffset;
+		Longitude = pos_llh.lon - CarControl->LongOffset;
+//		Log->WriteLogLine("PositionUpdated:  " + boost::lexical_cast<std::string>(Latitude));
+
+		NewSpeedAndPosition();
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+	}
 
 }
 
@@ -179,7 +179,7 @@ void GPSConnection::ProcessMessagesDep() {
 	    	Log->WriteLogLine("GPS - Read error! - Will attempt again soon...");
 			boost::this_thread::sleep(boost::posix_time::milliseconds(10000));
 			continue;
-		} 
+		}
 		else {
 			if (NewData->set & TIME_SET) {
 				Time = NewData->fix.time;
@@ -194,10 +194,10 @@ void GPSConnection::ProcessMessagesDep() {
 				Speed = NewData->fix.speed;
 				NewSpeedAndPosition();
 			}
-			
+
 			NumSat = NewData->satellites_used;
 		}
-    }
+	}
 
 }
 
@@ -210,13 +210,13 @@ void GPSConnection::Stop() {
 }
 
 void GPSConnection::NewSpeedAndPosition() {
-	
+
 	VECTOR_2D Position = CarControl->LatLongToXY(Latitude, Longitude);
 
 	if(CarControl->ExtLogging) {
 		GPSLog->WriteLogLine("P," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Latitude) + "," + boost::lexical_cast<std::string>(Longitude) + "," + boost::lexical_cast<std::string>(Position.x) + "," + boost::lexical_cast<std::string>(Position.y), true);
 		GPSLog->WriteLogLine("S," + boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Speed), true);
-	}	
+	}
 
 	CarControl->Fuser->GPSUpdate(Position, Speed, NumSat);
 

@@ -164,7 +164,7 @@ void Fusion::TrackAngleActions() {
 
 void Fusion::GPSUpdate(VECTOR_2D GPSPosition, double GPSSpeed, int GPSNumSat) {
 	
-	if (GPSNumSat > 5) {
+	if (GPSNumSat > 3) {
 		
 		VECTOR_2D GPSVelocity;
 
