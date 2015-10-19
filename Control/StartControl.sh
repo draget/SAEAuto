@@ -11,8 +11,8 @@ sudo chmod 777 ./ramdisk >>./RunFiles/scl.txt 2>&1
 #sudo chmod 777 /dev/video1 >>./RunFiles/scl.txt 2>&1
 
 
-#sudo killall gpsd >>./RunFiles/scl.txt 2>&1
-#sudo gpsd /dev/serial/by-id/usb-MTK_GPS_Receiver-if01 >>./RunFiles/scl.txt 2>&1
+sudo killall gpsd >>./RunFiles/scl.txt 2>&1
+sudo gpsd /dev/serial/by-id/usb-MTK_GPS_Receiver-if01 >>./RunFiles/scl.txt 2>&1
 
 sudo chmod 777 /dev/serial/by-id/usb-FTDI_Single_RS232-HS-if00-port0
 sudo chmod 777 /dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Controller-if00-port0 >>./RunFiles/scl.txt 2>&1
