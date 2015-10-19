@@ -11,8 +11,9 @@ sudo mount /dev/ram1 ./ramdisk
 sudo chmod 777 ./ramdisk
 
 #sudo chmod 777 /dev/video1
-#sudo killall gpsd
-#sudo gpsd /dev/serial/by-id/usb-MTK_GPS_Receiver-if01
+
+sudo killall gpsd
+sudo gpsd /dev/serial/by-id/usb-MTK_GPS_Receiver-if01
 
 sudo chmod 777 /dev/serial/by-id/usb-FTDI_Single_RS232-HS-if00-port0
 sudo chmod 777 /dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Controller-if00-port0

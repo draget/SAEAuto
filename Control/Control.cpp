@@ -100,7 +100,7 @@ Control::Control(std::string LogDir, bool ExtLog) {
 	OnRoad = false;
 
 	FencepostRadius = MAPPOINT_RADIUS;
-	RoadEdgeRadius = 0.10;
+	RoadEdgeRadius = ROADEDGERADIUS;
 
 	DatumLat = -31.980569;
 	DatumLong = 115.817807;
