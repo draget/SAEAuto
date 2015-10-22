@@ -774,7 +774,7 @@ void Control::UpdatePathPlan() {
 				ob.push_back(RoadEdgeRadius);
 			}
 		}
-		emxArray_real_T *obstacles = emxCreateWrapper_real_T(&ob[0], 3, 0);
+		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob.data(), 3, 0);
 		emxArray_real_T *arcob = emxCreate_real_T(1,1);
 		
 		Log->WriteLogLine("Object Localize");
