@@ -35,7 +35,7 @@ public:
 	double Speed;
 	double TrackAngle;
 	double Time;
-	int NumSat
+	int NumSat;
 
 private:
 
