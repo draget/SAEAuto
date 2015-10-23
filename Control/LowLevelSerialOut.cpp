@@ -38,6 +38,9 @@ LowLevelSerialOut::LowLevelSerialOut(Control* CarController, Logger* Logger) {
 	LastAckTime = 0;
 
 	RxBuffer.reserve(10);
+	WSS1 = 0;
+	WSS2 = 0;
+	SP = 0;
 
 }
 
@@ -203,6 +206,11 @@ void LowLevelSerialOut::ProcessMessage() {
 		else if(MsgString.compare(2,1,"5") == 0) { Log->WriteLogLine("LowLevelSerial - No new command in 300ms!"); CarControl->Trip(10); }
 
 
+	}
+	else if(MsgString.compare(0,1,"O")) {
+		if(MsgString.compare(2,4,"WSS1" == 0)) { WSS1 = std::stod (MsgString.substr(7)); }
+		else if (MsgString.compare(2,4,"WSS2") == 0) { WSS2 = std::stod (MsgString.substr(7)); }
+		else if (MsgString.compare(2,2,"SP") == 0) { SP = std::stod (MsgString.substr(5)); }
 	}
 	else {
 		if (CarControl->LogLevel == "DEBUG") {

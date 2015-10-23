@@ -11,7 +11,10 @@ sudo mount /dev/ram1 ./ramdisk
 sudo chmod 777 ./ramdisk
 
 #sudo chmod 777 /dev/video1
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6a28af655eaa2389e537759f25ec87ddd861ea7e
 sudo killall gpsd
 sudo gpsd /dev/serial/by-id/usb-MTK_GPS_Receiver-if01
 

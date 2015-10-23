@@ -16,8 +16,13 @@
 //Path planning constants
 #define PATHESTIMATEGRANULARITY 1
 #define GRANULARITY 0.5 //Set this with consideration to mappoint radius above
+<<<<<<< HEAD
 #define ROADEDGERADIUS 0.5
+=======
+#define ROADEDGERADIUS 0.5 //Equal to Granularity
+>>>>>>> 6a28af655eaa2389e537759f25ec87ddd861ea7e
 #define EPSILON 0.01
+
 
 #define OBJECTNOTIFYTIME 3 //Seconds between object type notifications
 

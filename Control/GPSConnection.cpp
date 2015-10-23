@@ -104,11 +104,16 @@ void GPSConnection::Start() {
 
 		Run = true;
 
+<<<<<<< HEAD
 		if (! UsingGPSD) {
 			m_Thread = boost::thread(&GPSConnection::ProcessMessages, this);
 		} else {
 			m_Thread = boost::thread(&GPSConnection::ProcessMessagesDep, this);
 		}
+=======
+		if (! UsingGPSD) { m_Thread = boost::thread(&GPSConnection::ProcessMessages, this); }
+					else { m_Thread = boost::thread(&GPSConnection::ProcessMessagesDep, this);}
+>>>>>>> refs/remotes/origin/master
 		m_Thread.detach();
 
 
@@ -125,9 +130,16 @@ void GPSConnection::ProcessMessages() {
 
 	while(Run) {
 
-	    	ProcessPiksi();
+<<<<<<< HEAD
+	    ProcessPiksi();
 		NumSat = pos_llh.n_sats;
 		if (NumSat == 0) {
+=======
+    	ProcessPiksi();
+		NumSat = pos_llh.n_sats
+
+		if (pos_llh.lat == NULL) {
+>>>>>>> refs/remotes/origin/master
 			nullcount += 1;
 			if (nullcount == 1000) {
 	    			Log->WriteLogLine("GPS - Read error! No Fix.");
@@ -163,6 +175,40 @@ void GPSConnection::ProcessMessages() {
 
 		NewSpeedAndPosition();
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+	}
+
+}
+
+void GPSConnection::ProcessMessagesDep() {
+
+	while(Run) {
+
+		struct gps_data_t* NewData;
+
+		if (! GPSReceiver->waiting(10000)) { continue; }
+
+		if ((NewData = GPSReceiver->read()) == NULL) {
+	    	Log->WriteLogLine("GPS - Read error! - Will attempt again soon...");
+			boost::this_thread::sleep(boost::posix_time::milliseconds(10000));
+			continue;
+		}
+		else {
+			if (NewData->set & TIME_SET) {
+				Time = NewData->fix.time;
+			}
+			if(NewData->set & TRACK_SET) {
+				TrackAngle = NewData->fix.track;
+				NewTrack();
+			}
+			if((NewData->set & LATLON_SET) && (NewData->set & SPEED_SET)) {
+				Latitude = NewData->fix.latitude - CarControl->LatOffset;
+				Longitude = NewData->fix.longitude - CarControl->LongOffset;
+				Speed = NewData->fix.speed;
+				NewSpeedAndPosition();
+			}
+
+			NumSat = NewData->satellites_used;
+		}
 	}
 
 }
