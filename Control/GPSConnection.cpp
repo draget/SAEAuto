@@ -125,7 +125,7 @@ void GPSConnection::ProcessMessages() {
 
 	while(Run) {
 
-	    	ProcessPiksi();
+	    ProcessPiksi();
 		NumSat = pos_llh.n_sats;
 		if (NumSat == 0) {
 			nullcount += 1;

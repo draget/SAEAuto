@@ -100,7 +100,7 @@ Control::Control(std::string LogDir, bool ExtLog) {
 	OnRoad = false;
 
 	FencepostRadius = MAPPOINT_RADIUS;
-	RoadEdgeRadius = 0.10;
+	RoadEdgeRadius = ROADEDGERADIUS;
 
 	DatumLat = -31.980569;
 	DatumLong = 115.817807;
@@ -162,7 +162,7 @@ void Control::Setup() {
 	GPS->Open();
 	if(access("noibeo", F_OK ) == -1) { Lux->Open(); }
 	IMU->Open();
-
+	
 	PathPlan.manxi = emxCreate_real_T(1,1);
 	PathPlan.manyi = emxCreate_real_T(1,1);
 
@@ -249,16 +249,13 @@ void Control::UpdateTerminal() {
 
 	mvprintw(9,0,"Current Steering Posn: %i \n", this->CurrentSteeringSetPosn);
 	mvprintw(10,0,"Current Throttle/Brake Level: %i \n", this->CurrentThrottleBrakeSetPosn);
-	mvprintw(11,0,"Wheel Speed FL: %lf \n", this->LowLevelSerial->WSS1);
-	mvprintw(12,0,"Wheel Speed FR: %lf \n", this->LowLevelSerial->WSS2);
-	mvprintw(13,0,"Actual Steering: %lf \n", this->LowLevelSerial->SP);
 
 	mvprintw(8,50,"GPS State: %i \n", this->GPS->GPSState);
 	mvprintw(9,50,"GPS Latitude: %lf \n", this->GPS->Latitude);
 	mvprintw(10,50,"GPS Longitude: %lf \n", this->GPS->Longitude);
 	mvprintw(11,50,"GPS Speed: %lf \n", this->GPS->Speed);
 	mvprintw(12,50,"GPS Track Angle: %lf \n", this->GPS->TrackAngle);
-	mvprintw(13,50,"Satellites Used: %i \n", this->GPS->NumSat);
+	mvprintw(13,50,"GPS Satellites: %lf \n", this->GPS->NumSat);
 
 	mvprintw(3,50,"IBEO State: %i \n", this->Lux->inUse);
 	mvprintw(4,50,"IBEO N Objects: %i \n", this->Lux->object_data_header[this->Lux->curObjectDataSource].number_of_objects);
@@ -280,7 +277,7 @@ void Control::UpdateTerminal() {
 
 		std::string RecentLogLines[y - LogStartLine];
 		this->Log->GetLogLines(RecentLogLines, y - LogStartLine);
-
+			
 		for(int i = y; i > LogStartLine; i--) {
 
 			mvprintw(i-1,0,"Log: %s", (RecentLogLines[y - i] + '\n').c_str());
@@ -352,21 +349,21 @@ void Control::WriteInfoFile() {
 	int indLayer = 0;
 	while (indLayer < numLayers) {
 		WebLogger->WriteLogLine("Scan Layer " + boost::lexical_cast<std::string>(indLayer) + ":", true);
-
+		
 		WebLogger->WriteLogLine("IBEO LH Edge|" + boost::lexical_cast<std::string>(this->Lux->LHEdge[indLayer]), true);
 		WebLogger->WriteLogLine("IBEO RH Edge|" + boost::lexical_cast<std::string>(this->Lux->RHEdge[indLayer]), true);
 		WebLogger->WriteLogLine("IBEO Road Slope|" + boost::lexical_cast<std::string>(this->Lux->RoadSlope[indLayer]), true);
 		WebLogger->WriteLogLine("IBEO Road Intcpt|" + boost::lexical_cast<std::string>(this->Lux->RoadIntercept[indLayer]), true);
 		indLayer++;
 	}
-
+	
 	WebLogger->WriteLogLine("Advanced Path Planning Active|" + boost::lexical_cast<std::string>(this->PathPlan.active), true);
 
 	int y = 30;
-
+	
 	std::string RecentLogLines[y];
 	this->Log->GetLogLines(RecentLogLines, y);
-
+			
 	for(int i = y; i > 0; i--) {
 
 		WebLogger->WriteLogLine("Log|" + RecentLogLines[y - i], true);
@@ -419,7 +416,7 @@ void Control::Trip(int TripState) {
 	else if(TripState == 10) {
 		TripReason = "Low Level Error";
 	}
-
+ 
 
 	// Stop things from happening...
 	AutoOn = false;
@@ -532,33 +529,33 @@ void Control::LoadMap(std::string MapFilename) {
 			}
     	}
     	infile.close();
-
+    		
     	timestamp_t t0 = get_timestamp();
 
 		PathPlan.points = emxCreateWrapper_real_T(&CurrentMap.Waypoints[0].x, 2, w); //Create waypoint matrix by wrapping Waypoints vector
-
-
+		
+		
 		PathPlan.scoefx = emxCreate_real_T(1,1); //Create arc length parameterised x coeficients matrix
 		PathPlan.scoefy = emxCreate_real_T(1,1); //Create arc length parameterised y coeficients matrix
 		PathPlan.si = emxCreate_real_T(1,1); //Create arc length parameterised breaks matrix
-
-
+		
+		
 		//Calculate an arc length paramterised path based on the original waypoints with the arc length path matching the original path at PATHESTIMATEGRANULARITY intervals. 
 		arclengthcurve(PathPlan.points, PATHESTIMATEGRANULARITY, EPSILON, 
 						PathPlan.scoefx, PathPlan.scoefy, PathPlan.si);
-
+						
 		timestamp_t t1 = get_timestamp();
-
+					
 		emxArray_real_T *sx = emxCreate_real_T(1,1); //Create baseframe x point samples matrix, only used in plotting
 		emxArray_real_T *sy = emxCreate_real_T(1,1); //Create baseframe y point samples matrix, only used in plotting
 		PathPlan.ss = emxCreate_real_T(1,1); //Create baseframe arc length samples matrix
-
+		
 		//Calculate detailed sample points at a distance GRANULATRITY between each point.
 		builddetailedbf(PathPlan.scoefx, PathPlan.scoefy, PathPlan.si, GRANULARITY,
 						sx, sy, PathPlan.ss);
-
+		
 		timestamp_t t2 = get_timestamp();
-
+		
 		//Put calculated detailes baseframe samples into the current map baseframe vector.
 		for(int i = 0; i < sx->size[0]; i++) {
 			MapPoint.x = sx->data[i];
@@ -567,49 +564,55 @@ void Control::LoadMap(std::string MapFilename) {
 		}
 		Log->WriteLogLine("#Samples: " + boost::lexical_cast<std::string>(PathPlan.ss->size[0]));
 		Log->WriteLogLine("Total Baseframe Path Length: " + boost::lexical_cast<std::string>(PathPlan.si->data[PathPlan.si->size[0]-1]));
-
+		
 		timestamp_t t3 = get_timestamp();
-
+		
 		PathPlan.dxds = emxCreate_real_T(1,1); //Create first derivative of x with respect to arc length matrix
 		PathPlan.dyds = emxCreate_real_T(1,1); //Create first derivative of y with respect to arc length matrix
 		emxArray_real_T *dx2ds = emxCreate_real_T(1,1); //Create second derivative of x with respect to arc length matrix
 		emxArray_real_T *dy2ds = emxCreate_real_T(1,1); //Create second derivative of y with respect to arc length matrix
-
+		
 		emxArray_real_T *dontcare = emxCreate_real_T(1,1); //Create a dontcare matrix because we dont care about the curvn
-
+		
 		//Calculate derivatives
 		parevalspline(PathPlan.scoefx,PathPlan.si,PathPlan.ss,1,PathPlan.dxds,dontcare);
 		parevalspline(PathPlan.scoefy,PathPlan.si,PathPlan.ss,1,PathPlan.dyds,dontcare);
 		parevalspline(PathPlan.scoefx,PathPlan.si,PathPlan.ss,2,dx2ds,dontcare);
 		parevalspline(PathPlan.scoefy,PathPlan.si,PathPlan.ss,2,dy2ds,dontcare);
-
+		
 		timestamp_t t4 = get_timestamp();
-
+		
+		
 		PathPlan.BaseFrameCurvature = emxCreate_real_T(1,1); //Create base frame curvature matrix, store in pathplanning struct
-
+		
 		//Calculate baseframe curvature
 		buildbfcurvature(PathPlan.dxds, PathPlan.dyds, dx2ds, dy2ds, PathPlan.BaseFrameCurvature);
-
+		
+		
+		
 		timestamp_t t5 = get_timestamp();
-
+		
+		
 		double secs1 = (t1 - t0) / 1000000.0L;
 		double secs2 = (t2 - t1) / 1000000.0L;
 		double secs3 = (t3 - t2) / 1000000.0L;
 		double secs4 = (t4 - t3) / 1000000.0L;
 		double secs5 = (t5 - t4) / 1000000.0L;
-
+		
+		
+		
 		Log->WriteLogLine("#Curvature Samples: " + boost::lexical_cast<std::string>(PathPlan.BaseFrameCurvature->size[0]));
 		TimeLog->WriteLogLine("Time to execute arclengthcurve: " + boost::lexical_cast<std::string>(secs1) + " s");
 		TimeLog->WriteLogLine("Time to execute builddetailedbf: " + boost::lexical_cast<std::string>(secs2) + " s");
 		TimeLog->WriteLogLine("Time to push baseframe onto currentmap: " + boost::lexical_cast<std::string>(secs3) + " s");
 		TimeLog->WriteLogLine("Time to execute parevalspline derivitives: " + boost::lexical_cast<std::string>(secs4) + " s");
 		TimeLog->WriteLogLine("Time to execute buildbfcurvature: " + boost::lexical_cast<std::string>(secs5) + " s");
-
+		
 		Log->WriteLogLine("Control - loaded " + boost::lexical_cast<std::string>(f) + " fence and " + boost::lexical_cast<std::string>(w) + " waypoints.");
-
+		
   	}
 	else { Log->WriteLogLine("Control - Couldn't open map"); }
-
+	
 
 
 }
@@ -676,13 +679,13 @@ void Control::DumpMap(std::string MapName) {
 	BOOST_FOREACH( VECTOR_2D MapPoint, CurrentMap.DetectedFenceposts ) {
    		DumpLog->WriteLogLine("I" + boost::lexical_cast<std::string>(i) + "," + boost::lexical_cast<std::string>(MapPoint.x) + "," + boost::lexical_cast<std::string>(MapPoint.y), true);
 		i++;
-	}
-
+	} 
+	
 	int npaths = PathPlan.manxi->size[1];
 	int npoints = PathPlan.manxi->size[0];
 	double x;
 	double y;
-
+	
 	for (i = 0; i<npaths; i++) {
 		for (int j = 0; j<npoints; j++){
 			x = PathPlan.manxi->data[i*npoints + j];
@@ -692,10 +695,10 @@ void Control::DumpMap(std::string MapName) {
 			} else {
 				DumpLog->WriteLogLine("P," + boost::lexical_cast<std::string>(x) + "," + boost::lexical_cast<std::string>(y), true);
 			}
-
+			
 		}
 	}
-
+	
 	i = 0;
 	/* Dont log best path seperately for now
 	BOOST_FOREACH( VECTOR_2D MapPoint, PathPlan.PlannedWaypoints ) {
@@ -1307,13 +1310,9 @@ VECTOR_2D Control::LatLongToXY(double lat, double lng) {
 
 	VECTOR_2D MapPoint;
 
-	if (lat == 0) {
-		MapPoint.y = 0;
-		MapPoint.x = 0;
-	} else {
-		MapPoint.y = -1*EARTH_RADIUS*TwoPi*(DatumLat - lat)/360;
-		MapPoint.x = -1*EARTH_RADIUS*cos(abs(lat))*TwoPi*(DatumLong - lng)/360;
-	}
+	MapPoint.y = -1*EARTH_RADIUS*TwoPi*(DatumLat - lat)/360;
+	MapPoint.x = -1*EARTH_RADIUS*cos(abs(lat))*TwoPi*(DatumLong - lng)/360;
+
 	return MapPoint;
 
 }
