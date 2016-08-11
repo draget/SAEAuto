@@ -201,6 +201,9 @@ void GPSConnection::Stop() {
 
 void GPSConnection::NewSpeedAndPosition() {
 
+	
+	DatumLat = -31.980569;
+	DatumLong = 115.817807;
 	VECTOR_2D Position = CarControl->LatLongToXY(Latitude, Longitude);
 
 	if(CarControl->ExtLogging) {
