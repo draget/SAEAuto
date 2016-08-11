@@ -95,7 +95,7 @@ Control::Control(std::string LogDir, bool ExtLog) {
 	TripState = 0;
 	ManualOn = false;
 	AutoOn = false;
-	BrakeILOn = true;
+	BrakeILOn = false;
 	RecordActive = false;
 	OnRoad = false;
 
