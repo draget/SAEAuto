@@ -97,7 +97,7 @@ Control::Control(std::string LogDir, bool ExtLog) {
 	AutoOn = false;
 	BrakeILOn = true;
 	RecordActive = false;
-	OnRoad = false;
+	OnRoad = true;
 
 	FencepostRadius = MAPPOINT_RADIUS;
 	RoadEdgeRadius = ROADEDGERADIUS;
@@ -107,7 +107,6 @@ Control::Control(std::string LogDir, bool ExtLog) {
 
 	LatOffset = 0.0;
 	LongOffset = 0.0;
-	
 
 	CurrentSteeringSetPosn = 0;
 	CurrentThrottleBrakeSetPosn = 0;
@@ -751,8 +750,8 @@ void Control::UpdatePathPlan() {
 		
 		//Manouver Parameters
 		double maxlatoffset = 8;
-		double mangran = 1;
-		double manlength = 30;
+		double mangran = 0.5;
+		double manlength = 15;
 		double mincurverad = 2;
 		
 		//Get current Obstacles
@@ -774,7 +773,7 @@ void Control::UpdatePathPlan() {
 				ob.push_back(RoadEdgeRadius);
 			}
 		}
-		emxArray_real_T *obstacles = emxCreateWrapper_real_T(&ob[0], 3, 0);
+		emxArray_real_T *obstacles = emxCreateWrapper_real_T(ob.data(), 3, 0);
 		emxArray_real_T *arcob = emxCreate_real_T(1,1);
 		
 		Log->WriteLogLine("Object Localize");

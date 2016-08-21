@@ -131,7 +131,11 @@ void Xsens::ProcessMessages() {
 //	Log->WriteLogLine("B " + boost::lexical_cast<std::string>(CarControl->TimeStamp()));
         if (serial->waitForDataMessage(reply) != XRV_OK)
         {
-		Log->WriteLogLine("XSens - Error reading messages!");
+		Log->WriteLogLine("XSens - Error reading messages! Attempting to Reconnect");
+		Run = false;
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+		Open();
+		Start();
         }
   //     Log->WriteLogLine("A " + boost::lexical_cast<std::string>(CarControl->TimeStamp()));
 

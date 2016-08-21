@@ -10,6 +10,9 @@ sudo chmod 777 ./ramdisk >>./RunFiles/scl.txt 2>&1
 
 #sudo chmod 777 /dev/video1 >>./RunFiles/scl.txt 2>&1
 
+stty -F /dev/serial/by-id/usb-MTK_GPS_Receiver-if01 raw ispeed 9600 ospeed 9600 cs8 -ignpar -cstopb -echo
+echo -en '$PMTK220,200*2C\r\n' >> /dev/serial/by-id/usb-MTK_GPS_Receiver-if01
+
 
 sudo killall gpsd >>./RunFiles/scl.txt 2>&1
 sudo gpsd /dev/serial/by-id/usb-MTK_GPS_Receiver-if01 >>./RunFiles/scl.txt 2>&1
