@@ -23,10 +23,14 @@ libcv2.4
 
 gpsd
 
-lighttpd
+lighttpd - enable CGI. Pages served from FrontEnd/Maps. 
+
+Perl modules: JSON
 
 To compile Control.cpp:
 
-"make" in /Control/matlab/
+make clean
+
+"make" in /Control/matlab/, /Control/Piksi
 
 "make in /Control/
