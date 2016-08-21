@@ -9,8 +9,8 @@
 #include <stdint.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
-#include <libsbp/sbp.h>
-#include <libsbp/navigation.h>
+#include "Piksi/sbp.h"
+#include "Piksi/navigation.h"
 
 #define PIKSI_BAUD 1000000
 #define PIKSI_PATH "/dev/serial/by-id/usb-FTDI_Single_RS232-HS-if00-port0"

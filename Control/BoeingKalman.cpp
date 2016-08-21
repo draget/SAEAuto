@@ -5,7 +5,7 @@
     (c) Adrian Boeing
     www.adrianboeing.com
  */
-#include "cv.h"
+#include <opencv2/opencv.hpp>
 
 typedef enum {
     K_P = 1, //position only
