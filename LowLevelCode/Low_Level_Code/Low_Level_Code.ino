@@ -20,9 +20,11 @@
 //Libraries, object variables
 #include <Servo.h>             //Upload the servo library
 #include <avr/wdt.h>           //Upload the watchdog library
+#include <math.h>              //Maths library for M_PI etc.
 
 //Time keeping vairables. millis() returns time since Arduino was started (ms)
 unsigned long PreviousComTime=0;   //Time since last updated communications (ms). Used for debugging only
+unsigned long OdometryCom=0;
 unsigned long PreviousBrakeTime=0; //Time since brake was engaged in emergency situation
 unsigned long BrakeTime=0;         //Time since brake was applied (all conditions). Used to tell how long the brake has been on
 unsigned long CommandTime=0;       //Time since last new command was received. Used to emergency brake if no new command received within 300ms
@@ -30,6 +32,7 @@ volatile unsigned long EmergencyTime=0;     //Time since emergency brake engaged
 unsigned long PrevSteeringTime=0;  //Previous time steering PID was last updated, used for calculations in PID loop
 unsigned long SteeringErrorCheck=0;//Used to time between checking if a steering motor controller fault is present
 unsigned long BrakeKeepOff=0;      //Used to keep brake off after ER3
+volatile int timeWatch = 0;
 
 //Serial variables
 char Start;                     //Use to indicate the start of a command and to receive bytes
@@ -41,17 +44,17 @@ char Type=0;                    //Storage for command type received: A, B or S
 
 //Brake variables
 Servo BrakeServo;               //Name the servo
-const int BrakeOff=2010;        //Brake in off position
+const int BrakeOff=2020;        //Brake in off position
 int BrakeAngle=BrakeOff;        //Current brake position (microseconds). Set to no brake on startup
 const int BrakeSlight=2000;     //Brake in position that just applies the brake
-const int BrakeFull=1965;       //Full brake value
+const int BrakeFull=1950;       //Full brake value
 boolean BrakeOn=false;          //If true, brake is on
 boolean EmergBrakeSent=false;   //If true, ER1 sent to upper level
 
 //Accelerator variables      
-const int AccelerateOff=50;     //Minimum accelerator value
+const int AccelerateOff=72;     //Minimum accelerator value (Unknown Voltage)
 int Accelerate=AccelerateOff;   //Current accelerator value. Set to no accelerate on startup
-const int AccelerateFull=200;   //Maximum accelerator value
+const int AccelerateFull=220;   //Maximum accelerator value (
 
 //Steering variables
 int SteeringPosition;                 //Steering value from steering sensor
@@ -71,6 +74,22 @@ const float Kd=0.0;                   //Differential constant for steering PID l
 int SteeringControllerErrorPoll=0;    //Increments depending on if the motor controller that controls steering reports an error
 int SteeringPosError=0;
 
+//Wheel Speed Sensor variables
+const int FrontMagnets = 7, RearMagnets = 22;  //Number of pulses per revolution
+const float WheelRadius=0.2575; //Radius of wheels in metres
+int State1, LastState1=0;
+volatile unsigned long TimeStep1, TimeNew1, TimeOld1=0;
+int State2, LastState2=0;
+volatile unsigned long TimeStep2, TimeNew2, TimeOld2=0;
+int State3, LastState3=0;
+volatile unsigned long TimeStep3, TimeNew3, TimeOld3=0;
+int State4, LastState4=0;
+volatile unsigned long TimeStep4, TimeNew4, TimeOld4=0;
+float RPM1, RPM2, RPM3, RPM4;
+float WheelSpeed1, WheelSpeed2, WheelSpeed3, WheelSpeed4;
+int State0;
+
+
 /* Steering motor controller commands
  INA      INB      Motor
  1        1        Brake to Vcc
@@ -86,9 +105,9 @@ int SteeringPosError=0;
 //Pin 0 reserved for USB Rx
 //Pin 1 reserved for USB Tx
 const int InterruptPin = 2;                //Safety circuit interrupt pin. Used to trigger emergency braking condition
-const int SteeringPin = 3;                 //Steering PWM Pin
+const int WheelSpeedIntPin = 3;            //Pin which is high when any of the A1-A4 signals are high
 const int ENB = 4;                         //Steering motor controller pin
-//Pin 5 unused
+const int SteeringPin = 5;                 //Steering PWM Pin
 //Pin 6 unused
 const int INA = 7;                         //Steering motor controller pin
 const int INB = 8;                         //Steering motor controller pin
@@ -97,14 +116,14 @@ const int BrakePin = 10;                   //Servo PWM Pin
 const int AcceleratePin = 11;              //Accelerator PWM Pin
 const int ENA = 12;                        //Steering motor controller pin
 
-/*Analog Pins
- A0: Hall sensor for steering position
- A1: Spare digital/analog pin
- A2: Spare digital/analog pin
- A3: Spare digital/analog pin
- A4: Spare digital/analog pin
- A5: Spare digital/analog pin
- */
+//Analog Pins
+// A0: Hall sensor for steering position
+const int WheelSpeedPin1 = A1;
+const int WheelSpeedPin2 = A2;
+//const int WheelSpeedPin3 = A3;
+//const int WheelSpeedPin4 = A4;
+// A5: Spare digital/analog pin
+
 
 //Other variables
 volatile boolean EmergencyBrake=false;       //If true, emergency brake triggered
@@ -126,6 +145,12 @@ void setup()
   pinMode(INA, OUTPUT);
   pinMode(INB, OUTPUT);
   pinMode(A0, INPUT);
+  pinMode(WheelSpeedIntPin, INPUT);
+  pinMode(WheelSpeedPin1, INPUT);
+  pinMode(WheelSpeedPin2, INPUT);
+  //pinMode(WheelSpeedPin3, INPUT);
+  //pinMode(WheelSpeedPin4, INPUT);
+
 
   //Change accelerator/motor controller timer: PWM mode and frequency for both pins
   TCCR2A= _BV (WGM20) | _BV (WGM21);            //Set WGM21, WGM20 to 1 for fast PWM mode for digital pins 3, 11
@@ -155,7 +180,69 @@ void setup()
   Serial.begin(115200,SERIAL_8N1);                      //Start serial communications to higher level. Use 115200 baud rate with 'New line' in serial monitor. New line is end character of sent command
   Serial.print(F("Finished booting\n"));                //The use of F(string) stores the string in flash memory, saving SRAM for other variable use
   wdt_reset();                                          //Reset watchdog before exiting initial setup
-  attachInterrupt(0, EmergencyBrakeFunction, LOW);      //Start interrupt
+  //attachInterrupt(0, EmergencyBrakeFunction, FALLING);      //Start interrupt UPDATE: Removed due to improper functionality. Need to reinclude later
+  //attachInterrupt(digitalPinToInterrupt(3), WheelSpeedSensor, RISING);
+}
+
+void WheelSpeedSensor()
+{
+  //Serial.print(F("In Interrupt\n"));
+  State1 = digitalRead(WheelSpeedPin1);
+  State2 = digitalRead(WheelSpeedPin2);
+  //State3 = digitalRead(WheelSpeedPin3);
+  //State4 = digitalRead(WheelSpeedPin4);
+
+  if(State1) {
+    if(!LastState1) {
+      TimeOld1 = TimeNew1;
+      TimeNew1 = millis();
+      LastState1 = 1;
+    }
+    else {
+    }
+  }
+  else {
+    LastState1 = 0;
+  }  
+
+  if(State2) {
+    if(!LastState2) {
+      TimeOld2 = TimeNew2;
+      TimeNew2 = millis();
+      LastState2 = 1;
+    }
+    else {
+    }
+  }
+  else {
+    LastState2 = 0;
+  }
+/*
+  if(State3) {
+    if(!LastState3) {
+      TimeOld3 = TimeNew3;
+      TimeNew3 = millis();
+      LastState3 = 1;
+    }
+    else {
+    }
+  }
+  else {
+    LastState3 = 0;
+  }
+
+  if(State4) {
+    if(!LastState4) {
+      TimeOld4 = TimeNew4;
+      TimeNew4 = millis();
+      LastState4 = 1;
+    }
+    else {
+    }
+  }
+  else {
+    LastState4 = 0;
+  }*/
 }
 
 void serialEvent()                              //At end of each cycle of loop, check for and accept new serial data if present
@@ -238,10 +325,8 @@ ISR(WDT_vect)             //Code to execute when watchdog timer not reset in tim
 
 void EmergencyBrakeFunction()
 {
-  Serial.print(F("Interrupt From Safety Supervisor\n"));
   EmergencyBrake=true;
   EmergencyTime=millis();
-  
 }
 
 void MotorCoast()
@@ -263,7 +348,7 @@ void loop()  //Reset Type in each receiving if statement to anything besides A, 
     CommandTime=millis();                  //Store time that the command was received
   }
   
-  if (Type=='R')
+  /*if (Type=='R')
   {
     EmergencyBrake=false;
     SteeringSensorError=false;
@@ -271,7 +356,7 @@ void loop()  //Reset Type in each receiving if statement to anything besides A, 
     SteeringPosError=0;
     EmergBrakeSent=false;
     
-  }
+  }*/
 
   if (Type=='B' && EmergencyBrake==false && (millis()-BrakeKeepOff)>1000)  //Brake command received and emergency brake not received
   {
@@ -292,8 +377,9 @@ void loop()  //Reset Type in each receiving if statement to anything besides A, 
     else
     {
       BrakeOn=false;
-      BrakeAngle=BrakeOff;
+      BrakeAngle=BrakeOff;      
     }
+    BrakeAngle=constrain(BrakeAngle,BrakeFull,BrakeOff);  //Note: BrakeOff is higher than BrakeFull.
     BrakeServo.writeMicroseconds(BrakeAngle);
   }
 
@@ -337,7 +423,7 @@ void loop()  //Reset Type in each receiving if statement to anything besides A, 
     } else {
       SteeringPosition = map(SteeringPosition,SteeringSensorMin,SteeringSensorZero,SteeringSensorMax,SteeringSensorZero);
     }
-    
+	
   SteeringError=SteeringAngle-SteeringPosition; //Calculate steering error 
   //Do PID control of steering motor:
   int AverageError=((SteeringError+PreviousSteeringError)/2);
@@ -418,7 +504,7 @@ void loop()  //Reset Type in each receiving if statement to anything besides A, 
     if(SteeringSpeed>244) 
      {
         SteeringSpeed = 255;
-     }
+	 }
     analogWrite(SteeringPin, SteeringSpeed);  //Send PID output to motor]
   }
   else
@@ -475,7 +561,7 @@ void loop()  //Reset Type in each receiving if statement to anything besides A, 
     SteeringErrorCheck=millis();
   }
 
-  if ((millis()-CommandTime)>300)                     //If 300 milliseconds elapsed and a new command not received over serial
+  if ((millis()-CommandTime)>500)                     //If 300 milliseconds elapsed and a new command not received over serial
   {
     Serial.print(F("ER5\n"));                         //Send error code to higher level system, emergency brake engaged
     EmergencyBrake=true;
@@ -485,7 +571,7 @@ void loop()  //Reset Type in each receiving if statement to anything besides A, 
   if (BrakeOn==true && ((millis()-BrakeTime)>8000))   //If servo on for more than 8 seconds, turn it off. Prevents brake servo pole burnout
   {
     BrakeAngle=BrakeOff;
-    BrakeServo.writeMicroseconds(BrakeAngle);	      //Move Servo to off
+    BrakeServo.writeMicroseconds(BrakeAngle);         //Move Servo to off
     BrakeOn=false;
     Serial.print(F("ER3\n"));                         //Send error code to high level system to indicate brake disengaged
     BrakeKeepOff=millis();
@@ -509,10 +595,49 @@ void loop()  //Reset Type in each receiving if statement to anything besides A, 
       EmergBrakeSent=true;
     }
   }
+/*
+  //Wheel Speed Sensor Calculations
+  TimeStep1 = TimeNew1 - TimeOld1;
+  RPM1 = 60000/(TimeStep1 * FrontMagnets);
+  WheelSpeed1 = RPM1 * 2 * M_PI * WheelRadius / 60; //Wheel speed in m/s
+  if (WheelSpeed1 > 10) {
+    WheelSpeed1 = 0;
+  }
 
-  if (millis()-PreviousComTime>500)                   //If 0.5 seconds have elapsed, report parameters. Used to prevent serial spam. Used for debug and data logging
+  TimeStep2 = TimeNew2 - TimeOld2;
+  RPM2 = 60000/(TimeStep2 * FrontMagnets);
+  WheelSpeed2 = RPM2 * 2 * M_PI * WheelRadius / 60; //Wheel speed in m/s
+  if (WheelSpeed2 > 10) {
+    WheelSpeed2 = 0;
+  }
+*/
+/*TimeStep3 = TimeNew3 - TimeOld3;
+  RPM3 = 60000/(TimeStep3 * FrontMagnets);
+  WheelSpeed3 = RPM3 * 2 * M_PI * WheelRadius / 60; //Wheel speed in m/s
+
+  TimeStep4 = TimeNew4 - TimeOld4;
+  RPM4 = 60000/(TimeStep4 * FrontMagnets);
+  WheelSpeed4 = RPM4 * 2 * M_PI * WheelRadius / 60; //Wheel speed in m/s
+*/
+//  State0 = digitalRead(WheelSpeedIntPin);
+//  State1 = analogRead(WheelSpeedPin1);
+//  State2 = analogRead(WheelSpeedPin2);
+//  State3 = analogRead(A3);
+//  State4 = analogRead(A4);
+
+  if (millis()-PreviousComTime>1000)                   //If 1 second has elapsed, report parameters. Used to prevent serial spam. Used for debug and data logging
   {
-    Serial.print(F("Servo value: "));                 //Report actual command sent to servo
+    //Serial.print(F("\nInterrupt value: "));                 //Report actual command sent to servo
+    //Serial.print(State0);
+    //Serial.print(F(". Wheel 1 value: "));                 //Report actual command sent to servo
+    //Serial.print(State1);
+    //Serial.print(F(". Wheel 2 value: "));                 //Report actual command sent to servo
+    //Serial.print(State2);
+    //Serial.print(F("\nWheel 3 value: "));                 //Report actual command sent to servo
+    //Serial.print(State3);
+    //Serial.print(F(". Wheel 4 value: "));                 //Report actual command sent to servo
+    //Serial.print(State4);
+    Serial.print(F("\nServo value: "));                 //Report actual command sent to servo
     Serial.print(BrakeAngle);
     Serial.print(F(".  Accelerate value: "));         //Report actual command sent to accelerator
     Serial.print(Accelerate);
@@ -526,8 +651,25 @@ void loop()  //Reset Type in each receiving if statement to anything besides A, 
     Serial.print((int) SteeringPWM);              
     Serial.print(F(".\nEmergency brake: "));          //Report emergency brake status
     Serial.print(EmergencyBrake);
+    Serial.print(F(".  Front Left Wheel Speed: "));   //Report front left wheel speed
+    Serial.print(WheelSpeed1);
+    Serial.print(F(".  Front Right Wheel Speed: "));  //Report front right wheel speed
+    Serial.print(WheelSpeed2);
+//    Serial.print(F(" \nRear Left Wheel Speed: "));    //Report rear left wheel speed
+//    Serial.print(WheelSpeed3);
+//    Serial.print(F(".  Rear Right Wheel Speed: "));   //Report rear right wheel speed
+//    Serial.print(WheelSpeed4);
     Serial.print(F("\n\n"));                          //Print a blank line between readouts
     PreviousComTime=millis();
   }
+  /*if (millis() - OdometryCom > 100) {
+    Serial.print(F("\nO WSS1 "));
+    Serial.print(WheelSpeed1);
+    Serial.print(F("\nO WSS2 "));
+    Serial.print(WheelSpeed2);
+    Serial.print(F("\nO SP "));
+    Serial.print(SteeringPosition);
+    OdometryCom = millis();
+  }*/
   wdt_reset();                                        //Reset watchdog timer if loop completed in time
 }
