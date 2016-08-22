@@ -16,3 +16,16 @@ C:\Users\drage.thomas\Documents\GitHub\SAEAuto\FrontEnd\HWIO\AutoSAEBase\obj\x86
 C:\Users\drage.thomas\Documents\GitHub\SAEAuto\FrontEnd\HWIO\AutoSAEBase\obj\x86\Release\GenerateResource.write.1.tlog
 C:\Users\drage.thomas\Documents\GitHub\SAEAuto\FrontEnd\HWIO\AutoSAEBase\obj\x86\Release\AutoSAEBase.exe
 C:\Users\drage.thomas\Documents\GitHub\SAEAuto\FrontEnd\HWIO\AutoSAEBase\obj\x86\Release\AutoSAEBase.pdb
+C:\Users\draget\Desktop\HWIO\AutoSAEBase\obj\x86\Release\AutoSAEBase.csproj.ResolveComReference.cache
+C:\Users\draget\Desktop\HWIO\AutoSAEBase\obj\x86\Release\AutoSAEBase.exe
+C:\Users\draget\Desktop\HWIO\AutoSAEBase\obj\x86\Release\AutoSAEBase.pdb
+C:\Users\draget\Desktop\HWIO\AutoSAEBase\obj\x86\Release\AutoSAEBase.csprojResolveAssemblyReference.cache
+C:\Users\draget\Desktop\HWIO\AutoSAEBase\obj\x86\Release\AutoSAEBase.MainWindow.resources
+C:\Users\draget\Desktop\HWIO\AutoSAEBase\obj\x86\Release\AutoSAEBase.Properties.Resources.resources
+C:\Users\draget\Desktop\HWIO\AutoSAEBase\obj\x86\Release\AutoSAEBase.csproj.GenerateResource.Cache
+C:\Users\draget\Desktop\HWIO\AutoSAEBase\bin\Release\AutoSAEBase.exe
+C:\Users\draget\Desktop\HWIO\AutoSAEBase\bin\Release\AutoSAEBase.pdb
+C:\Users\draget\Desktop\HWIO\AutoSAEBase\bin\Release\SharpDX.DirectInput.dll
+C:\Users\draget\Desktop\HWIO\AutoSAEBase\bin\Release\SharpDX.dll
+C:\Users\draget\Desktop\HWIO\AutoSAEBase\bin\Release\SharpDX.xml
+C:\Users\draget\Desktop\HWIO\AutoSAEBase\bin\Release\SharpDX.DirectInput.xml

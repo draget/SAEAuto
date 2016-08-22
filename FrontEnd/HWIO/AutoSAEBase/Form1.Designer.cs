@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.button1 = new System.Windows.Forms.Button();
             this.DataqStop = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
@@ -47,7 +46,6 @@
             this.label12 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.label2 = new System.Windows.Forms.Label();
-            this.axDataqSdk1 = new AxDATAQSDKLib.AxDataqSdk();
             this.ConnectButton = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
             this.button3 = new System.Windows.Forms.Button();
@@ -61,6 +59,8 @@
             this.label3 = new System.Windows.Forms.Label();
             this.CarIPBox = new System.Windows.Forms.TextBox();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.label13 = new System.Windows.Forms.Label();
+            this.AlarmPanel = new System.Windows.Forms.Panel();
             this.ThrottleLabel = new System.Windows.Forms.Label();
             this.BrakeLabel = new System.Windows.Forms.Label();
             this.YBar = new System.Windows.Forms.TrackBar();
@@ -71,12 +71,9 @@
             this.label10 = new System.Windows.Forms.Label();
             this.JoystickTimer = new System.Windows.Forms.Timer(this.components);
             this.EStopButton = new System.Windows.Forms.Button();
-            this.AlarmPanel = new System.Windows.Forms.Panel();
-            this.label13 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel5.SuspendLayout();
             this.panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.axDataqSdk1)).BeginInit();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.YBar)).BeginInit();
@@ -106,17 +103,17 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(22, 32);
+            this.label1.Location = new System.Drawing.Point(17, 32);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(85, 13);
+            this.label1.Size = new System.Drawing.Size(92, 13);
             this.label1.TabIndex = 7;
-            this.label1.Text = "Dataq COM Port";
+            this.label1.Text = "Arduino COM Port";
             // 
             // COMbox
             // 
-            this.COMbox.Location = new System.Drawing.Point(20, 49);
+            this.COMbox.Location = new System.Drawing.Point(45, 48);
             this.COMbox.Name = "COMbox";
-            this.COMbox.Size = new System.Drawing.Size(87, 20);
+            this.COMbox.Size = new System.Drawing.Size(37, 20);
             this.COMbox.TabIndex = 8;
             this.COMbox.Text = "3";
             // 
@@ -230,22 +227,11 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(34, 9);
+            this.label2.Location = new System.Drawing.Point(31, 9);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(60, 13);
+            this.label2.Size = new System.Drawing.Size(61, 13);
             this.label2.TabIndex = 22;
-            this.label2.Text = "DataQ IO";
-            // 
-            // axDataqSdk1
-            // 
-            this.axDataqSdk1.Enabled = true;
-            this.axDataqSdk1.Location = new System.Drawing.Point(159, 144);
-            this.axDataqSdk1.Name = "axDataqSdk1";
-            this.axDataqSdk1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axDataqSdk1.OcxState")));
-            this.axDataqSdk1.Size = new System.Drawing.Size(100, 50);
-            this.axDataqSdk1.TabIndex = 4;
-            this.axDataqSdk1.NewData += new AxDATAQSDKLib._DDataqSdkEvents_NewDataEventHandler(this.axDataqSdk1_NewData);
-            this.axDataqSdk1.ControlError += new AxDATAQSDKLib._DDataqSdkEvents_ControlErrorEventHandler(this.axDataqSdk1_ControlError);
+            this.label2.Text = "HB TXRX";
             // 
             // ConnectButton
             // 
@@ -363,7 +349,7 @@
             this.CarIPBox.Name = "CarIPBox";
             this.CarIPBox.Size = new System.Drawing.Size(78, 20);
             this.CarIPBox.TabIndex = 0;
-            this.CarIPBox.Text = "10.1.1.3";
+            this.CarIPBox.Text = "192.168.2.1";
             // 
             // panel4
             // 
@@ -382,6 +368,23 @@
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(322, 173);
             this.panel4.TabIndex = 24;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(64, 149);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(33, 13);
+            this.label13.TabIndex = 29;
+            this.label13.Text = "Alarm";
+            // 
+            // AlarmPanel
+            // 
+            this.AlarmPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.AlarmPanel.Location = new System.Drawing.Point(40, 143);
+            this.AlarmPanel.Name = "AlarmPanel";
+            this.AlarmPanel.Size = new System.Drawing.Size(18, 19);
+            this.AlarmPanel.TabIndex = 33;
             // 
             // ThrottleLabel
             // 
@@ -410,7 +413,7 @@
             this.YBar.Minimum = -32768;
             this.YBar.Name = "YBar";
             this.YBar.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.YBar.Size = new System.Drawing.Size(42, 127);
+            this.YBar.Size = new System.Drawing.Size(45, 127);
             this.YBar.TabIndex = 30;
             this.YBar.TickFrequency = 1024;
             this.YBar.TickStyle = System.Windows.Forms.TickStyle.Both;
@@ -421,7 +424,7 @@
             this.XBar.Maximum = 32768;
             this.XBar.Minimum = -32768;
             this.XBar.Name = "XBar";
-            this.XBar.Size = new System.Drawing.Size(127, 42);
+            this.XBar.Size = new System.Drawing.Size(127, 45);
             this.XBar.TabIndex = 29;
             this.XBar.TickFrequency = 1024;
             this.XBar.TickStyle = System.Windows.Forms.TickStyle.Both;
@@ -480,23 +483,6 @@
             this.EStopButton.UseVisualStyleBackColor = false;
             this.EStopButton.Click += new System.EventHandler(this.button4_Click);
             // 
-            // AlarmPanel
-            // 
-            this.AlarmPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.AlarmPanel.Location = new System.Drawing.Point(40, 143);
-            this.AlarmPanel.Name = "AlarmPanel";
-            this.AlarmPanel.Size = new System.Drawing.Size(18, 19);
-            this.AlarmPanel.TabIndex = 33;
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(64, 149);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(33, 13);
-            this.label13.TabIndex = 29;
-            this.label13.Text = "Alarm";
-            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -508,7 +494,6 @@
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel5);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.axDataqSdk1);
             this.Name = "MainWindow";
             this.Text = "AutoSAE Base Station H/W IO";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -518,7 +503,6 @@
             this.panel5.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.axDataqSdk1)).EndInit();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
             this.panel4.ResumeLayout(false);
@@ -532,7 +516,7 @@
         #endregion
 
 
-        private AxDATAQSDKLib.AxDataqSdk axDataqSdk1;
+//        private AxDATAQSDKLib.AxDataqSdk axDataqSdk1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button DataqStop;
         private System.Windows.Forms.Label label1;
