@@ -23,7 +23,7 @@ libcv2.4
 
 gpsd
 
-lighttpd - enable CGI. Pages served from FrontEnd/Maps. 
+lighttpd - enable CGI, config to run as user who is a sudoer (e.g. pi). Pages served from FrontEnd/Maps. 
 
 Perl modules: JSON
 
