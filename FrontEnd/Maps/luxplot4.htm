@@ -63,7 +63,7 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 		centery = (rscatter.canvas.height - rscatter.Get("chart.gutter.top") - rscatter.Get("chart.gutter.bottom")) + rscatter.Get("chart.gutter.top");
 		scale = rscatter.GetScale();
 
-/*		document.getElementById("logarea").innerHTML = json.objdata.join("\n");
+		document.getElementById("logarea").innerHTML = json.objdata.join("\n");
 
 		$.each(json.objdata,function(index, value){ 
 
@@ -110,7 +110,7 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 			
 					
  		});
-*/
+
 		if (json.hasOwnProperty('roadedge')) {
 			var parts = json.roadedge;
 			for(var i = 0; i < parts.length; i += 2) {
