@@ -10,8 +10,8 @@
 
 #include "Control.h"
 
-#define IMU_PORT "/dev/xsensIMU"
-
+#define IMU_PORT "/dev/ttyX0"
+//#define IMU_PORT "/dev/ttyUSB1"
 
 class Logger;
 

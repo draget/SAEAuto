@@ -1383,7 +1383,7 @@ int main(int argc, char *argv[]) {
 	if(argc > 1) {
 		std::string Arg = boost::lexical_cast<std::string>(argv[1]);
 		if(Arg.compare(0,4,"null") == 0) { ExtLogging = false; }
-		else { LogDir = "./RunFiles/" + Arg; }
+		else { LogDir = "./RunFiles/" + Arg; ExtLogging = true; }
 	}
 	else { system("rm -rf ./RunFiles/0"); LogDir = "./RunFiles/0"; }
 

@@ -45,7 +45,7 @@ from cookielib import CookieJar
 # Global Variables #
 ####################
 
-APN = 'telstra.extranet'  #Vaild settings are 'telstra.extranet' for pubic IP or 'telstra.internet' for private IP.
+APN = 'telstra.internet'  #Vaild settings are 'telstra.extranet' for pubic IP or 'telstra.internet' for private IP.
 DHCP_Release_eth1 = 'sudo dhclient -r eth1'
 DHCP_Renew_eth1 = 'sudo dhclient -nw eth1'
 readIPeth1 = 'sudo ifconfig eth1'
@@ -529,6 +529,7 @@ def main():
                 else:
                     print "[FAIL] Unable to open connection to AC785 Modem\n"
                     backofftimer = backoff
+		    raise ExitProgram()
             time.sleep(5)
         except ExitProgram:
             M2MconnectLOCKfile.release()

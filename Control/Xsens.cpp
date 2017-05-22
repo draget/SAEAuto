@@ -177,7 +177,7 @@ void Xsens::ProcessMessages() {
 
 	if(CarControl->ExtLogging && linecountIMU == 10 ) {
 		linecountIMU = 0;
-		IMULog->WriteLogLine(boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Yaw) + "," + boost::lexical_cast<std::string>(roll) + "," + boost::lexical_cast<std::string>(pitch));//boost::lexical_cast<std::string>(xacc_comp) + "," + boost::lexical_cast<std::string>(yacc_comp), true);
+		IMULog->WriteLogLine(boost::lexical_cast<std::string>(CarControl->TimeStamp()) + "," + boost::lexical_cast<std::string>(Yaw) + "," + boost::lexical_cast<std::string>(roll) + "," + boost::lexical_cast<std::string>(pitch) + "," + boost::lexical_cast<std::string>(xacc_comp) + "," + boost::lexical_cast<std::string>(yacc_comp), true);
 	}
 	else {
 		linecountIMU++;

@@ -578,7 +578,7 @@ close DIR;
 
 foreach my $File (@Files) {
 
-	if($File =~ /^\.+$/) { next; }
+	if($File =~ /^\.+/) { next; }
 
 	else { 
 		if($File eq $CurrentName) { print "<option selected=\"selected\" value=\"$File\">$File</option>"; }
@@ -639,6 +639,7 @@ Save map as: <input type="text" size="20" name="mapname" value="$CurrentName" />
 
 <!-- tab "panes" -->
 <div class="panes">
+<br />
 	<div style="display: block; height : 600px; width : 700px;" id="map-canvas"></div>
 	<div><canvas id="cvs" width="600" height="600">[No canvas support]</canvas><br /><b><font color="blue">Car Heading</font> <font color="red">Desired Heading</font> <font color="orange">Desired Vector</font></b></div>
 </div>

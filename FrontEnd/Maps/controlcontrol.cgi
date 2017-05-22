@@ -26,7 +26,10 @@ then
 		echo "Successfully started Control software"
 		echo "</p><button class='pos_right' onclick=\"link('./index.html#driveEstop')\">OK</button>"
 	else
-		echo "!! There was a problem starting Control software"
+		echo "!! There was a problem starting Control software<p>"
+		echo $PIDOF
+		echo "</p><p>"
+		echo $RESULT
 		echo "</p><button class='pos_right' onclick=\"link('./index.html#welcome')\">OK</button>"
 	fi
 elif [ "$COMMAND" == "stop" ];
