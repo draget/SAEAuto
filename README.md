@@ -25,6 +25,8 @@ gpsd
 
 lighttpd - enable CGI, config to run as user who is a sudoer (e.g. pi). Pages served from FrontEnd/Maps. 
 
+crond - use to run M2Mconnect.py on boot for car internet connection.
+
 Perl modules: JSON
 
 To compile Control.cpp:
