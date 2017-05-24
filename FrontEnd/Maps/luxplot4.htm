@@ -31,9 +31,15 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 
 	function updateLuxPlot() {
 
+		if( document.getElementById("play").checked == true) {
+			document.getElementById("plotnos").selectedIndex = document.getElementById("plotnos").selectedIndex + 1;
+		}
+
 		var arg = "";
 
 		if(document.getElementById("plotnos").selectedIndex >= 0) { arg = document.getElementById("plotnos").options[document.getElementById("plotnos").selectedIndex].innerHTML; }
+
+		document.getElementById("plotno").innerHTML = arg;
 
 		RGraph.AJAX.getJSON("getlux4.cgi?no=" + arg + "&run=" + document.getElementById("run").value + "&layer=" + document.getElementById("layers").options[document.getElementById("layers").selectedIndex].text, drawLuxGraph);
 
@@ -128,7 +134,7 @@ var objtypes = ["unclassified", "unkwn small", "unkwn big", "pedestrn", "bike", 
 
 function updateList() {
 
-
+document.getElementById("plotnos").innerHTML = "";
 
 	$.ajax({
 		type: "GET"
@@ -159,16 +165,18 @@ function updateList() {
 </head>
 <body>
 <h2>LIDAR Display</h2>
-    <canvas style="background-color : grey;" id="cvs" width="1000" height="500">[No canvas support]</canvas> <br />
+<p id="plotno"></p>  
+  <canvas style="background-color : grey;" id="cvs" width="1000" height="500">[No canvas support]</canvas> <br />
     
 
 
 <table>
 <tr><td>Layers:</td><td style="background-color : grey"> <b> <font color="red">0 (bottom)</font> <font color="orange">1</font> <font color="yellow">2</font> <font color="green">3 (top)</font> <font color="white">Road</font></b></td></tr>
 <tr><td>Scale Max:</td><td><input type="text" value="20" id="scale" size="4" /></td></tr>
-<tr><td>Run ID:</td><td><input type="text" value="0" id="run" size="15" /></td></tr>
+<tr><td>Run ID:</td><td><input type="text" value="0" id="run" size="15" />&nbsp;<button onclick="updateList()">Update</button></td></tr>
 <tr><td>Layers:</td><td><select id="layers"><option>All</option><option>0</option><option>1</option><option>2</option><option>3</option></td></tr>
 <tr><td>Specific Plot:</td><td>Object Data: (id, ref x, ref y, closest x, closest y, class,box centre x, box center y, box width, box height, object act)</td></tr>
+<tr><td>Play:</td><td><input type="checkbox" id="play" /></tr></td>
 <tr><td>
 <select size="15" id="plotnos"></select>
 </td>

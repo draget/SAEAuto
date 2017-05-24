@@ -102,23 +102,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <COMReference Include="AxDATAQSDKLib">
-      <Guid>{F88080E2-9B4B-11D3-ABFF-0040055DE809}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>aximp</WrapperTool>
-      <Isolated>False</Isolated>
-    </COMReference>
-    <COMReference Include="DATAQSDKLib">
-      <Guid>{F88080E2-9B4B-11D3-ABFF-0040055DE809}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
     <COMReference Include="stdole">
       <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
       <VersionMajor>2</VersionMajor>
